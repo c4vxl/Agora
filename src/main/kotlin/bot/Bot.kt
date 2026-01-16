@@ -3,6 +3,7 @@ package de.c4vxl.bot
 import de.c4vxl.bot.feature.PingPong
 import de.c4vxl.bot.feature.type.Feature
 import de.c4vxl.bot.handler.CommandHandler
+import de.c4vxl.bot.handler.DataHandler
 import de.c4vxl.utils.LoggerUtils.createLogger
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Guild
@@ -18,6 +19,9 @@ class Bot(
 ) {
     // Initialize command handler
     val commandHandler: CommandHandler = CommandHandler(this)
+
+    // Initialize data handler
+    val dataHandler: DataHandler = DataHandler(this)
 
     // Contains all the feature instances of this bot
     val featureRegistry: MutableMap<String, Feature<*>> = mutableMapOf()

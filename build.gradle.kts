@@ -15,4 +15,7 @@ dependencies {
 
     // Logging
     implementation("ch.qos.logback:logback-classic:1.5.24")
+
+    // Serialization
+    implementation("com.google.code.gson:gson:2.13.2")
 }
