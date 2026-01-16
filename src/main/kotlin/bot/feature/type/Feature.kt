@@ -1,7 +1,7 @@
 package de.c4vxl.bot.feature.type
 
 import de.c4vxl.bot.Bot
-import de.c4vxl.utils.FeatureUtils.featureName
+import de.c4vxl.utils.ClassUtils.className
 import de.c4vxl.utils.LoggerUtils.createLogger
 import org.slf4j.Logger
 
@@ -11,7 +11,7 @@ import org.slf4j.Logger
 open class Feature<T>(
     val bot: Bot,
     val clazz: Class<T>,
-    val name: String = featureName(clazz)
+    val name: String = className(clazz)
 ) {
     val logger: Logger = createLogger(clazz)
 

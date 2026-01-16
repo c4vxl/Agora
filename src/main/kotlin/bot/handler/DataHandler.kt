@@ -2,7 +2,6 @@ package de.c4vxl.bot.handler
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.data.Database
-import de.c4vxl.utils.FeatureUtils.featureName
 import de.c4vxl.utils.LoggerUtils.createLogger
 import org.slf4j.Logger
 
@@ -19,29 +18,29 @@ class DataHandler(
     }
 
     /**
-     * Loads the feature specific data from the database
+     * Loads the data object of a module
+     * @param name The name of the module
      */
-    inline fun <reified T> featureData(): MutableMap<String, Any> =
+    fun data(name: String): MutableMap<String, Any> =
         Database.get(bot.guild.idLong)
-            .entries.getOrPut(
-                featureName(T::class.java)
-            ) { mutableMapOf() }
+            .entries.getOrPut(name) { mutableMapOf() }
 
     /**
-     * Returns a specific value from the data of a feature
-     * @param key The key to the element
+     * Returns a specific value from the data object of a specific module
+     * @param module The name of the module
+     * @param key The key to the data element
      */
-    inline fun <reified T, reified R> get(key: String): R? =
-        featureData<T>()[key] as? R
+    inline fun <reified R> get(module: String, key: String): R? =
+        data(module)[key] as? R
 
     /**
-     * Sets a value in the data of a feature
-     * @param key The name of the element
+     * Set the value of a specific element in the data object of a module
+     * @param module The name of the module
+     * @param key The key to the data element
      * @param value The new value
      */
-    inline fun <reified T> set(key: String, value: Any) {
-        featureData<T>()[key] = value
+    fun set(module: String, key: String, value: Any) {
+        data(module)[key] = value
         Database.makeDirty(bot.guild.idLong)
     }
-
 }
