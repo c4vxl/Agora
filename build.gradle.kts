@@ -3,19 +3,16 @@ plugins {
 }
 
 group = "de.c4vxl"
-version = "1.0-SNAPSHOT"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
-}
+    // Discord API
+    implementation("net.dv8tion:JDA:6.3.0")
 
-tasks.test {
-    useJUnitPlatform()
-}
-kotlin {
-    jvmToolchain(21)
+    // Logging
+    implementation("ch.qos.logback:logback-classic:1.5.24")
 }
