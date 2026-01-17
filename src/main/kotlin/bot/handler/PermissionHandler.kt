@@ -72,7 +72,7 @@ class PermissionHandler(
      * @param permission The permission to check for
      */
     fun has(member: Member, permission: Permission): Boolean {
-        if (has(bot.guild.publicRole, Permission.ALL)) return true
+        if (has(bot.guild.publicRole, permission)) return true
         return member.roles.find { has(it, permission) } != null
     }
 }
