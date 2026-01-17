@@ -13,6 +13,9 @@
   "perms.feature_channels_unlimited.desc": "Allows users to bypass the channel creation limit for the channel creator feature",
   "perms.feature_channels_buttons.desc": "Allows users to paste buttons for creating voice/text channels into a channel",
   "perms.feature_rules_mod.desc": "Allows users to modify the guild-rules",
+  "perms.feature_tickets_view.desc": "Allows users to see tickets and send messages in them",
+  "perms.feature_tickets_manage.desc": "Allows users to close/save/reopen tickets",
+  "perms.feature_tickets_open.desc": "Allows users to open tickets",
 
   "--- Feature: Settings ---": "",
   "feature.settings.command.desc": "Modify the settings of the different features of this bot",
@@ -71,7 +74,6 @@
   "feature.embed.command.error.empty": "You need to pass __at least__ **one** argument!",
   "feature.embed.command.success": "Your embed has been pasted successfully!",
 
-
   "--- Feature: Channel ---": "",
   "feature.channel.command.desc": "Create your own voice/text channels",
   "feature.channel.command.voice.desc": "Create a voice channel",
@@ -108,7 +110,6 @@
   "feature.channel.command.modal.label.name": "Name:",
 
   "--- Feature: Rules ---": "",
-  "feature.rules.command.set.success": "Rules have successfully been configured for this guild!",
   "feature.rules.command.desc": "Allows you to set rules that new users must accept before they can see other channels",
   "feature.rules.command.set.desc": "Allows you to set rules that new users must accept before they can see other channels",
   "feature.rules.command.set.channel.desc": "Set the rules channel",
@@ -123,15 +124,48 @@
   "feature.rules.command.set.required.desc": "If set to false, users can view and interact with other channels without having to accept the rules",
   "feature.rules.command.set.accept_btn.desc": "Set the label of the accept button",
   "feature.rules.command.set.deny_btn.desc": "Set the label of the deny button",
-
   "feature.rules.command.set.accept_btn.val": "Accept",
   "feature.rules.command.set.deny_btn.val": "Deny and leave",
-
   "feature.rules.command.remove.desc": "Removes the rules from this guild",
   "feature.rules.command.remove.success": "Rules have successfully been removed from this guild!",
-
   "feature.rules.command.error.empty": "Rules cannot be empty!",
   "feature.rules.command.error.not_text": "Rules can only be created in a text channel!",
   "feature.rules.already_accepted": "You have already accepted the rules!",
-  "feature.rules.success.accept": "You successfully accepted the server rules!\nHave fun looking around!"
+  "feature.rules.success.accept": "You successfully accepted the server rules!\nHave fun looking around!",
+  "feature.rules.command.set.success": "Rules have successfully been configured for this guild!",
+
+  "--- Feature: Tickets ---": "",
+  "feature.tickets.command.desc": "Allows you to open tickets to the server staff",
+  "feature.tickets.command.open.desc": "Open a ticket",
+  "feature.tickets.command.title.desc": "Provide a title for your ticket",
+  "feature.tickets.command.description.desc": "Describe your issue/reason of opening this ticket",
+  "feature.tickets.command.close.desc": "Closes a ticket",
+  "feature.tickets.command.close.ticket.desc": "Select the ticket channel. If not set, the channel the command is sent in will be used!",
+  "feature.tickets.command.buttons.desc": "Pastes buttons for opening a ticket",
+  "feature.channel.command.buttons.label.desc": "Set the label of the button",
+  "feature.tickets.command.error.not_a_ticket": "This channel is not part of the ticket system!",
+  "feature.tickets.default_name.category.open": "TICKETS",
+  "feature.tickets.default_name.category.saved": "SAVED TICKETS",
+  "feature.tickets.default_name.channel": "Ticket-$0",
+  "feature.tickets.embed.title": "Ticket-$0",
+  "feature.tickets.embed.desc": "Hey $0 and welcome to your ticket. Please try and provide as much info as possible.",
+  "feature.tickets.embed.fields.name": "Ticket name:",
+  "feature.tickets.embed.fields.desc": "Description:",
+  "feature.tickets.embed.fields.by": "Opened by:",
+  "feature.tickets.embed.fields.time": "Opened at:",
+  "feature.tickets.embed.saved.title": "This ticket has been saved!",
+  "feature.tickets.embed.saved.desc": "Only users with the `feature_tickets_manage` or `feature_tickets_view` permission are able to see it.",
+  "feature.tickets.embed.btn.delete": "\uD83D\uDDD1\uFE0F Delete ticket",
+  "feature.tickets.embed.btn.save": "\uD83D\uDCBE Save ticket",
+  "feature.tickets.embed.btn.reopen": "\uD83D\uDDD8 Reopen ticket",
+  "feature.tickets.success.saved": "The ticket has been saved successfully!",
+  "feature.tickets.success.reopen": "Successfully reopened ticket!",
+  "feature.tickets.success.opened.title": "Your ticket has been opened successfully!",
+  "feature.tickets.success.opened.desc": "View your ticket at $0",
+  "feature.tickets.command.success.delete": "Ticket has been removed successfully!",
+  "feature.tickets.command.success.buttons": "The button has been created successfully!",
+  "feature.tickets.modal.title": "Create ticket",
+  "feature.tickets.modal.name": "Title:",
+  "feature.tickets.modal.desc": "Description:",
+  "feature.tickets.modal.desc.desc": "Please provide a detailed description!"
 }

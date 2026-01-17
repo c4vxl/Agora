@@ -28,4 +28,15 @@ object PermissionUtils {
      */
     fun Member.hasRole(role: Role): Boolean =
         this.roles.find { it.id == role.id } != null
+
+    /**
+     * Returns a list of all roles in a guild with a certain permission
+     * @param permissions The permissions to look for
+     * @param needAll If set to true, all permissions passed are needed to return the role
+     */
+    fun Bot.rolesWithPermission(vararg permissions: Permission, needAll: Boolean = false): MutableList<Role> =
+        this.guild.roles.filter { role ->
+            if (needAll) permissions.all { role.hasPermission(it, this) }
+            else permissions.any { role.hasPermission(it, this) }
+        }.toMutableList()
 }

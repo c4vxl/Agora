@@ -7,6 +7,7 @@ import de.c4vxl.bot.feature.channel.ChannelFeature
 import de.c4vxl.bot.feature.settings.LanguageFeature
 import de.c4vxl.bot.feature.settings.PermissionFeature
 import de.c4vxl.bot.feature.settings.SettingsFeature
+import de.c4vxl.bot.feature.tickets.TicketFeature
 import de.c4vxl.bot.feature.type.Feature
 import de.c4vxl.bot.handler.ComponentHandler
 import de.c4vxl.bot.handler.CommandHandler
@@ -50,6 +51,7 @@ class Bot(
         registerFeature<ChannelFeature>(this)
         registerFeature<SettingsFeature>(this)
         registerFeature<RulesFeature>(this)
+        registerFeature<TicketFeature>(this)
 
         // Initialize command handler
         commandHandler.initHandlers()
