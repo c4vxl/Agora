@@ -217,9 +217,12 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
                         event.member,
                         bot.language.translate("feature.channel.default_name.voice", event.member.user.name),
                         false
-                    ) ?: {
+                    )
+
+                    if (voice == null) {
                         event.guild.kickVoiceMember(event.member.user)
                             .queue()
+                        return@let
                     }
 
                     // Move user to new voice channel
