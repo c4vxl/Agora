@@ -8,6 +8,9 @@
   "--- Permissions ---": "",
   "perms.all.desc": "Grants all permissions",
   "perms.feature_embed.desc": "Allows users to use the /embed command",
+  "perms.feature_create_voice.desc": "Allows users to create custom voice channels",
+  "perms.feature_create_text.desc": "Allows users to create custom text channels",
+  "perms.feature_create_unlimited.desc": "Allows users to bypass the channel creation limit for the channel creator feature",
 
   "--- Feature: Permissions ---": "",
   "feature.perms.command.desc": "Manage the permission system",
@@ -53,5 +56,34 @@
   "feature.embed.command.timestamp": "If set to true, a timestamp will be added",
   "feature.embed.command.links": "Add link buttons to the embed - Format: <label>##<link>; ...",
   "feature.embed.command.error.empty": "You need to pass __at least__ **one** argument!",
-  "feature.embed.command.success": "Your embed has been pasted successfully!"
+  "feature.embed.command.success": "Your embed has been pasted successfully!",
+
+
+  "--- Feature: Channel ---": "",
+  "feature.channel.command.desc": "Create your own voice/text channels",
+  "feature.channel.command.voice.desc": "Create a voice channel",
+  "feature.channel.command.text.desc": "Create a text channel",
+  "feature.channel.command.delete.desc": "Delete a channel you made with this feature",
+  "feature.channel.command.delete.channel.desc": "The specific channel to delete.",
+  "feature.channel.command.delete.success": "Successfully removed **$0**!",
+  "feature.channel.command.deleteall.desc": "Delete all of your channels you created with this feature!",
+  "feature.channel.command.deleteall.embed.title": "List of all channels:",
+  "feature.channel.command.deleteall.embed.desc": "You are about to delete the following channels:",
+  "feature.channel.command.deleteall.embed.empty": "You don't have any channels to remove!",
+  "feature.channel.command.deleteall.embed.btn": "Do it!",
+  "feature.channel.command.deleteall.success": "Successfully deleted all channels!",
+  "feature.channel.command._.name.desc": "Set the name of your channel",
+  "feature.channel.command._.private.desc": "If 'true', only you will be able to see the channel. You can customize the exact permissions later.",
+  "feature.channel.command.error.limit": "You exceeded your limit of '$0' channels created. You can only have **$1** **$0**-channel(s) at the same time.",
+  "feature.channel.command.error.not_owner": "You are not the owner of that channel!\n_If you believe this is a mistake, please contact server staff._",
+  "feature.channel.command.success": "Your **$0**-channel has been created successfully!\n",
+  "feature.channel.command.success.name": "Channel name:",
+  "feature.channel.command.success.type": "Type:",
+  "feature.channel.command.success.channel": "Channel:",
+  "feature.channel.command.success.private": "Is private:",
+  "feature.channel.default_name.voice": "$0s voice channel",
+  "feature.channel.default_name.text": "$0s text channel",
+  "feature.channel.default_name.category.voice": "VOICE CHANNELS",
+  "feature.channel.default_name.category.text": "TEXT CHANNELS"
+
 }

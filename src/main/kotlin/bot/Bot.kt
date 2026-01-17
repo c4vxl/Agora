@@ -1,10 +1,10 @@
 package de.c4vxl.bot
 
+import de.c4vxl.bot.feature.*
+import de.c4vxl.bot.feature.channel.ChannelFeature
 import de.c4vxl.bot.feature.EmbedFeature
-import de.c4vxl.bot.feature.LanguageFeature
-import de.c4vxl.bot.feature.PermissionFeature
-import de.c4vxl.bot.feature.PingPongFeature
 import de.c4vxl.bot.feature.type.Feature
+import de.c4vxl.bot.handler.ButtonHandler
 import de.c4vxl.bot.handler.CommandHandler
 import de.c4vxl.bot.handler.DataHandler
 import de.c4vxl.bot.handler.PermissionHandler
@@ -26,6 +26,7 @@ class Bot(
     val commandHandler: CommandHandler = CommandHandler(this)
     val dataHandler: DataHandler = DataHandler(this)
     val permissionHandler: PermissionHandler = PermissionHandler(this)
+    val buttonHandler: ButtonHandler = ButtonHandler(this)
 
     // Initialize language
     var language: Language = Language.fromName(dataHandler.get<String>("metadata", "lang") ?: Language.DEFAULT)
@@ -37,10 +38,12 @@ class Bot(
     init {
         logger.info("Initializing bot for guild '${guild.id}'")
 
+        // Register features
         registerFeature<PingPongFeature>(this)
         registerFeature<PermissionFeature>(this)
         registerFeature<LanguageFeature>(this)
         registerFeature<EmbedFeature>(this)
+        registerFeature<ChannelFeature>(this)
 
         // Initialize command handler
         commandHandler.initHandlers()
