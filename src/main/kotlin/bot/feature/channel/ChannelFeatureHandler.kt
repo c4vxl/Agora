@@ -172,6 +172,8 @@ class ChannelFeatureHandler(val feature: ChannelFeature) {
         // Get registered channels
         val channels = getChannels(type)
 
+        if (!channels.containsKey(channel.id)) return
+
         // Add channel
         channels.remove(channel.id)
 

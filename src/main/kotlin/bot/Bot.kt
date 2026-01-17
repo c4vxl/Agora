@@ -1,13 +1,13 @@
 package de.c4vxl.bot
 
-import de.c4vxl.bot.feature.*
-import de.c4vxl.bot.feature.channel.ChannelFeature
 import de.c4vxl.bot.feature.EmbedFeature
+import de.c4vxl.bot.feature.PingPongFeature
+import de.c4vxl.bot.feature.channel.ChannelFeature
 import de.c4vxl.bot.feature.settings.LanguageFeature
 import de.c4vxl.bot.feature.settings.PermissionFeature
 import de.c4vxl.bot.feature.settings.SettingsFeature
 import de.c4vxl.bot.feature.type.Feature
-import de.c4vxl.bot.handler.ButtonHandler
+import de.c4vxl.bot.handler.ComponentHandler
 import de.c4vxl.bot.handler.CommandHandler
 import de.c4vxl.bot.handler.DataHandler
 import de.c4vxl.bot.handler.PermissionHandler
@@ -29,13 +29,13 @@ class Bot(
     val commandHandler: CommandHandler = CommandHandler(this)
     val dataHandler: DataHandler = DataHandler(this)
     val permissionHandler: PermissionHandler = PermissionHandler(this)
-    val buttonHandler: ButtonHandler = ButtonHandler(this)
+    val componentHandler: ComponentHandler = ComponentHandler(this)
 
     // Initialize language
     var language: Language = Language.fromName(dataHandler.get<String>("metadata", "lang") ?: Language.DEFAULT)
 
     // Contains all the feature instances of this bot
-    val featureRegistry: MutableMap<String, Feature<*>> = mutableMapOf()
+    private val featureRegistry: MutableMap<String, Feature<*>> = mutableMapOf()
 
     // Initialize Bot
     init {

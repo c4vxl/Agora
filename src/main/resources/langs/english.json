@@ -11,15 +11,18 @@
   "perms.feature_create_voice.desc": "Allows users to create custom voice channels",
   "perms.feature_create_text.desc": "Allows users to create custom text channels",
   "perms.feature_create_unlimited.desc": "Allows users to bypass the channel creation limit for the channel creator feature",
+  "perms.feature_create_paste_buttons.desc": "Allows users to paste buttons for creating voice/text channels into a channel",
 
   "--- Feature: Settings ---": "",
   "feature.settings.command.desc": "Modify the settings of the different features of this bot",
   "feature.settings.command.success": "Successfully applied settings!",
+  "feature.settings.command.error.no_voice": "The channel passed must be a voice channel!",
   "feature.settings.command.channel.desc": "Modify the settings of the 'Channel' module",
   "feature.settings.command.channel.max_voice.desc": "The maximum amount of voice channels a user can create",
   "feature.settings.command.channel.max_text.desc": "The maximum amount of text channels a user can create",
   "feature.settings.command.channel.voice_category.desc": "The category to put newly created voice channels into",
   "feature.settings.command.channel.text_category.desc": "The category to put newly created text channels into",
+  "feature.settings.command.channel.join_to_create_voice.desc": "Add a voice channel that when joined moves every user into their own",
 
   "--- Feature: Permissions ---": "",
   "feature.perms.command.desc": "Manage the permission system",
@@ -93,6 +96,13 @@
   "feature.channel.default_name.voice": "$0s voice channel",
   "feature.channel.default_name.text": "$0s text channel",
   "feature.channel.default_name.category.voice": "VOICE CHANNELS",
-  "feature.channel.default_name.category.text": "TEXT CHANNELS"
-
+  "feature.channel.default_name.category.text": "TEXT CHANNELS",
+  "feature.channel.command.buttons.desc": "Pastes buttons for creating a text/voice channel",
+  "feature.channel.command.buttons.voice.desc": "Add a button with a custom label for creating a voice channel",
+  "feature.channel.command.buttons.text.desc": "Add a button with a custom label for creating a text channel",
+  "feature.channel.command.buttons.error.none_created": "No buttons were created.\nYou might need to set the values for voice or text",
+  "feature.channel.command.buttons.success": "The buttons have been created",
+  "feature.channel.command.modal.create_voice": "Create voice channel",
+  "feature.channel.command.modal.create_text": "Create text channel",
+  "feature.channel.command.modal.label.name": "Name:"
 }

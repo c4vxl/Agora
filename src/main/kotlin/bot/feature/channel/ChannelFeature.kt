@@ -4,19 +4,30 @@ import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.type.Feature
 import de.c4vxl.enums.Color
 import de.c4vxl.enums.Embeds
+import de.c4vxl.enums.Permission
 import de.c4vxl.utils.ChannelUtils.getChannel
 import de.c4vxl.utils.EmbedUtils.color
 import de.c4vxl.utils.EmbedUtils.withTimestamp
+import de.c4vxl.utils.PermissionUtils.hasPermission
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.components.actionrow.ActionRow
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent
 import net.dv8tion.jda.api.components.buttons.Button
+import net.dv8tion.jda.api.components.label.Label
+import net.dv8tion.jda.api.components.textinput.TextInput
+import net.dv8tion.jda.api.components.textinput.TextInputStyle
 import net.dv8tion.jda.api.entities.channel.Channel
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
+import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.commands.OptionMapping
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
+import net.dv8tion.jda.api.modals.Modal
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 import java.util.*
 
@@ -45,10 +56,53 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
                         .addOption(OptionType.CHANNEL, "channel", bot.language.translate("feature.channel.command.delete.channel.desc"), true),
 
                     // /channel deleteall
-                    SubcommandData("deleteall", bot.language.translate("feature.channel.command.deleteall.desc"))
+                    SubcommandData("deleteall", bot.language.translate("feature.channel.command.deleteall.desc")),
+
+                    // /channel buttons
+                    SubcommandData("buttons", bot.language.translate("feature.channel.command.buttons.desc"))
+                        .addOption(OptionType.STRING, "voice", bot.language.translate("feature.channel.command.buttons.voice.desc"))
+                        .addOption(OptionType.STRING, "text", bot.language.translate("feature.channel.command.buttons.text.desc"))
                 )
         ) { event ->
             when (event.subcommandName) {
+                "buttons" -> {
+                    if (event.member?.hasPermission(Permission.FEATURE_CHANNELS_BUTTONS, bot) != true) {
+                        event.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
+                        return@registerSlashCommand
+                    }
+
+                    val voice = event.getOption("voice", OptionMapping::getAsString)
+                    val text = event.getOption("text", OptionMapping::getAsString)
+
+                    // Exit if no buttons should be created
+                    if (voice == null && text == null) {
+                        event.replyEmbeds(
+                            Embeds.FAILURE(bot)
+                                .setDescription(bot.language.translate("feature.channel.command.buttons.error.none_created"))
+                                .build()
+                        ).setEphemeral(true).queue()
+                        return@registerSlashCommand
+                    }
+
+                    // Send buttons
+                    event.channel.sendMessageComponents(
+                        ActionRow.of(mutableListOf<ActionRowChildComponent?>().apply {
+                            if (voice != null)
+                                this.add(Button.primary("${this@ChannelFeature.name}_create_voice", voice))
+
+                            if (text != null)
+                                this.add(Button.primary("${this@ChannelFeature.name}_create_text", text))
+                        })
+                    ).queue()
+
+                    // Send feedback
+                    event.replyEmbeds(
+                        Embeds.SUCCESS(bot)
+                            .setDescription(bot.language.translate("feature.channel.command.buttons.success"))
+                            .build()
+                    ).setEphemeral(true).queue()
+                }
+
                 "delete" -> {
                     val channel = event.getOption("channel", OptionMapping::getAsChannel) ?: return@registerSlashCommand
 
@@ -117,10 +171,95 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
         }
 
         // Register deleteall confirm button
-        bot.buttonHandler.register("${this@ChannelFeature.name}_deleteall_confirm") {
+        bot.componentHandler.registerButton("${this@ChannelFeature.name}_deleteall_confirm") {
             val channels = handler.getChannels(it.user).mapNotNull { x -> bot.guild.getChannel(x) }
             handleDeleteAll(channels, it)
         }
+
+        // Register buttons
+        bot.componentHandler.registerButton("${this@ChannelFeature.name}_create_voice") {
+            it.replyModal(createModal("voice")).queue()
+        }
+
+        bot.componentHandler.registerButton("${this@ChannelFeature.name}_create_text") {
+            it.replyModal(createModal("text")).queue()
+        }
+
+        bot.jda.addEventListener(object : ListenerAdapter() {
+            override fun onGuildVoiceUpdate(event: GuildVoiceUpdateEvent) {
+                if (event.guild.id != bot.guild.id) return
+
+                // Delete voice channels after everyone left
+                event.channelLeft?.let { channel ->
+                    if (channel.members.size <= 0)
+                        handler.remove(channel)
+                }
+
+                event.channelJoined?.let { channel ->
+                    if (channel.id != bot.dataHandler.get<String>(name, "join_to_create_voice"))
+                        return@let
+
+                    // Create channel
+                    val voice = handler.createChannel(
+                        "voice",
+                        event.member,
+                        bot.language.translate("feature.channel.default_name.voice", event.member.user.name),
+                        false
+                    ) ?: {
+                        event.guild.kickVoiceMember(event.member.user)
+                            .queue()
+                    }
+
+                    // Move user to new voice channel
+                    bot.guild.moveVoiceMember(event.member.user, voice as VoiceChannel)
+                        .queue()
+                }
+            }
+
+            override fun onModalInteraction(event: ModalInteractionEvent) {
+                if (event.guild?.id != bot.guild.id) return
+                val prefix = "${this@ChannelFeature.name}_create_"
+                if (!event.modalId.startsWith(prefix)) return
+
+                // Get config
+                val type = event.modalId.removePrefix(prefix)
+                val name =
+                    event.getValue("${prefix}name")?.asString
+                        ?: bot.language.translate("feature.channel.default_name.${type}", event.user.name)
+
+                // Create channel
+
+                val channel = handler.createChannel(type, event.member ?: return, name, false)
+
+                // Handle limit
+                if (channel == null) {
+                    event.replyEmbeds(
+                        limitEmbed(type)
+                    ).setEphemeral(true).queue()
+                    return
+                }
+
+                // Send feedback
+                event.replyEmbeds(
+                    successEmbed(type, channel, false)
+                ).setEphemeral(true).queue()
+            }
+        })
+    }
+
+    private fun createModal(type: String): Modal {
+        return Modal.create(
+            "${this@ChannelFeature.name}_create_${type}",
+            bot.language.translate("feature.channel.command.modal.create_${type}")
+        )
+            .addComponents(
+                Label.of(
+                    bot.language.translate("feature.channel.command.modal.label.name"),
+                    TextInput.create("${this@ChannelFeature.name}_create_name", TextInputStyle.SHORT)
+                        .build()
+                )
+            )
+            .build()
     }
 
     private fun handleCreate(event: SlashCommandInteractionEvent) {
@@ -139,44 +278,48 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
         // Handle limit
         if (channel == null) {
             event.replyEmbeds(
-                Embeds.FAILURE(bot)
-                    .setDescription(bot.language.translate(
-                        "feature.channel.command.error.limit",
-                        type,
-                        handler.maxChannelsPerUser(type).toString())
-                    )
-                    .build()
+                limitEmbed(type)
             ).setEphemeral(true).queue()
             return
         }
 
         // Handle success
-        event.replyEmbeds(
-            Embeds.SUCCESS(bot)
-                .setDescription(bot.language.translate("feature.channel.command.success", type))
-                .addField(
-                    bot.language.translate("feature.channel.command.success.name"),
-                    name,
-                    false
-                )
-                .addField(
-                    bot.language.translate("feature.channel.command.success.type"),
-                    type,
-                    false
-                )
-                .addField(
-                    bot.language.translate("feature.channel.command.success.channel"),
-                    channel.asMention,
-                    false
-                )
-                .addField(
-                    bot.language.translate("feature.channel.command.success.private"),
-                    private.toString(),
-                    false
-                )
-                .build()
-        ).setEphemeral(true).queue()
+        event.replyEmbeds(successEmbed(type, channel, private)).setEphemeral(true).queue()
     }
+
+    private fun limitEmbed(type: String) =
+        Embeds.FAILURE(bot)
+            .setDescription(bot.language.translate(
+                "feature.channel.command.error.limit",
+                type,
+                handler.maxChannelsPerUser(type).toString())
+            )
+            .build()
+
+    private fun successEmbed(type: String, channel: Channel, private: Boolean) =
+        Embeds.SUCCESS(bot)
+            .setDescription(bot.language.translate("feature.channel.command.success", type))
+            .addField(
+                bot.language.translate("feature.channel.command.success.name"),
+                channel.name,
+                false
+            )
+            .addField(
+                bot.language.translate("feature.channel.command.success.type"),
+                type,
+                false
+            )
+            .addField(
+                bot.language.translate("feature.channel.command.success.channel"),
+                channel.asMention,
+                false
+            )
+            .addField(
+                bot.language.translate("feature.channel.command.success.private"),
+                private.toString(),
+                false
+            )
+            .build()
 
     private fun handleDeleteAll(channels: List<Channel>, event: ButtonInteractionEvent) {
         channels.forEach { c -> handler.remove(c) }

@@ -6,6 +6,7 @@ import de.c4vxl.bot.feature.type.Feature
 import de.c4vxl.enums.Embeds
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.OptionMapping
 import net.dv8tion.jda.api.interactions.commands.OptionType
@@ -25,6 +26,7 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                         .addOption(OptionType.INTEGER, "max_text_channels", bot.language.translate("feature.settings.command.channel.max_text.desc"))
                         .addOption(OptionType.STRING, "voice_category", bot.language.translate("feature.settings.command.channel.voice_category.desc"))
                         .addOption(OptionType.STRING, "text_category", bot.language.translate("feature.settings.command.channel.text_category.desc"))
+                        .addOption(OptionType.CHANNEL, "join_to_create_voice", bot.language.translate("feature.settings.command.channel.join_to_create_voice.desc"))
 
                 )
         ) { event ->
@@ -35,6 +37,20 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                     val maxText = event.getOption("max_text_channels", OptionMapping::getAsInt)
                     val voiceCategory = event.getOption("voice_category", OptionMapping::getAsString)
                     val textCategory = event.getOption("text_category", OptionMapping::getAsString)
+                    val joinToCreate = event.getOption("join_to_create_voice", OptionMapping::getAsChannel)
+
+                    if (joinToCreate != null) {
+                        if (joinToCreate.type != ChannelType.VOICE) {
+                            event.replyEmbeds(
+                                Embeds.FAILURE(bot)
+                                    .setDescription(bot.language.translate("feature.settings.command.error.no_voice"))
+                                    .build()
+                            ).setEphemeral(true).queue()
+                            return@registerSlashCommand
+                        }
+
+                        bot.dataHandler.set<ChannelFeature>("join_to_create_voice", joinToCreate.id)
+                    }
 
                     if (maxVoice != null)
                         bot.dataHandler.set<ChannelFeature>("max_voice", maxVoice)
