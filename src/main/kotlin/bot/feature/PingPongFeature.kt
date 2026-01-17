@@ -4,6 +4,9 @@ import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.type.Feature
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 
+/**
+ * Example feature
+ */
 class PingPongFeature(bot: Bot) : Feature<PingPongFeature>(bot, PingPongFeature::class.java) {
     init {
         bot.commandHandler.registerSlashCommand(
