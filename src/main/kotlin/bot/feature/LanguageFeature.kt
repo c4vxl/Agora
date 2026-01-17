@@ -3,6 +3,7 @@ package de.c4vxl.bot.feature
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.type.Feature
 import de.c4vxl.enum.Color
+import de.c4vxl.enum.Embeds
 import de.c4vxl.language.Language
 import de.c4vxl.utils.EmbedUtils.color
 import de.c4vxl.utils.EmbedUtils.withTimestamp
@@ -61,11 +62,8 @@ class LanguageFeature(bot: Bot) : Feature<LanguageFeature>(bot, LanguageFeature:
 
                     if (language == null) {
                         event.replyEmbeds(
-                            EmbedBuilder()
-                                .setTitle(bot.language.translate("global.title.failure"))
-                                .setDescription(bot.language.translate("feature.lang.command.set.failure.desc"))
-                                .withTimestamp()
-                                .color(Color.DANGER)
+                            Embeds.FAILURE(bot)
+                                .setDescription(bot.language.translate("feature.lang.command.set.failure"))
                                 .build()
                         ).setEphemeral(true).queue()
 
@@ -76,11 +74,8 @@ class LanguageFeature(bot: Bot) : Feature<LanguageFeature>(bot, LanguageFeature:
                     bot.language = Language.fromName(language)
 
                     event.replyEmbeds(
-                        EmbedBuilder()
-                            .setTitle(bot.language.translate("global.title.success"))
-                            .setDescription(bot.language.translate("feature.lang.command.set.success.desc", language))
-                            .withTimestamp()
-                            .color(Color.SUCCESS)
+                        Embeds.SUCCESS(bot)
+                            .setDescription(bot.language.translate("feature.lang.command.set.success", language))
                             .build()
                     ).setEphemeral(true).queue()
                 }

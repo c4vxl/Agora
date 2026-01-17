@@ -3,6 +3,7 @@ package de.c4vxl.bot.feature
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.type.Feature
 import de.c4vxl.enum.Color
+import de.c4vxl.enum.Embeds
 import de.c4vxl.utils.EmbedUtils.color
 import de.c4vxl.utils.EmbedUtils.withTimestamp
 import net.dv8tion.jda.api.EmbedBuilder
@@ -24,6 +25,10 @@ class PermissionFeature(bot: Bot) : Feature<PermissionFeature>(bot, PermissionFe
                 .addSubcommands(
                     // /permissions list
                     SubcommandData("list", bot.language.translate("feature.perms.command.list.desc")),
+
+                    // /permissions show <role>
+                    SubcommandData("show", bot.language.translate("feature.perms.command.show.desc"))
+                        .addOption(OptionType.ROLE, "role", bot.language.translate("feature.perms.command.show.role.desc"), true),
 
                     // /permissions set <role> [perms]
                     SubcommandData("set", bot.language.translate("feature.perms.command.set.desc"))
@@ -54,6 +59,28 @@ class PermissionFeature(bot: Bot) : Feature<PermissionFeature>(bot, PermissionFe
                     ).setEphemeral(true).queue()
                 }
 
+                "show" -> {
+                    val role = event.getOption("role")!!.asRole
+                    val permissions = bot.permissionHandler.get(role)
+
+                    val embed = EmbedBuilder()
+                        .color(Color.PRIMARY)
+                        .withTimestamp()
+                        .setTitle(bot.language.translate("feature.perms.command.show.embed.title", role.asMention))
+
+                    if (permissions.isEmpty())
+                        embed.setDescription(bot.language.translate("feature.perms.command.show.embed.empty", role.name))
+                    else {
+                        embed.setDescription(bot.language.translate("feature.perms.command.show.embed.desc", role.asMention))
+                        embed.addField("- " + permissions
+                            .joinToString("\n- ") {
+                                it.name.lowercase(Locale.getDefault()) },
+                            "", false)
+                    }
+
+                    event.replyEmbeds(embed.build()).setEphemeral(true).queue()
+                }
+
                 "set" -> {
                     val role = event.getOption("role")!!.asRole
 
@@ -67,19 +94,15 @@ class PermissionFeature(bot: Bot) : Feature<PermissionFeature>(bot, PermissionFe
 
                     if (permissions.isEmpty())
                         event.replyEmbeds(
-                            EmbedBuilder()
-                                .setTitle(bot.language.translate("global.title.failure"))
-                                .setDescription(bot.language.translate("feature.perms.command.set.failure.desc"))
-                                .withTimestamp()
-                                .color(Color.DANGER)
+                            Embeds.FAILURE(bot)
+                                .setDescription(bot.language.translate("feature.perms.command.set.failure"))
                                 .build()
                         ).setEphemeral(true).queue()
 
                     else
                         event.replyEmbeds(
-                            EmbedBuilder()
-                                .setTitle(bot.language.translate("global.title.success"))
-                                .setDescription(bot.language.translate("feature.perms.command.set.success.desc", role.asMention))
+                            Embeds.SUCCESS(bot)
+                                .setDescription(bot.language.translate("feature.perms.command.set.success", role.asMention))
                                 .addField(
                                     bot.language.translate("feature.perms.command.set.success.r1"),
                                     bot.language.translate("feature.perms.command.set.success.r2"),
@@ -90,8 +113,6 @@ class PermissionFeature(bot: Bot) : Feature<PermissionFeature>(bot, PermissionFe
                                         this.addField(it.name, it.asBoolean.toString(), false)
                                     }
                                 }
-                                .withTimestamp()
-                                .color(Color.SUCCESS)
                                 .build()
                         ).setEphemeral(true).queue()
                 }

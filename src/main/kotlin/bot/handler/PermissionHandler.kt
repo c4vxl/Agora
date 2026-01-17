@@ -3,6 +3,7 @@ package de.c4vxl.bot.handler
 import de.c4vxl.bot.Bot
 import de.c4vxl.enum.Permission
 import de.c4vxl.utils.LoggerUtils.createLogger
+import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Role
 import org.slf4j.Logger
 
@@ -52,7 +53,7 @@ class PermissionHandler(
             perms.remove(permission)
 
         // Update config
-        bot.dataHandler.set(dataKey, role.id, perms)
+        bot.dataHandler.set(dataKey, role.id, perms.map { it.name })
     }
 
     /**
@@ -60,6 +61,18 @@ class PermissionHandler(
      * @param role The role to check
      * @param permission The permission to check for
      */
-    fun has(role: Role, permission: Permission): Boolean =
-        get(role).contains(permission)
+    fun has(role: Role, permission: Permission): Boolean {
+        val perms = get(role)
+        return perms.contains(permission) || perms.contains(Permission.ALL)
+    }
+
+    /**
+     * Checks if a member has a role that grants him a certain permission
+     * @param member The member to check
+     * @param permission The permission to check for
+     */
+    fun has(member: Member, permission: Permission): Boolean {
+        if (has(bot.guild.publicRole, Permission.ALL)) return true
+        return member.roles.find { has(it, permission) } != null
+    }
 }
