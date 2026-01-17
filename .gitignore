@@ -45,4 +45,4 @@ bin/
 .DS_Store
 
 db/
-./config.json
+/config.json
