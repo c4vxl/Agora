@@ -178,10 +178,22 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
 
         // Register buttons
         bot.componentHandler.registerButton("${this@ChannelFeature.name}_create_voice") {
+            // Check for permission
+            if (it.member?.hasPermission(Permission.FEATURE_CHANNELS_VOICE, bot) != true) {
+                it.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
+                return@registerButton
+            }
+
             it.replyModal(createModal("voice")).queue()
         }
 
         bot.componentHandler.registerButton("${this@ChannelFeature.name}_create_text") {
+            // Check for permission
+            if (it.member?.hasPermission(Permission.FEATURE_CHANNELS_TEXT, bot) != true) {
+                it.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
+                return@registerButton
+            }
+
             it.replyModal(createModal("text")).queue()
         }
 
@@ -228,7 +240,6 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
                         ?: bot.language.translate("feature.channel.default_name.${type}", event.user.name)
 
                 // Create channel
-
                 val channel = handler.createChannel(type, event.member ?: return, name, false)
 
                 // Handle limit
@@ -271,6 +282,12 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
         val private: Boolean = event.getOption("private", OptionMapping::getAsBoolean) ?: false
 
         val user = event.member ?: return
+
+        // Check for permission
+        if (!user.hasPermission(Permission.valueOf("FEATURE_CHANNELS_${type.uppercase(Locale.getDefault())}"), bot)) {
+            event.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
+            return
+        }
 
         // Create channel
         val channel = handler.createChannel(type, user, name, private)
