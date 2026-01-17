@@ -121,9 +121,17 @@
   "feature.rules.command.set.fields.desc": "Add custom fields to the rules embed - Format: <inline (y/n)>##<title>##<content>; ...",
   "feature.rules.command.set.timestamp.desc": "If set to true, a timestamp of the creation date will be appended to the embed",
   "feature.rules.command.set.required.desc": "If set to false, users can view and interact with other channels without having to accept the rules",
+  "feature.rules.command.set.accept_btn.desc": "Set the label of the accept button",
+  "feature.rules.command.set.deny_btn.desc": "Set the label of the deny button",
+
+  "feature.rules.command.set.accept_btn.val": "Accept",
+  "feature.rules.command.set.deny_btn.val": "Deny and leave",
 
   "feature.rules.command.remove.desc": "Removes the rules from this guild",
   "feature.rules.command.remove.success": "Rules have successfully been removed from this guild!",
 
-  "feature.rules.command.error.empty": "Rules cannot be empty!"
+  "feature.rules.command.error.empty": "Rules cannot be empty!",
+  "feature.rules.command.error.not_text": "Rules can only be created in a text channel!",
+  "feature.rules.already_accepted": "You have already accepted the rules!",
+  "feature.rules.success.accept": "You successfully accepted the server rules!\nHave fun looking around!"
 }

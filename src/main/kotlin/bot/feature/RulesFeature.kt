@@ -5,7 +5,13 @@ import de.c4vxl.bot.feature.type.Feature
 import de.c4vxl.enums.Color
 import de.c4vxl.enums.Embeds
 import de.c4vxl.enums.Permission
+import de.c4vxl.utils.EmbedUtils.color
 import de.c4vxl.utils.PermissionUtils.hasPermission
+import de.c4vxl.utils.PermissionUtils.hasRole
+import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.components.actionrow.ActionRow
+import net.dv8tion.jda.api.components.buttons.Button
+import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.interactions.commands.OptionMapping
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
@@ -25,6 +31,8 @@ class RulesFeature(bot: Bot) : Feature<RulesFeature>(bot, RulesFeature::class.ja
                         .addOption(OptionType.ROLE, "accepted_role", bot.language.translate("feature.rules.command.set.role.desc"), true)
                         .addOption(OptionType.BOOLEAN, "timestamp", bot.language.translate("feature.rules.command.set.timestamp.desc"))
                         .addOption(OptionType.BOOLEAN, "required", bot.language.translate("feature.rules.command.set.required.desc"))
+                        .addOption(OptionType.STRING, "accept_button_label", bot.language.translate("feature.rules.command.set.accept_btn.desc"))
+                        .addOption(OptionType.STRING, "deny_button_label", bot.language.translate("feature.rules.command.set.deny_btn.desc"))
                         .apply {
                             listOf("title", "image", "description", "footer", "color", "fields").forEach {
                                 this.addOption(OptionType.STRING, it, bot.language.translate("feature.rules.command.set.${it}.desc"))
@@ -43,6 +51,14 @@ class RulesFeature(bot: Bot) : Feature<RulesFeature>(bot, RulesFeature::class.ja
             when (event.subcommandName) {
                 "set" -> {
                     // Get config
+                    val accept =
+                        event.getOption("accept_button_label", OptionMapping::getAsString)
+                            ?: bot.language.translate("feature.rules.command.set.accept_btn.val")
+
+                    val deny =
+                        event.getOption("deny_button_label", OptionMapping::getAsString)
+                            ?: bot.language.translate("feature.rules.command.set.deny_btn.val")
+
                     val channel = event.getOption("channel", OptionMapping::getAsChannel) ?: return@registerSlashCommand
                     val role = event.getOption("accepted_role", OptionMapping::getAsRole) ?: return@registerSlashCommand
                     val timestamp = event.getOption("timestamp", OptionMapping::getAsBoolean) ?: true
@@ -53,6 +69,15 @@ class RulesFeature(bot: Bot) : Feature<RulesFeature>(bot, RulesFeature::class.ja
                     val footer = event.getOption("footer", OptionMapping::getAsString)
                     val color = event.getOption("color", OptionMapping::getAsString)?.removePrefix("#")?.toIntOrNull(16) ?: Color.PRIMARY.asInt
                     val fields = event.getOption("fields", OptionMapping::getAsString)
+
+                    if (channel.type != ChannelType.TEXT) {
+                        event.replyEmbeds(
+                            Embeds.FAILURE(bot)
+                                .setDescription(bot.language.translate("feature.rules.command.error.not_text"))
+                                .build()
+                        ).setEphemeral(true).queue()
+                        return@registerSlashCommand
+                    }
 
                     // Exit if empty
                     if (mutableListOf(title, image, description, footer, fields)
@@ -71,6 +96,8 @@ class RulesFeature(bot: Bot) : Feature<RulesFeature>(bot, RulesFeature::class.ja
                     bot.dataHandler.set(this.name, "required", required)
                     bot.dataHandler.set(this.name, "timestamp", timestamp)
                     bot.dataHandler.set(this.name, "color", color)
+                    bot.dataHandler.set(this.name, "accept", accept)
+                    bot.dataHandler.set(this.name, "deny", deny)
                     title?.let { bot.dataHandler.set(this.name, "title", it) }
                     image?.let { bot.dataHandler.set(this.name, "image", it) }
                     description?.let { bot.dataHandler.set(this.name, "description", it) }
@@ -99,6 +126,37 @@ class RulesFeature(bot: Bot) : Feature<RulesFeature>(bot, RulesFeature::class.ja
                     ).setEphemeral(true).queue()
                 }
             }
+        }
+
+        // Register button events
+        bot.componentHandler.registerButton("${this.name}_button_deny") {
+            bot.guild.kick(it.user)
+                .queue()
+        }
+        bot.componentHandler.registerButton("${this.name}_button_accept") {
+            val role = bot.guild.getRoleById(get<String>("role") ?: return@registerButton) ?: return@registerButton
+
+            // Exit if user already accepted
+            if (it.member?.hasRole(role) == true) {
+                it.replyEmbeds(
+                    EmbedBuilder()
+                        .color(Color.PRIMARY)
+                        .setDescription(bot.language.translate("feature.rules.already_accepted"))
+                        .build()
+                ).setEphemeral(true).queue()
+                return@registerButton
+            }
+
+            // Add role
+            bot.guild.addRoleToMember(it.user, role)
+                .queue()
+
+            // Send confirmation
+            it.replyEmbeds(
+                Embeds.SUCCESS(bot)
+                    .setDescription(bot.language.translate("feature.rules.success.accept"))
+                    .build()
+            ).setEphemeral(true).queue()
         }
     }
 
@@ -139,6 +197,10 @@ class RulesFeature(bot: Bot) : Feature<RulesFeature>(bot, RulesFeature::class.ja
         channel.sendMessage(
             MessageCreateBuilder()
                 .addEmbeds(embed)
+                .addComponents(ActionRow.of(
+                    Button.danger("${this.name}_button_deny", get<String>("deny") ?: "_"),
+                    Button.success("${this.name}_button_accept", get<String>("accept") ?: "_")
+                ))
                 .build()
         ).queue()
 

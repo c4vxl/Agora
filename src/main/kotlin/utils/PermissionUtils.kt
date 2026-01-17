@@ -21,4 +21,11 @@ object PermissionUtils {
      */
     fun Role.hasPermission(permission: Permission, bot: Bot): Boolean =
         bot.permissionHandler.has(this, permission)
+
+    /**
+     * Checks if a member as a certain role
+     * @param role The role to check for
+     */
+    fun Member.hasRole(role: Role): Boolean =
+        this.roles.find { it.id == role.id } != null
 }

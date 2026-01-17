@@ -11,7 +11,6 @@ object Embeds {
         EmbedBuilder()
             .setTitle(bot.language.translate("global.title.failure"))
             .setDescription(bot.language.translate("global.error.insufficient_perms"))
-            .addBlankField(false)
             .withTimestamp()
             .color(Color.DANGER)
             .build()
