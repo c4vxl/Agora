@@ -38,7 +38,7 @@ class PermissionFeature(bot: Bot) : Feature<PermissionFeature>(bot, PermissionFe
                                 this.addOption(
                                     OptionType.BOOLEAN,
                                     permission.name.lowercase(Locale.getDefault()),
-                                    bot.language.translate("feature.perms.command.set.perm.desc", permission.name)
+                                    bot.language.translate("perms.${permission.name.lowercase(Locale.getDefault())}.desc")
                                 )
                             }
                         }
@@ -87,7 +87,7 @@ class PermissionFeature(bot: Bot) : Feature<PermissionFeature>(bot, PermissionFe
                     val permissions = event.getOptionsByType(OptionType.BOOLEAN)
 
                     permissions.forEach { opt ->
-                        de.c4vxl.enums.Permission.fromName(opt.name)?.let {
+                        de.c4vxl.enums.Permission.valueOf(opt.name.uppercase(Locale.getDefault())).let {
                             bot.permissionHandler.set(role, it, opt.asBoolean)
                         }
                     }

@@ -8,10 +8,11 @@
   "--- Permissions ---": "",
   "perms.all.desc": "Grants all permissions",
   "perms.feature_embed.desc": "Allows users to use the /embed command",
-  "perms.feature_create_voice.desc": "Allows users to create custom voice channels",
-  "perms.feature_create_text.desc": "Allows users to create custom text channels",
-  "perms.feature_create_unlimited.desc": "Allows users to bypass the channel creation limit for the channel creator feature",
-  "perms.feature_create_paste_buttons.desc": "Allows users to paste buttons for creating voice/text channels into a channel",
+  "perms.feature_channels_voice.desc": "Allows users to create custom voice channels",
+  "perms.feature_channels_text.desc": "Allows users to create custom text channels",
+  "perms.feature_channels_unlimited.desc": "Allows users to bypass the channel creation limit for the channel creator feature",
+  "perms.feature_channels_buttons.desc": "Allows users to paste buttons for creating voice/text channels into a channel",
+  "perms.feature_rules_mod.desc": "Allows users to modify the guild-rules",
 
   "--- Feature: Settings ---": "",
   "feature.settings.command.desc": "Modify the settings of the different features of this bot",
@@ -104,5 +105,25 @@
   "feature.channel.command.buttons.success": "The buttons have been created",
   "feature.channel.command.modal.create_voice": "Create voice channel",
   "feature.channel.command.modal.create_text": "Create text channel",
-  "feature.channel.command.modal.label.name": "Name:"
+  "feature.channel.command.modal.label.name": "Name:",
+
+  "--- Feature: Rules ---": "",
+  "feature.rules.command.set.success": "Rules have successfully been configured for this guild!",
+  "feature.rules.command.desc": "Allows you to set rules that new users must accept before they can see other channels",
+  "feature.rules.command.set.desc": "Allows you to set rules that new users must accept before they can see other channels",
+  "feature.rules.command.set.channel.desc": "Set the rules channel",
+  "feature.rules.command.set.role.desc": "Set the role every user should receive after accepting the rules",
+  "feature.rules.command.set.title.desc": "Set the title of the rules embed",
+  "feature.rules.command.set.description.desc": "Set the description of the rules embed",
+  "feature.rules.command.set.footer.desc": "Set the footer of the rules embed",
+  "feature.rules.command.set.image.desc": "Pass to add an image to the rules embed",
+  "feature.rules.command.set.color.desc": "Set the color of the rules embed - Format: #RRGGBB",
+  "feature.rules.command.set.fields.desc": "Add custom fields to the rules embed - Format: <inline (y/n)>##<title>##<content>; ...",
+  "feature.rules.command.set.timestamp.desc": "If set to true, a timestamp of the creation date will be appended to the embed",
+  "feature.rules.command.set.required.desc": "If set to false, users can view and interact with other channels without having to accept the rules",
+
+  "feature.rules.command.remove.desc": "Removes the rules from this guild",
+  "feature.rules.command.remove.success": "Rules have successfully been removed from this guild!",
+
+  "feature.rules.command.error.empty": "Rules cannot be empty!"
 }
