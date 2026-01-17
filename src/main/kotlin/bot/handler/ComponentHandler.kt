@@ -12,7 +12,7 @@ import org.slf4j.Logger
  */
 class ComponentHandler(
     val bot: Bot,
-    val logger: Logger = createLogger<CommandHandler>()
+    val logger: Logger = createLogger<ComponentHandler>()
 ) {
     // List of all registered handlers
     private val buttonHandlers: MutableList<Pair<String, (ButtonInteractionEvent) -> Unit>> = mutableListOf()
