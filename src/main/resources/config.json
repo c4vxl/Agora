@@ -2,6 +2,7 @@
     "token": "<paste_your_token_here>",
     "db_path": "./db/",
     "db_cache_save_interval": 30000,
+    "db_pretty_print": false,
     "activity": "Just vibing",
     "status": "idle"
 }

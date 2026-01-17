@@ -20,7 +20,10 @@ object Database {
 
     // Json en-/decoder
     private val gson = GsonBuilder()
-        .setPrettyPrinting()
+        .apply {
+            if (Config.get<Boolean>("db_pretty_print"))
+                this.setPrettyPrinting()
+        }
         .create()
 
     /**
