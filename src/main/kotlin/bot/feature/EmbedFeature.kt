@@ -75,7 +75,7 @@ class EmbedFeature(bot: Bot) : Feature<EmbedFeature>(bot, EmbedFeature::class.ja
                         footer, footer_icon, image, thumbnail, url, fields, color, timestamp))
 
                     // Add link buttons
-                    .addComponents((links ?: "").split("; ").chunked(5).map { chunk ->
+                    .addComponents(links?.split("; ")?.chunked(5)?.map { chunk ->
                         ActionRow.of(
                             chunk.map {
                                 var url = it.split("##").getOrNull(1) ?: "https://discord.com/"
@@ -87,7 +87,7 @@ class EmbedFeature(bot: Bot) : Feature<EmbedFeature>(bot, EmbedFeature::class.ja
                                     it.split("##").getOrNull(0) ?: "Unset"
                                 )
                             }
-                        )})
+                        )} ?: mutableListOf())
                     .build()
             ).queue {
                 // Send confirmation
