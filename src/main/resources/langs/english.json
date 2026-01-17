@@ -170,5 +170,17 @@
   "feature.tickets.modal.title": "Create ticket",
   "feature.tickets.modal.name": "Title:",
   "feature.tickets.modal.desc": "Description:",
-  "feature.tickets.modal.desc.desc": "Please provide a detailed description!"
+  "feature.tickets.modal.desc.desc": "Please provide a detailed description!",
+
+  "--- Feature: Default role ---": "",
+  "feature.default_roles.command.desc": "Allows you to set roles every user automatically receives when they join the guild",
+  "feature.default_roles.command.list.desc": "Returns a list with all default roles",
+  "feature.default_roles.command.add.desc": "Adds a role to the default roles",
+  "feature.default_roles.command.add.role.desc": "The role to add",
+  "feature.default_roles.command.remove.desc": "Removes a role from the default roles",
+  "feature.default_roles.command.remove.role.desc": "The role to remove",
+  "feature.default_roles.command.list.embed.title": "Here's a list of all current default roles:",
+  "feature.default_roles.command.list.embed.empty.desc": "There are currently no default roles enabled.\n_You can add roles via **/default-roles add <role>**_",
+  "feature.default_roles.command.add.success": "Successfully added $0 to the default roles!",
+  "feature.default_roles.command.remove.success": "Successfully removed $0 to the default roles!"
 }
