@@ -2,9 +2,9 @@ package de.c4vxl.bot.feature.settings
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.channel.ChannelFeature
+import de.c4vxl.bot.feature.tickets.TicketFeature
 import de.c4vxl.bot.feature.type.Feature
 import de.c4vxl.enums.Embeds
-import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
@@ -26,11 +26,28 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                         .addOption(OptionType.INTEGER, "max_text_channels", bot.language.translate("feature.settings.command.channel.max_text.desc"))
                         .addOption(OptionType.STRING, "voice_category", bot.language.translate("feature.settings.command.channel.voice_category.desc"))
                         .addOption(OptionType.STRING, "text_category", bot.language.translate("feature.settings.command.channel.text_category.desc"))
-                        .addOption(OptionType.CHANNEL, "join_to_create_voice", bot.language.translate("feature.settings.command.channel.join_to_create_voice.desc"))
+                        .addOption(OptionType.CHANNEL, "join_to_create_voice", bot.language.translate("feature.settings.command.channel.join_to_create_voice.desc")),
+
+                    // Feature: Tickets
+                    SubcommandData("ticket", bot.language.translate("feature.settings.command.tickets.desc"))
+                        .addOption(OptionType.STRING, "open_category", bot.language.translate("feature.settings.command.tickets.open_category.desc"))
+                        .addOption(OptionType.STRING, "saved_category", bot.language.translate("feature.settings.command.tickets.saved_category.desc"))
 
                 )
         ) { event ->
             when (event.subcommandName) {
+                // Feature: ticket
+                "ticket" -> {
+                    val openCategory = event.getOption("open_category", OptionMapping::getAsString)
+                    val savedCategory = event.getOption("saved_category", OptionMapping::getAsString)
+
+                    if (openCategory != null)
+                        bot.dataHandler.set<TicketFeature>("open_category", openCategory)
+
+                    if (savedCategory != null)
+                        bot.dataHandler.set<TicketFeature>("saved_category", savedCategory)
+                }
+
                 // Feature: Channel
                 "channel" -> {
                     val maxVoice = event.getOption("max_voice_channels", OptionMapping::getAsInt)
@@ -63,15 +80,15 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
 
                     if (textCategory != null)
                         bot.dataHandler.set<ChannelFeature>("text_category", textCategory)
-
-                    // Send feedback
-                    event.replyEmbeds(
-                        Embeds.SUCCESS(bot)
-                            .setDescription(bot.language.translate("feature.settings.command.success"))
-                            .build()
-                    ).setEphemeral(true).queue()
                 }
             }
+
+            // Send feedback
+            event.replyEmbeds(
+                Embeds.SUCCESS(bot)
+                    .setDescription(bot.language.translate("feature.settings.command.success"))
+                    .build()
+            ).setEphemeral(true).queue()
         }
     }
 }

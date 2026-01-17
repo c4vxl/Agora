@@ -33,7 +33,7 @@ class TicketFeature(bot: Bot) : Feature<TicketFeature>(bot, TicketFeature::class
                     // /ticket open <name> [desc]
                     SubcommandData("open", bot.language.translate("feature.tickets.command.open.desc"))
                         .addOption(OptionType.STRING, "name", bot.language.translate("feature.tickets.command.open.name.desc"), true)
-                        .addOption(OptionType.STRING, "description", bot.language.translate("feature.tickets.command.open.description.desc")),
+                        .addOption(OptionType.STRING, "description", bot.language.translate("feature.tickets.command.open.description.desc"), true),
 
                     // /ticket close [ticket]
                     SubcommandData("close", bot.language.translate("feature.tickets.command.close.desc"))
