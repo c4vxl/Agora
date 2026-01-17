@@ -1,6 +1,6 @@
 package de.c4vxl.utils
 
-import de.c4vxl.enum.Color
+import de.c4vxl.enums.Color
 import net.dv8tion.jda.api.EmbedBuilder
 import java.util.Date
 

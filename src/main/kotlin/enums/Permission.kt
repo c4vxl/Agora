@@ -1,4 +1,4 @@
-package de.c4vxl.enum
+package de.c4vxl.enums
 
 import java.util.*
 

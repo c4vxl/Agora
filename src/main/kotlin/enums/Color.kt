@@ -1,4 +1,4 @@
-package de.c4vxl.enum
+package de.c4vxl.enums
 
 enum class Color(val asInt: Int) {
     PRIMARY(0x65AFFF),

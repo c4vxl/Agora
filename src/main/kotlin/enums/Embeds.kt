@@ -1,4 +1,4 @@
-package de.c4vxl.enum
+package de.c4vxl.enums
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.utils.EmbedUtils.color

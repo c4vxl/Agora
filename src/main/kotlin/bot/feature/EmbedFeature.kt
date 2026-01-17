@@ -2,9 +2,9 @@ package de.c4vxl.bot.feature
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.type.Feature
-import de.c4vxl.enum.Color
-import de.c4vxl.enum.Embeds
-import de.c4vxl.enum.Permission
+import de.c4vxl.enums.Color
+import de.c4vxl.enums.Embeds
+import de.c4vxl.enums.Permission
 import de.c4vxl.utils.PermissionUtils.hasPermission
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.components.actionrow.ActionRow
@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
-import net.dv8tion.jda.api.utils.messages.MessageCreateData
 import java.util.*
 
 /**

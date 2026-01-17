@@ -2,8 +2,8 @@ package de.c4vxl.bot.feature
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.type.Feature
-import de.c4vxl.enum.Color
-import de.c4vxl.enum.Embeds
+import de.c4vxl.enums.Color
+import de.c4vxl.enums.Embeds
 import de.c4vxl.utils.EmbedUtils.color
 import de.c4vxl.utils.EmbedUtils.withTimestamp
 import net.dv8tion.jda.api.EmbedBuilder
@@ -34,7 +34,7 @@ class PermissionFeature(bot: Bot) : Feature<PermissionFeature>(bot, PermissionFe
                     SubcommandData("set", bot.language.translate("feature.perms.command.set.desc"))
                         .addOption(OptionType.ROLE, "role", bot.language.translate("feature.perms.command.set.role.desc"), true)
                         .apply {
-                            de.c4vxl.enum.Permission.entries.forEach { permission ->
+                            de.c4vxl.enums.Permission.entries.forEach { permission ->
                                 this.addOption(
                                     OptionType.BOOLEAN,
                                     permission.name.lowercase(Locale.getDefault()),
@@ -49,7 +49,7 @@ class PermissionFeature(bot: Bot) : Feature<PermissionFeature>(bot, PermissionFe
                     event.replyEmbeds(
                         EmbedBuilder()
                             .setTitle(bot.language.translate("feature.perms.command.list.embed.title"))
-                            .addField("- " + de.c4vxl.enum.Permission.entries
+                            .addField("- " + de.c4vxl.enums.Permission.entries
                                 .joinToString("\n- ") {
                                     it.name.lowercase(Locale.getDefault()) },
                                 "", false)
@@ -87,7 +87,7 @@ class PermissionFeature(bot: Bot) : Feature<PermissionFeature>(bot, PermissionFe
                     val permissions = event.getOptionsByType(OptionType.BOOLEAN)
 
                     permissions.forEach { opt ->
-                        de.c4vxl.enum.Permission.fromName(opt.name)?.let {
+                        de.c4vxl.enums.Permission.fromName(opt.name)?.let {
                             bot.permissionHandler.set(role, it, opt.asBoolean)
                         }
                     }

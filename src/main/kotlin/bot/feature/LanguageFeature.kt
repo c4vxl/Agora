@@ -2,8 +2,8 @@ package de.c4vxl.bot.feature
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.type.Feature
-import de.c4vxl.enum.Color
-import de.c4vxl.enum.Embeds
+import de.c4vxl.enums.Color
+import de.c4vxl.enums.Embeds
 import de.c4vxl.language.Language
 import de.c4vxl.utils.EmbedUtils.color
 import de.c4vxl.utils.EmbedUtils.withTimestamp
