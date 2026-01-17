@@ -2,6 +2,7 @@ package de.c4vxl.bot
 
 import de.c4vxl.bot.feature.EmbedFeature
 import de.c4vxl.bot.feature.PingPongFeature
+import de.c4vxl.bot.feature.RulesFeature
 import de.c4vxl.bot.feature.channel.ChannelFeature
 import de.c4vxl.bot.feature.settings.LanguageFeature
 import de.c4vxl.bot.feature.settings.PermissionFeature
@@ -48,6 +49,7 @@ class Bot(
         registerFeature<EmbedFeature>(this)
         registerFeature<ChannelFeature>(this)
         registerFeature<SettingsFeature>(this)
+        registerFeature<RulesFeature>(this)
 
         // Initialize command handler
         commandHandler.initHandlers()

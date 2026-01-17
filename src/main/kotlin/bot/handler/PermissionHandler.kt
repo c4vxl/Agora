@@ -28,7 +28,7 @@ class PermissionHandler(
         val perms = bot.dataHandler.get<MutableList<String>>(dataKey, role.id)
             ?: mutableListOf()
 
-        return perms.mapNotNull { Permission.fromName(it) }.toMutableList()
+        return perms.mapNotNull { Permission.valueOf(it) }.toMutableList()
     }
 
     /**

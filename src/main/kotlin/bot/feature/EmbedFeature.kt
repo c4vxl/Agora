@@ -100,29 +100,31 @@ class EmbedFeature(bot: Bot) : Feature<EmbedFeature>(bot, EmbedFeature::class.ja
         }
     }
 
-    private fun createEmbed(description: String?, title: String?, title_url: String?, author: String?, author_url: String?,
-                            author_icon: String?, footer: String?, footer_icon: String?, image: String?, thumbnail: String?,
-                            url: String?, fields: String?, color: Int, timestamp: Boolean) =
-        EmbedBuilder()
-            .setTitle(title, title_url)
-            .setAuthor(author, author_url, author_icon)
-            .setFooter(footer, footer_icon)
-            .setTimestamp(if (timestamp) Date().toInstant() else null)
-            .setDescription(description)
-            .setColor(color)
-            .setThumbnail(thumbnail)
-            .setImage(image)
-            .setUrl(url)
-            .apply {
-                fields?.split("; ")?.forEach {
-                    val parts = it.split("##")
-                    val inline = parts.getOrNull(0).contentEquals("y")
-                    val key = parts.getOrNull(1)
-                    val value = parts.getOrNull(2)
+    companion object {
+        fun createEmbed(description: String?, title: String?, title_url: String?, author: String?, author_url: String?,
+                        author_icon: String?, footer: String?, footer_icon: String?, image: String?, thumbnail: String?,
+                        url: String?, fields: String?, color: Int, timestamp: Boolean) =
+            EmbedBuilder()
+                .setTitle(title, title_url)
+                .setAuthor(author, author_url, author_icon)
+                .setFooter(footer, footer_icon)
+                .setTimestamp(if (timestamp) Date().toInstant() else null)
+                .setDescription(description)
+                .setColor(color)
+                .setThumbnail(thumbnail)
+                .setImage(image)
+                .setUrl(url)
+                .apply {
+                    fields?.split("; ")?.forEach {
+                        val parts = it.split("##")
+                        val inline = parts.getOrNull(0).contentEquals("y")
+                        val key = parts.getOrNull(1)
+                        val value = parts.getOrNull(2)
 
-                    if (key == "<br>") this.addBlankField(inline)
-                    else if (key != null && value != null) this.addField(key, value, inline)
+                        if (key == "<br>") this.addBlankField(inline)
+                        else if (key != null && value != null) this.addField(key, value, inline)
+                    }
                 }
-            }
-            .build()
+                .build()
+    }
 }
