@@ -1,0 +1,30 @@
+{
+  "--- Global ---": "",
+  "bot.name": "Agora",
+  "global.title.success": "Success",
+  "global.title.failure": "Failure",
+
+  "--- Permissions ---": "",
+  "perms.all.desc": "Grants all permissions",
+
+  "--- Feature: Permissions ---": "",
+  "feature.perms.command.desc": "Manage the permission system",
+  "feature.perms.command.list.desc": "View a list of all permissions",
+  "feature.perms.command.list.embed.title": "List of available permissions:",
+  "feature.perms.command.set.desc": "Set what permissions a certain role should have",
+  "feature.perms.command.set.role.desc": "The role to set the permissions for",
+  "feature.perms.command.set.perm.desc": "Grant/Deny the permission '$0' to the role",
+  "feature.perms.command.set.success.desc": "Successfully applied permission changes to $0",
+  "feature.perms.command.set.success.r1": "Permission",
+  "feature.perms.command.set.success.r2": "New value",
+  "feature.perms.command.set.failure.desc": "It seems like no permissions were passed!",
+
+  "--- Feature: Language ---": "",
+  "feature.lang.command.desc": "Set the guild-preferred language for this bot",
+  "feature.lang.command.list.desc": "View a list of all available languages",
+  "feature.lang.command.set.desc": "Set the preferred language",
+  "feature.lang.command.set.e.desc": "Set the preferred language to $0",
+  "feature.lang.command.list.embed.title": "List of available languages:",
+  "feature.lang.command.set.failure.desc": "It seems like no language was passed!",
+  "feature.lang.command.set.success.desc": "Successfully updated the language to **$0**."
+}
