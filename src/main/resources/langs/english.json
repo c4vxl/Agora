@@ -12,6 +12,15 @@
   "perms.feature_create_text.desc": "Allows users to create custom text channels",
   "perms.feature_create_unlimited.desc": "Allows users to bypass the channel creation limit for the channel creator feature",
 
+  "--- Feature: Settings ---": "",
+  "feature.settings.command.desc": "Modify the settings of the different features of this bot",
+  "feature.settings.command.success": "Successfully applied settings!",
+  "feature.settings.command.channel.desc": "Modify the settings of the 'Channel' module",
+  "feature.settings.command.channel.max_voice.desc": "The maximum amount of voice channels a user can create",
+  "feature.settings.command.channel.max_text.desc": "The maximum amount of text channels a user can create",
+  "feature.settings.command.channel.voice_category.desc": "The category to put newly created voice channels into",
+  "feature.settings.command.channel.text_category.desc": "The category to put newly created text channels into",
+
   "--- Feature: Permissions ---": "",
   "feature.perms.command.desc": "Manage the permission system",
   "feature.perms.command.list.desc": "View a list of all permissions",

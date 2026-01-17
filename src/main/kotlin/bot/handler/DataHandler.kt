@@ -2,6 +2,7 @@ package de.c4vxl.bot.handler
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.data.Database
+import de.c4vxl.utils.ClassUtils
 import de.c4vxl.utils.LoggerUtils.createLogger
 import org.slf4j.Logger
 
@@ -42,5 +43,14 @@ class DataHandler(
     fun set(module: String, key: String, value: Any) {
         data(module)[key] = value
         Database.makeDirty(bot.guild.idLong)
+    }
+
+    /**
+     * Set the value of a specific element in the data object of a module
+     * @param key The key to the data element
+     * @param value The new value
+     */
+    inline fun <reified T> set(key: String, value: Any) {
+        set(ClassUtils.className(T::class.java), key, value)
     }
 }

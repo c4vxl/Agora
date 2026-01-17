@@ -3,6 +3,9 @@ package de.c4vxl.bot
 import de.c4vxl.bot.feature.*
 import de.c4vxl.bot.feature.channel.ChannelFeature
 import de.c4vxl.bot.feature.EmbedFeature
+import de.c4vxl.bot.feature.settings.LanguageFeature
+import de.c4vxl.bot.feature.settings.PermissionFeature
+import de.c4vxl.bot.feature.settings.SettingsFeature
 import de.c4vxl.bot.feature.type.Feature
 import de.c4vxl.bot.handler.ButtonHandler
 import de.c4vxl.bot.handler.CommandHandler
@@ -44,6 +47,7 @@ class Bot(
         registerFeature<LanguageFeature>(this)
         registerFeature<EmbedFeature>(this)
         registerFeature<ChannelFeature>(this)
+        registerFeature<SettingsFeature>(this)
 
         // Initialize command handler
         commandHandler.initHandlers()
