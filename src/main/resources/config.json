@@ -1,0 +1,7 @@
+{
+    "token": "<paste_your_token_here>",
+    "db_path": "./db/",
+    "db_cache_save_interval": 30000,
+    "activity": "Just vibing",
+    "status": "idle"
+}

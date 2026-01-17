@@ -2,6 +2,7 @@ package de.c4vxl.data
 
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import de.c4vxl.config.Config
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -12,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 object Database {
     // Path to database directory
-    private val basePath: Path = Paths.get("db/")
+    private val basePath: Path = Paths.get(Config.get<String>("db_path"))
 
     // Cache of data
     private val cache = ConcurrentHashMap<Long, DataCache>()
