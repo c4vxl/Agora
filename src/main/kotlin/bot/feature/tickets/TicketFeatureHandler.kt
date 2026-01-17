@@ -30,8 +30,22 @@ class TicketFeatureHandler(val feature: TicketFeature) {
         val name: String = bot.dataHandler.get<String>(feature.name, "${type}_category") // get from data store
             ?: bot.language.translate("feature.tickets.default_name.category.${type}") // default
 
-        return bot.guild.getCategoriesByName(name, false)    // find category
-            .firstOrNull() ?: bot.guild.createCategory(name).complete() // or create it
+        // find category
+        return bot.guild.getCategoriesByName(name, false)
+            .firstOrNull() ?:
+
+        // or create it
+        bot.guild.createCategory(name)
+            .addPermissionOverride(bot.guild.publicRole, mutableListOf(), mutableListOf(Permission.VIEW_CHANNEL))
+            .apply {
+                bot.rolesWithPermission(
+                    de.c4vxl.enums.Permission.FEATURE_TICKETS_VIEW,
+                    de.c4vxl.enums.Permission.FEATURE_TICKETS_MANAGE
+                ).forEach {
+                    this.addRolePermissionOverride(it.idLong, mutableListOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND), mutableListOf())
+                }
+            }
+            .complete()
     }
 
     private fun getEmbedField(id: String, vararg args: String): String =
