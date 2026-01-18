@@ -40,7 +40,10 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                         .addOption(OptionType.CHANNEL, "channel", bot.language.translate("feature.settings.command.welcome.channel.desc"), true)
                         .apply {
                             listOf("title", "image", "thumbnail", "description", "footer", "color").forEach {
-                                this.addOption(OptionType.STRING, it, bot.language.translate("feature.settings.command.welcome.${it}.desc"))
+                                this.addOption(OptionType.STRING, it, bot.language.translate(
+                                    "feature.settings.command.welcome.${it}.desc",
+                                    "\$user_name, \$user_ping, \$user_icon"
+                                ))
                             }
                         },
                 )

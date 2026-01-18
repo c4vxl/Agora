@@ -53,8 +53,10 @@ class WelcomeFeature(bot: Bot) : Feature<WelcomeFeature>(bot, WelcomeFeature::cl
         var out: T? = bot.dataHandler.get<T>(this@WelcomeFeature.name, x)
 
         if (out is String)
-            out = out.replace("\$user", user.asMention)
-                .replace("\$user_icon", user.avatarUrl ?: "") as T?
+            out = out
+                .replace("\$user_ping", user.asMention)
+                .replace("\$user_name", user.name)
+                .replace("\$user_icon", user.avatarUrl ?: "https://discord.com/assets/favicon.ico") as T?
 
         return out
     }

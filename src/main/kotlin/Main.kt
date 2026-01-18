@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.requests.GatewayIntent
 import org.slf4j.Logger
 import kotlin.concurrent.fixedRateTimer
 
@@ -21,6 +22,7 @@ fun main() {
     // Create JDA instance
     logger.info("Creating JDA instance")
     val jda: JDA = JDABuilder.createDefault(Config.get<String>("token"))
+        .enableIntents(GatewayIntent.GUILD_MEMBERS)
         .setActivity(Activity.customStatus(Config.get<String>("activity")))
         .setStatus(OnlineStatus.fromKey(Config.get<String>("status")))
         .build().awaitReady()
