@@ -62,6 +62,9 @@ class ConfigFeature(bot: Bot) : Feature<ConfigFeature>(bot, ConfigFeature::class
                     // Download to config
                     ResourceUtils.downloadFile(attachment.url, Database.file(event.guild!!.idLong))
 
+                    // Reload config to memory
+                    Database.reload(event.guild!!.idLong)
+
                     event.replyEmbeds(
                         Embeds.SUCCESS(bot)
                             .setDescription(bot.language.translate("feature.config.command.import.success"))

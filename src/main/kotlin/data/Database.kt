@@ -82,6 +82,14 @@ object Database {
     }
 
     /**
+     * Loads the data of a guild from disk into memory
+     * @param guildId The id of the guild
+     */
+    fun reload(guildId: Long) {
+        cache[guildId] = loadData(guildId)
+    }
+
+    /**
      * Saves a specific guilds data from cache to disk and cleans cache
      * @param guildId The id of the guild to save the data of
      */
