@@ -3,6 +3,7 @@ package de.c4vxl.bot.feature.channel
 import de.c4vxl.bot.Bot
 import de.c4vxl.enums.Permission
 import de.c4vxl.utils.ChannelUtils.deleteIfEmpty
+import de.c4vxl.utils.ChannelUtils.getChannel
 import de.c4vxl.utils.ChannelUtils.typeName
 import de.c4vxl.utils.PermissionUtils.hasPermission
 import net.dv8tion.jda.api.entities.Member
@@ -172,7 +173,7 @@ class ChannelFeatureHandler(val feature: ChannelFeature) {
         bot.dataHandler.set(feature.name, type, channels)
 
         // Delete channel
-        if (bot.guild.getTextChannelById(channel.id) == null)
+        if (bot.guild.getChannel(channel.id) == null)
             getCategory(type).deleteIfEmpty()?.queue()
         else
             channel.delete().queue {
