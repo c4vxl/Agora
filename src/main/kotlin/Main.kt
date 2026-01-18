@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.OnlineStatus
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.slf4j.Logger
 import kotlin.concurrent.fixedRateTimer
@@ -33,9 +34,27 @@ fun main() {
 
     // Create bot-instance when joining a guild
     jda.addEventListener(object : ListenerAdapter() {
+        // Handle guild join
         override fun onGuildJoin(event: GuildJoinEvent) {
+            // Handle whitelist
+            if (Config.get<Boolean>("only_join_whitelisted")) {
+                if (!Config.get<List<String>>("whitelist").contains(event.guild.id)) {
+                    logger.warn("Got invited to a guild not on the whitelist: ${event.guild.id}. Leaving guild...")
+                    event.guild.leave().queue()
+                    return
+                }
+            }
+
             logger.info("Joined new guild: ${event.guild.id}")
             Bot(jda, event.guild)
+        }
+
+        // Handle guild leave
+        override fun onGuildLeave(event: GuildLeaveEvent) {
+            logger.info("Leaving guild: ${event.guild.id}")
+
+            // Delete database
+            Database.delete(event.guild.idLong)
         }
     })
 
@@ -50,6 +69,4 @@ fun main() {
         Database.saveAll()
         jda.shutdown()
     })
-
-
 }

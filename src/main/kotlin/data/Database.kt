@@ -7,6 +7,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.io.path.deleteIfExists
 
 /**
  * The central database interface for loading and saving data
@@ -25,6 +26,16 @@ object Database {
                 this.setPrettyPrinting()
         }
         .create()
+
+    /**
+     * Deletes the database of a specific guild
+     * @param guildId The id of the guild to remove
+     */
+    fun delete(guildId: Long) {
+        cache.remove(guildId)
+        basePath.resolve("$guildId.db")
+            .deleteIfExists()
+    }
 
     /**
      * Get the data of a specific guild
