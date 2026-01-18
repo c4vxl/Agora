@@ -12,6 +12,8 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.buttons.Button
 import net.dv8tion.jda.api.entities.channel.ChannelType
+import net.dv8tion.jda.api.events.channel.ChannelCreateEvent
+import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.commands.OptionMapping
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
@@ -158,57 +160,27 @@ class RulesFeature(bot: Bot) : Feature<RulesFeature>(bot, RulesFeature::class.ja
                     .build()
             ).setEphemeral(true).queue()
         }
+
+        bot.jda.addEventListener(object : ListenerAdapter() {
+            override fun onChannelCreate(event: ChannelCreateEvent) {
+                if (event.guild.id != bot.guild.id) return
+
+                if (get<Boolean>("required") != true)
+                    return
+
+                updatePerms()
+            }
+        })
     }
 
     /**
-     * Removes the rules system from this guild
+     * Applies channel permissions
      */
-    fun remove() {
-        if (get<Boolean>("required") != true)
-            return
-
-        val role = bot.guild.getRoleById(get<String>("role") ?: return) ?: return
-
-        val channels = bot.guild.channels.filter {
-            it.permissionContainer
-                .upsertPermissionOverride(role)
-                .allowedPermissions
-                .contains(net.dv8tion.jda.api.Permission.VIEW_CHANNEL)
-        }
-
-        channels.forEach {
-            // Allow visibility
-            it.permissionContainer
-                .upsertPermissionOverride(bot.guild.publicRole)
-                .grant(net.dv8tion.jda.api.Permission.VIEW_CHANNEL)
-                .queue()
-        }
-    }
-
-    /**
-     * Sets up the rules system
-     */
-    fun setup() {
+    private fun updatePerms() {
         val channel = bot.guild.getTextChannelById(get<String>("channel") ?: return) ?: return
         val role = bot.guild.getRoleById(get<String>("role") ?: return) ?: return
-        val embed = getEmbed()
 
-        // Send embed
-        channel.sendMessage(
-            MessageCreateBuilder()
-                .addEmbeds(embed)
-                .addComponents(ActionRow.of(
-                    Button.danger("${this.name}_button_deny", get<String>("deny") ?: "_"),
-                    Button.success("${this.name}_button_accept", get<String>("accept") ?: "_")
-                ))
-                .build()
-        ).queue()
-
-        // Don't modify permissions if rules are not required
-        if (get<Boolean>("required") != true)
-            return
-
-        val visibleChannels = bot.guild.channels.filterNot {
+        val visibleChannels = (bot.guild.channels + bot.guild.categories).filterNot {
             it.permissionContainer
                 .upsertPermissionOverride(bot.guild.publicRole)
                 .deniedPermissions
@@ -235,6 +207,58 @@ class RulesFeature(bot: Bot) : Feature<RulesFeature>(bot, RulesFeature::class.ja
             .upsertPermissionOverride(bot.guild.publicRole)
             .grant(net.dv8tion.jda.api.Permission.VIEW_CHANNEL)
             .queue()
+    }
+
+    /**
+     * Removes the rules system from this guild
+     */
+    fun remove() {
+        if (get<Boolean>("required") != true)
+            return
+
+        val role = bot.guild.getRoleById(get<String>("role") ?: return) ?: return
+
+        bot.dataHandler.set(this.name, "required", false)
+
+        val channels = bot.guild.channels.filter {
+            it.permissionContainer
+                .upsertPermissionOverride(role)
+                .allowedPermissions
+                .contains(net.dv8tion.jda.api.Permission.VIEW_CHANNEL)
+        }
+
+        channels.forEach {
+            // Allow visibility
+            it.permissionContainer
+                .upsertPermissionOverride(bot.guild.publicRole)
+                .grant(net.dv8tion.jda.api.Permission.VIEW_CHANNEL)
+                .queue()
+        }
+    }
+
+    /**
+     * Sets up the rules system
+     */
+    fun setup() {
+        val channel = bot.guild.getTextChannelById(get<String>("channel") ?: return) ?: return
+        val embed = getEmbed()
+
+        // Send embed
+        channel.sendMessage(
+            MessageCreateBuilder()
+                .addEmbeds(embed)
+                .addComponents(ActionRow.of(
+                    Button.danger("${this.name}_button_deny", get<String>("deny") ?: "_"),
+                    Button.success("${this.name}_button_accept", get<String>("accept") ?: "_")
+                ))
+                .build()
+        ).queue()
+
+        // Don't modify permissions if rules are not required
+        if (get<Boolean>("required") != true)
+            return
+
+        updatePerms()
     }
 
     private inline fun <reified R> get(x: String): R? = bot.dataHandler.get(this.name, x)
