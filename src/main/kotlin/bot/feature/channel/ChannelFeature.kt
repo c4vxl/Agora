@@ -6,6 +6,7 @@ import de.c4vxl.enums.Color
 import de.c4vxl.enums.Embeds
 import de.c4vxl.enums.Permission
 import de.c4vxl.utils.ChannelUtils.getChannel
+import de.c4vxl.utils.ChannelUtils.typeName
 import de.c4vxl.utils.EmbedUtils.color
 import de.c4vxl.utils.EmbedUtils.withTimestamp
 import de.c4vxl.utils.PermissionUtils.hasPermission
@@ -18,6 +19,7 @@ import net.dv8tion.jda.api.components.textinput.TextInput
 import net.dv8tion.jda.api.components.textinput.TextInputStyle
 import net.dv8tion.jda.api.entities.channel.Channel
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel
+import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
@@ -257,6 +259,22 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
                 event.replyEmbeds(
                     successEmbed(type, channel, false)
                 ).setEphemeral(true).queue()
+            }
+
+            override fun onChannelDelete(event: ChannelDeleteEvent) {
+                if (event.guild.id != bot.guild.id) return
+
+                val type = event.channel.typeName ?: return
+
+                // Return if channel is not from feature
+                if (!handler.getChannels(type).contains(event.channel.id))
+                    return
+
+                // Log
+                logger.warn("Detected external channel removal. Updating config...")
+
+                // Remove
+                handler.remove(event.channel)
             }
         })
     }

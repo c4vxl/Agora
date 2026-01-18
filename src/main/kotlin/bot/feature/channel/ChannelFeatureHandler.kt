@@ -98,15 +98,6 @@ class ChannelFeatureHandler(val feature: ChannelFeature) {
      */
     fun getChannels(type: String): MutableMap<String, String> =
         bot.dataHandler.get<MutableMap<String, String>>(feature.name, type)
-            // Filter out channels that don't exist anymore
-            ?.filter {
-                when (type) {
-                    "text" -> bot.guild.getTextChannelById(it.key) != null
-                    "voice" -> bot.guild.getVoiceChannelById(it.key) != null
-                    else   -> false
-                }
-            }
-            ?.toMutableMap()
             ?: mutableMapOf()
 
     /**
@@ -181,9 +172,12 @@ class ChannelFeatureHandler(val feature: ChannelFeature) {
         bot.dataHandler.set(feature.name, type, channels)
 
         // Delete channel
-        channel.delete().queue {
-            // Delete category if empty
+        if (bot.guild.getTextChannelById(channel.id) == null)
             getCategory(type).deleteIfEmpty()?.queue()
-        }
+        else
+            channel.delete().queue {
+                // Delete category if empty
+                getCategory(type).deleteIfEmpty()?.queue()
+            }
     }
 }
