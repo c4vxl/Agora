@@ -210,10 +210,7 @@ class ActivityFeature(bot: Bot) : Feature<ActivityFeature>(bot, ActivityFeature:
                         MessageCreateBuilder()
                             .setComponents(
                                 ActionRow.of(
-                                    StringSelectMenu.create("${this.name}_select")
-                                        .apply { activities.keys.forEach { this.addOption(it, "a_$it") } }
-                                        .addOption(bot.language.translate("feature.activities.command.buttons.select.custom"), "custom")
-                                        .build()
+                                    createSelectMenu()
                                 )
                             )
                             .build()
@@ -249,6 +246,10 @@ class ActivityFeature(bot: Bot) : Feature<ActivityFeature>(bot, ActivityFeature:
                     event.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
                     return
                 }
+
+                event.message.editMessageComponents(
+                    ActionRow.of(createSelectMenu())
+                ).queue()
 
                 val activity = event.values[0]
 
@@ -346,6 +347,12 @@ class ActivityFeature(bot: Bot) : Feature<ActivityFeature>(bot, ActivityFeature:
             }
         })
     }
+
+    private fun createSelectMenu() =
+        StringSelectMenu.create("${this.name}_select")
+            .apply { activities.keys.forEach { this.addOption(it, "a_$it") } }
+            .addOption(bot.language.translate("feature.activities.command.buttons.select.custom"), "custom")
+            .build()
 
     private fun createComponents(activity: String) =
         ActionRow.of(
