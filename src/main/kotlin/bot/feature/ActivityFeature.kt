@@ -229,7 +229,7 @@ class ActivityFeature(bot: Bot) : Feature<ActivityFeature>(bot, ActivityFeature:
             val activity = event.getValue("${this@ActivityFeature.name}_custom_name")!!.asString
 
             event.reply("")
-                .addComponents(createComponents(activity))
+                .addComponents(createComponents(activity, event.user))
                 .setEphemeral(true)
                 .queue()
         }
@@ -271,7 +271,7 @@ class ActivityFeature(bot: Bot) : Feature<ActivityFeature>(bot, ActivityFeature:
                 }
 
                 event.reply("")
-                    .addComponents(createComponents(activity.removePrefix("a_")))
+                    .addComponents(createComponents(activity.removePrefix("a_"), event.user))
                     .setEphemeral(true)
                     .queue()
             }
@@ -354,16 +354,17 @@ class ActivityFeature(bot: Bot) : Feature<ActivityFeature>(bot, ActivityFeature:
             .addOption(bot.language.translate("feature.activities.command.buttons.select.custom"), "custom")
             .build()
 
-    private fun createComponents(activity: String) =
+    private fun createComponents(activity: String, user: User) =
         ActionRow.of(
-            Button.danger(
-                "${this.name}_select_uninterested_${activity}",
-                bot.language.translate("feature.activities.command.buttons.uninterested")
-            ),
-            Button.success(
+            if (activities.getOrDefault(activity, mutableListOf()).contains(user.id))
+                Button.danger(
+                    "${this.name}_select_uninterested_${activity}",
+                    bot.language.translate("feature.activities.command.buttons.uninterested")
+                )
+            else Button.success(
                 "${this.name}_select_interested_${activity}",
-                bot.language.translate("feature.activities.command.buttons.interested")
-            ),
+                    bot.language.translate("feature.activities.command.buttons.interested")
+                ),
             Button.primary(
                 "${this.name}_select_start_${activity}",
                 bot.language.translate("feature.activities.command.buttons.start")
