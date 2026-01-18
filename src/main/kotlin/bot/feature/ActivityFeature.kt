@@ -179,7 +179,7 @@ class ActivityFeature(bot: Bot) : Feature<ActivityFeature>(bot, ActivityFeature:
                                     val items = activities.filter { it.value.contains(target.id) }
 
                                     if (items.isEmpty())
-                                        this.setDescription(bot.language.translate("feature.activities.command.list.user.embed.empty.desc"))
+                                        this.setDescription(bot.language.translate("feature.activities.command.list.user.embed.empty.desc", target.asMention))
                                     else this.setDescription("- " + items.keys.joinToString("\n- "))
                                 }
                                 .withTimestamp()
