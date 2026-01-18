@@ -19,3 +19,13 @@ dependencies {
     // Serialization
     implementation("com.google.code.gson:gson:2.13.2")
 }
+
+tasks.jar {
+    manifest.attributes["Main-Class"] = "de.c4vxl.MainKt"
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(
+        configurations.runtimeClasspath.get().filter { it.name != "module-info.class" }
+            .map { if (it.isDirectory) it else zipTree(it) }
+    )
+}
