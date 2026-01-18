@@ -56,8 +56,7 @@ class DefaultRoleFeature(bot: Bot) : Feature<DefaultRoleFeature>(bot, DefaultRol
                             .apply {
                                 if (registry.isEmpty())
                                     this.setDescription(bot.language.translate("feature.default_roles.command.list.embed.empty.desc"))
-                                else this.addField("- " + registry.joinToString("\n- ") { it.name },
-                                    "", false)
+                                else this.setDescription("- " + registry.joinToString("\n- ") { it.name })
                             }
                             .withTimestamp()
                             .color(Color.PRIMARY)

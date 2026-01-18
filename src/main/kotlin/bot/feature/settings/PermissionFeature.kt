@@ -49,10 +49,9 @@ class PermissionFeature(bot: Bot) : Feature<PermissionFeature>(bot, PermissionFe
                     event.replyEmbeds(
                         EmbedBuilder()
                             .setTitle(bot.language.translate("feature.perms.command.list.embed.title"))
-                            .addField("- " + de.c4vxl.enums.Permission.entries
+                            .setDescription("- " + de.c4vxl.enums.Permission.entries
                                 .joinToString("\n- ") {
-                                    it.name.lowercase(Locale.getDefault()) },
-                                "", false)
+                                    it.name.lowercase(Locale.getDefault()) })
                             .withTimestamp()
                             .color(Color.PRIMARY)
                             .build()

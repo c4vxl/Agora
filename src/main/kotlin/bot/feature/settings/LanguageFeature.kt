@@ -45,10 +45,9 @@ class LanguageFeature(bot: Bot) : Feature<LanguageFeature>(bot, LanguageFeature:
                     event.replyEmbeds(
                         EmbedBuilder()
                             .setTitle(bot.language.translate("feature.lang.command.list.embed.title"))
-                            .addField("- " + Language.available
+                            .setDescription("- " + Language.available
                                 .joinToString("\n- ") {
-                                    it.lowercase(Locale.getDefault()) },
-                                "", false)
+                                    it.lowercase(Locale.getDefault()) })
                             .withTimestamp()
                             .color(Color.PRIMARY)
                             .build()
