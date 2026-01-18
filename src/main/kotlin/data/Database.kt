@@ -3,6 +3,7 @@ package de.c4vxl.data
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import de.c4vxl.config.Config
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -38,6 +39,13 @@ object Database {
     }
 
     /**
+     * Returns the db file of a specific guild
+     * @param guildId The id of the guild
+     */
+    fun file(guildId: Long): File =
+        basePath.resolve("$guildId.db").toFile()
+
+    /**
      * Get the data of a specific guild
      * @param guildId The id of the guild to load the data of
      */
@@ -55,10 +63,15 @@ object Database {
         val path: Path = basePath.resolve("${guildId}.db")
 
         val data: MutableMap<String, MutableMap<String, Any>> =
-            if (Files.exists(path))
-                gson.fromJson(Files.readString(path), object : TypeToken<MutableMap<String, MutableMap<String, Any>>>() {}.type)
-            else
+            try {
+                if (Files.exists(path))
+                    gson.fromJson(Files.readString(path), object : TypeToken<MutableMap<String, MutableMap<String, Any>>>() {}.type)
+                else
+                    mutableMapOf()
+            } catch (_: Exception) {
+                Files.deleteIfExists(path)
                 mutableMapOf()
+            }
 
         return DataCache(
             GuildData(

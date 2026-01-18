@@ -2,6 +2,7 @@ package de.c4vxl.bot
 
 import de.c4vxl.bot.feature.*
 import de.c4vxl.bot.feature.channel.ChannelFeature
+import de.c4vxl.bot.feature.settings.ConfigFeature
 import de.c4vxl.bot.feature.settings.LanguageFeature
 import de.c4vxl.bot.feature.settings.PermissionFeature
 import de.c4vxl.bot.feature.settings.SettingsFeature
@@ -11,6 +12,7 @@ import de.c4vxl.bot.handler.ComponentHandler
 import de.c4vxl.bot.handler.CommandHandler
 import de.c4vxl.bot.handler.DataHandler
 import de.c4vxl.bot.handler.PermissionHandler
+import de.c4vxl.config.Config
 import de.c4vxl.language.Language
 import de.c4vxl.utils.LoggerUtils.createLogger
 import net.dv8tion.jda.api.JDA
@@ -53,6 +55,11 @@ class Bot(
         registerFeature<DefaultRoleFeature>(this)
         registerFeature<ActivityFeature>(this)
         registerFeature<WelcomeFeature>(this)
+
+        println(Config.get<Boolean>("enable_config_feature"))
+
+        if (Config.get<Boolean>("enable_config_feature"))
+            registerFeature<ConfigFeature>(this)
 
         // Initialize command handler
         commandHandler.initHandlers()

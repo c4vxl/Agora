@@ -6,5 +6,6 @@
     "activity": "Just vibing",
     "status": "idle",
     "only_join_whitelisted": false,
-    "whitelist": []
+    "whitelist": [],
+    "enable_config_feature": true
 }

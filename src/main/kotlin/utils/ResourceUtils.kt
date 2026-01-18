@@ -2,6 +2,8 @@ package de.c4vxl.utils
 
 import okio.IOException
 import java.io.File
+import java.net.URL
+import java.nio.channels.Channels
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -39,5 +41,23 @@ object ResourceUtils {
         )
 
         return true
+    }
+
+    /**
+     * Downloads a file from an url
+     * @param url The url to the file
+     * @param target The target file
+     */
+    fun downloadFile(url: String, target: File) {
+        target.parentFile.mkdirs()
+        target.createNewFile()
+
+        URL(url).openStream().use { input ->
+            Channels.newChannel(input).use { rbc ->
+                target.outputStream().channel.use { out ->
+                    out.transferFrom(rbc, 0, Long.MAX_VALUE)
+                }
+            }
+        }
     }
 }

@@ -235,7 +235,6 @@
   "feature.activities.modal.start.title": "Start activity",
   "feature.activities.modal.start.message": "Message:",
   "feature.activities.modal.start.message.desc": "Provide a short message:",
-
   "feature.activities.notification.title": "New activity notification!",
   "feature.activities.notification.desc": "**$0** has started an activity on **$1**.\n",
   "feature.activities.notification.footer": "If you are no longer interested in this activity, go to $0 and set yourself as uninterested in this activity!",
@@ -244,5 +243,14 @@
   "feature.activities.notification.fields.host": "Host:",
   "feature.activities.notification.fields.message": "Message:",
   "feature.activities.notification.fields.message.empty": "`Not set`",
-  "feature.activities.notification.delete": "\uD83D\uDDD1\uFE0F Delete this message"
+  "feature.activities.notification.delete": "\uD83D\uDDD1\uFE0F Delete this message",
+
+  "--- Feature: Config ---": "",
+  "feature.config.command.desc": "Allows users to simply export the bot-specific data",
+  "feature.config.command.export.desc": "Exports the bot database for transfer to another guild",
+  "feature.config.command.import.desc": "Imports the bot database",
+  "feature.config.command.import.file.desc": "The database file",
+  "feature.config.command.import.success": "Successfully imported config!",
+  "feature.config.command.import.error.invalid": "Not a database file!",
+  "feature.config.command.show.desc": "Shows the current database configuration in json format"
 }
