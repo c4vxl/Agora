@@ -1,9 +1,11 @@
 package de.c4vxl.bot.feature.settings
 
 import de.c4vxl.bot.Bot
+import de.c4vxl.bot.feature.WelcomeFeature
 import de.c4vxl.bot.feature.channel.ChannelFeature
 import de.c4vxl.bot.feature.tickets.TicketFeature
 import de.c4vxl.bot.feature.type.Feature
+import de.c4vxl.enums.Color
 import de.c4vxl.enums.Embeds
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.channel.ChannelType
@@ -31,11 +33,49 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                     // Feature: Tickets
                     SubcommandData("ticket", bot.language.translate("feature.settings.command.tickets.desc"))
                         .addOption(OptionType.STRING, "open_category", bot.language.translate("feature.settings.command.tickets.open_category.desc"))
-                        .addOption(OptionType.STRING, "saved_category", bot.language.translate("feature.settings.command.tickets.saved_category.desc"))
+                        .addOption(OptionType.STRING, "saved_category", bot.language.translate("feature.settings.command.tickets.saved_category.desc")),
 
+                    // Feature: Welcome
+                    SubcommandData("welcome", bot.language.translate("feature.settings.command.welcome.desc"))
+                        .addOption(OptionType.CHANNEL, "channel", bot.language.translate("feature.settings.command.welcome.channel.desc"), true)
+                        .apply {
+                            listOf("title", "image", "thumbnail", "description", "footer", "color").forEach {
+                                this.addOption(OptionType.STRING, it, bot.language.translate("feature.settings.command.welcome.${it}.desc"))
+                            }
+                        },
                 )
         ) { event ->
             when (event.subcommandName) {
+                // Feature: Welcome
+                "welcome" -> {
+                    val channel = event.getOption("channel", OptionMapping::getAsChannel) ?: return@registerSlashCommand
+                    val title = event.getOption("title", OptionMapping::getAsString)
+                    val image = event.getOption("image", OptionMapping::getAsString)
+                    val thumbnail = event.getOption("thumbnail", OptionMapping::getAsString)
+                    val description = event.getOption("description", OptionMapping::getAsString)
+                    val footer = event.getOption("footer", OptionMapping::getAsString)
+                    val color = event.getOption("color", OptionMapping::getAsString)?.removePrefix("#")?.toIntOrNull(16) ?: Color.PRIMARY.asInt
+
+                    // Exit if empty
+                    if (mutableListOf(title, image, description, footer, thumbnail)
+                            .filterNotNull().isEmpty()) {
+                        event.replyEmbeds(
+                            Embeds.FAILURE(bot)
+                                .setDescription(bot.language.translate("feature.settings.command.welcome.error.empty")).build()
+                        ).setEphemeral(true).queue()
+                        return@registerSlashCommand
+                    }
+
+                    // Save to config
+                    bot.dataHandler.set<WelcomeFeature>("channel", channel.id)
+                    bot.dataHandler.set<WelcomeFeature>("color", color)
+                    title?.let { bot.dataHandler.set<WelcomeFeature>("title", it) }
+                    image?.let { bot.dataHandler.set<WelcomeFeature>("image", it) }
+                    thumbnail?.let { bot.dataHandler.set<WelcomeFeature>("thumb", it) }
+                    description?.let { bot.dataHandler.set<WelcomeFeature>("description", it) }
+                    footer?.let { bot.dataHandler.set<WelcomeFeature>("footer", it) }
+                }
+
                 // Feature: ticket
                 "ticket" -> {
                     val openCategory = event.getOption("open_category", OptionMapping::getAsString)

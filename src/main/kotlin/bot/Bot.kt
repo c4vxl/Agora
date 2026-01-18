@@ -52,6 +52,7 @@ class Bot(
         registerFeature<TicketFeature>(this)
         registerFeature<DefaultRoleFeature>(this)
         registerFeature<ActivityFeature>(this)
+        registerFeature<WelcomeFeature>(this)
 
         // Initialize command handler
         commandHandler.initHandlers()
