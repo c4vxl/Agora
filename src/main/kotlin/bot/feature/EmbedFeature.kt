@@ -109,7 +109,7 @@ class EmbedFeature(bot: Bot) : Feature<EmbedFeature>(bot, EmbedFeature::class.ja
                 .setAuthor(author, author_url, author_icon)
                 .setFooter(footer, footer_icon)
                 .setTimestamp(if (timestamp) Date().toInstant() else null)
-                .setDescription(description)
+                .setDescription(description?.replace("\\n", "\n"))
                 .setColor(color)
                 .setThumbnail(thumbnail)
                 .setImage(image)
