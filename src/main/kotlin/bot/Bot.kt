@@ -14,6 +14,7 @@ import de.c4vxl.bot.handler.DataHandler
 import de.c4vxl.bot.handler.PermissionHandler
 import de.c4vxl.config.Config
 import de.c4vxl.language.Language
+import de.c4vxl.utils.ClassUtils.className
 import de.c4vxl.utils.LoggerUtils.createLogger
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Guild
@@ -55,11 +56,7 @@ class Bot(
         registerFeature<DefaultRoleFeature>(this)
         registerFeature<ActivityFeature>(this)
         registerFeature<WelcomeFeature>(this)
-
-        println(Config.get<Boolean>("enable_config_feature"))
-
-        if (Config.get<Boolean>("enable_config_feature"))
-            registerFeature<ConfigFeature>(this)
+        registerFeature<ConfigFeature>(this)
 
         // Initialize command handler
         commandHandler.initHandlers()
@@ -71,6 +68,12 @@ class Bot(
      * @param args The constructor arguments needed for the feature
      */
     private inline fun <reified T : Feature<*>> registerFeature(vararg args: Any) {
+        val name = className(T::class.java)
+        if (Config.get<List<String>>("disable_features").any { it.contentEquals(name) }) {
+            logger.warn("Won't enable feature '$name' as it is disabled in config.")
+            return
+        }
+
         val instance: Any = T::class.java.constructors[0]?.newInstance(*args) ?: return
         val feature: Feature<*> = instance as? Feature<*> ?: return
 

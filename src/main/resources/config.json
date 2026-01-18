@@ -7,5 +7,5 @@
     "status": "idle",
     "only_join_whitelisted": false,
     "whitelist": [],
-    "enable_config_feature": true
+    "disable_features": []
 }
