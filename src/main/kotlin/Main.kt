@@ -1,6 +1,7 @@
 package de.c4vxl
 
 import de.c4vxl.bot.Bot
+import de.c4vxl.bot.handler.static.StaticButtonHandler
 import de.c4vxl.config.Config
 import de.c4vxl.data.Database
 import de.c4vxl.utils.LoggerUtils.createLogger
@@ -22,6 +23,9 @@ fun main() {
         .setActivity(Activity.customStatus(Config.get<String>("activity")))
         .setStatus(OnlineStatus.fromKey(Config.get<String>("status")))
         .build().awaitReady()
+
+    // Register static handlers
+    StaticButtonHandler.init(jda)
 
     // Create bot-instance for every guild the bot is in
     logger.info("Enabling bot for guilds")
