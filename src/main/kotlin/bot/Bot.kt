@@ -1,6 +1,7 @@
 package de.c4vxl.bot
 
 import de.c4vxl.bot.feature.*
+import de.c4vxl.bot.feature.BeRealFeature
 import de.c4vxl.bot.feature.channel.ChannelFeature
 import de.c4vxl.bot.feature.settings.ConfigFeature
 import de.c4vxl.bot.feature.settings.LanguageFeature
@@ -57,6 +58,7 @@ class Bot(
         registerFeature<ActivityFeature>(this)
         registerFeature<WelcomeFeature>(this)
         registerFeature<ConfigFeature>(this)
+        registerFeature<BeRealFeature>(this)
 
         // Initialize command handler
         commandHandler.initHandlers()

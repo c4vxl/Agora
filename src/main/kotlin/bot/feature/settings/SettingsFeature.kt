@@ -2,6 +2,7 @@ package de.c4vxl.bot.feature.settings
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.WelcomeFeature
+import de.c4vxl.bot.feature.BeRealFeature
 import de.c4vxl.bot.feature.channel.ChannelFeature
 import de.c4vxl.bot.feature.tickets.TicketFeature
 import de.c4vxl.bot.feature.type.Feature
@@ -25,6 +26,10 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
             Commands.slash("settings", bot.language.translate("feature.settings.command.desc"))
                 .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR))
                 .addSubcommands(
+                    // Reset
+                    SubcommandData("reset", bot.language.translate("feature.settings.command.reset.desc"))
+                        .addOption(OptionType.BOOLEAN, "welcome", bot.language.translate("feature.settings.command.reset.welcome.desc"))
+                        .addOption(OptionType.BOOLEAN, "be-real", bot.language.translate("feature.settings.command.reset.be-real.desc")),
 
                     // Feature: Channel
                     SubcommandData("channel", bot.language.translate("feature.settings.command.channel.desc"))
@@ -49,11 +54,73 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                                     "\$user_name, \$user_ping, \$user_icon"
                                 ))
                             }
-                        }
-                        .addOption(OptionType.BOOLEAN, "reset", bot.language.translate("feature.settings.command.welcome.reset.desc")),
+                        },
+
+                    // Feature: BeReal
+                    SubcommandData("be-real", bot.language.translate("feature.settings.command.be-real.desc"))
+                        .addOption(OptionType.BOOLEAN, "enabled", bot.language.translate("feature.settings.command.be-real.enabled.desc"))
+                        .addOption(OptionType.CHANNEL, "channel", bot.language.translate("feature.settings.command.be-real.channel.desc"))
+                        .addOption(OptionType.STRING, "start_time", bot.language.translate("feature.settings.command.be-real.start.desc"))
+                        .addOption(OptionType.STRING, "end_time", bot.language.translate("feature.settings.command.be-real.end.desc"))
+                        .addOption(OptionType.INTEGER, "amount", bot.language.translate("feature.settings.command.be-real.num.desc")),
                 )
         ) { event ->
             when (event.subcommandName) {
+                // Reset
+                "reset" -> {
+                    fun get(name: String): Boolean =
+                        event.getOption(name, OptionMapping::getAsBoolean) ?: false
+
+                    if (get("welcome"))
+                        bot.dataHandler.delete<WelcomeFeature>()
+
+                    if (get("be-real"))
+                        bot.dataHandler.delete<BeRealFeature>()
+
+
+                    event.replyEmbeds(
+                        Embeds.SUCCESS(bot)
+                            .setDescription(bot.language.translate("feature.settings.command.reset.success")).build()
+                    ).setEphemeral(true).queue()
+                }
+
+                // Feature: BeReal
+                "be-real" -> {
+                    val enabled = event.getOption("enabled", OptionMapping::getAsBoolean) ?: true
+                    val channel = event.getOption("channel", OptionMapping::getAsChannel)
+                    val start = event.getOption("start_time", OptionMapping::getAsString)
+                    val end = event.getOption("end_time", OptionMapping::getAsString)
+                    val amount = event.getOption("amount", OptionMapping::getAsInt)
+
+                    start?.let {
+                        val parts = it.split(":")
+                        val hours = parts.getOrNull(0)?.toIntOrNull()
+                        val mins = parts.getOrNull(1)?.toIntOrNull()
+
+                        if (hours != null && hours <= 24)
+                            bot.dataHandler.set<BeRealFeature>("start.h", hours)
+
+                        if (mins != null && mins <= 60)
+                            bot.dataHandler.set<BeRealFeature>("start.m", mins)
+                    }
+
+                    end?.let {
+                        val parts = it.split(":")
+                        val hours = parts.getOrNull(0) as? Int?
+                        val mins = parts.getOrNull(1) as? Int?
+
+                        if (hours != null && hours <= 24)
+                            bot.dataHandler.set<BeRealFeature>("end.h", hours)
+
+                        if (mins != null && mins <= 60)
+                            bot.dataHandler.set<BeRealFeature>("end.m", mins)
+                    }
+
+                    bot.dataHandler.set<BeRealFeature>("enabled", enabled)
+                    channel?.let { bot.dataHandler.set<BeRealFeature>("channel", it.id) }
+                    amount?.let { bot.dataHandler.set<BeRealFeature>("amount", amount) }
+                }
+
                 // Feature: Welcome
                 "welcome" -> {
                     val channel = event.getOption("channel", OptionMapping::getAsChannel)
@@ -63,19 +130,6 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                     val description = event.getOption("description", OptionMapping::getAsString)
                     val footer = event.getOption("footer", OptionMapping::getAsString)
                     val color = event.getOption("color", OptionMapping::getAsString)?.removePrefix("#")?.toIntOrNull(16) ?: Color.PRIMARY.asInt
-                    val reset = event.getOption("reset", OptionMapping::getAsBoolean) ?: false
-
-                    if (reset) {
-                        // Reset database
-                        bot.dataHandler.delete<WelcomeFeature>()
-
-                        event.replyEmbeds(
-                            Embeds.SUCCESS(bot)
-                                .setDescription(bot.language.translate("feature.settings.command.welcome.success.reset")).build()
-                        ).setEphemeral(true).queue()
-
-                        return@registerSlashCommand
-                    }
 
                     // Exit if empty
                     if (mutableListOf(title, image, description, footer, thumbnail)

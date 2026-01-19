@@ -22,7 +22,7 @@ fun main() {
     // Create JDA instance
     logger.info("Creating JDA instance")
     val jda: JDA = JDABuilder.createDefault(Config.get<String>("token"))
-        .enableIntents(GatewayIntent.GUILD_MEMBERS)
+        .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT)
         .setActivity(Activity.customStatus(Config.get<String>("activity")))
         .setStatus(OnlineStatus.fromKey(Config.get<String>("status")))
         .build().awaitReady()

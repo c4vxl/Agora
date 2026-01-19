@@ -417,7 +417,7 @@ class ActivityFeature(bot: Bot) : Feature<ActivityFeature>(bot, ActivityFeature:
                             ),
                             Button.primary(
                                 "agora_delete_message",
-                                bot.language.translate("feature.activities.notification.delete")
+                                bot.language.translate("global.button.delete_msg")
                             )
                         ))
                         .build()
