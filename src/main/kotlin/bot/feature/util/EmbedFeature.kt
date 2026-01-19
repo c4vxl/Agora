@@ -1,4 +1,4 @@
-package de.c4vxl.bot.feature
+package de.c4vxl.bot.feature.util
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.type.Feature
@@ -75,8 +75,10 @@ class EmbedFeature(bot: Bot) : Feature<EmbedFeature>(bot, EmbedFeature::class.ja
                 MessageCreateBuilder()
 
                     // Add embed
-                    .addEmbeds(createEmbed(description, title, title_url, author, author_url, author_icon,
-                        footer, footer_icon, image, thumbnail, url, fields, color, timestamp))
+                    .addEmbeds(
+                        createEmbed(description, title, title_url, author, author_url, author_icon,
+                        footer, footer_icon, image, thumbnail, url, fields, color, timestamp)
+                    )
 
                     // Add link buttons
                     .addComponents(links?.split("; ")?.chunked(5)?.map { chunk ->

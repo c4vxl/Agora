@@ -1,4 +1,4 @@
-package de.c4vxl.bot.feature.channel
+package de.c4vxl.bot.feature.util.channel
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.config.enums.Permission

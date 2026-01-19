@@ -1,4 +1,4 @@
-package de.c4vxl.bot.feature.tickets
+package de.c4vxl.bot.feature.util.tickets
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.config.enums.Color

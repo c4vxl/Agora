@@ -1,14 +1,19 @@
 package de.c4vxl.bot
 
-import de.c4vxl.bot.feature.*
-import de.c4vxl.bot.feature.BeRealFeature
-import de.c4vxl.bot.feature.channel.ChannelFeature
+import de.c4vxl.bot.feature.game.BeRealFeature
+import de.c4vxl.bot.feature.util.channel.ChannelFeature
+import de.c4vxl.bot.feature.game.ActivityFeature
+import de.c4vxl.bot.feature.game.PingPongFeature
+import de.c4vxl.bot.feature.onboarding.DefaultRoleFeature
+import de.c4vxl.bot.feature.onboarding.RulesFeature
+import de.c4vxl.bot.feature.onboarding.WelcomeFeature
 import de.c4vxl.bot.feature.settings.ConfigFeature
 import de.c4vxl.bot.feature.settings.LanguageFeature
 import de.c4vxl.bot.feature.settings.PermissionFeature
 import de.c4vxl.bot.feature.settings.SettingsFeature
-import de.c4vxl.bot.feature.tickets.TicketFeature
+import de.c4vxl.bot.feature.util.tickets.TicketFeature
 import de.c4vxl.bot.feature.type.Feature
+import de.c4vxl.bot.feature.util.EmbedFeature
 import de.c4vxl.bot.handler.CommandHandler
 import de.c4vxl.bot.handler.ComponentHandler
 import de.c4vxl.bot.handler.DataHandler

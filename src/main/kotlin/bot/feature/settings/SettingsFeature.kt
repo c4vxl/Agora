@@ -1,10 +1,10 @@
 package de.c4vxl.bot.feature.settings
 
 import de.c4vxl.bot.Bot
-import de.c4vxl.bot.feature.WelcomeFeature
-import de.c4vxl.bot.feature.BeRealFeature
-import de.c4vxl.bot.feature.channel.ChannelFeature
-import de.c4vxl.bot.feature.tickets.TicketFeature
+import de.c4vxl.bot.feature.onboarding.WelcomeFeature
+import de.c4vxl.bot.feature.game.BeRealFeature
+import de.c4vxl.bot.feature.util.channel.ChannelFeature
+import de.c4vxl.bot.feature.util.tickets.TicketFeature
 import de.c4vxl.bot.feature.type.Feature
 import de.c4vxl.config.enums.Color
 import de.c4vxl.config.enums.Embeds

@@ -1,6 +1,7 @@
-package de.c4vxl.bot.feature
+package de.c4vxl.bot.feature.onboarding
 
 import de.c4vxl.bot.Bot
+import de.c4vxl.bot.feature.util.EmbedFeature
 import de.c4vxl.bot.feature.type.Feature
 import de.c4vxl.config.enums.Color
 import net.dv8tion.jda.api.entities.User
