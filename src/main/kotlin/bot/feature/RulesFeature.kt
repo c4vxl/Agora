@@ -2,9 +2,9 @@ package de.c4vxl.bot.feature
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.type.Feature
-import de.c4vxl.enums.Color
-import de.c4vxl.enums.Embeds
-import de.c4vxl.enums.Permission
+import de.c4vxl.config.enums.Color
+import de.c4vxl.config.enums.Embeds
+import de.c4vxl.config.enums.Permission
 import de.c4vxl.utils.EmbedUtils.color
 import de.c4vxl.utils.PermissionUtils.hasPermission
 import de.c4vxl.utils.PermissionUtils.hasRole

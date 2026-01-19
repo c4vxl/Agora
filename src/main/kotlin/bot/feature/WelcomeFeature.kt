@@ -2,7 +2,7 @@ package de.c4vxl.bot.feature
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.type.Feature
-import de.c4vxl.enums.Color
+import de.c4vxl.config.enums.Color
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter

@@ -2,8 +2,8 @@ package de.c4vxl.bot.feature.tickets
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.type.Feature
-import de.c4vxl.enums.Embeds
-import de.c4vxl.enums.Permission
+import de.c4vxl.config.enums.Embeds
+import de.c4vxl.config.enums.Permission
 import de.c4vxl.utils.PermissionUtils.hasPermission
 import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent
@@ -189,14 +189,16 @@ class TicketFeature(bot: Bot) : Feature<TicketFeature>(bot, TicketFeature::class
 
                     // delete ticket
                     if (!handler.delete(bot.guild.getTextChannelById(ticket.id) ?: return@registerSlashCommand)) {
-                        event.replyEmbeds(Embeds.FAILURE(bot)
+                        event.replyEmbeds(
+                            Embeds.FAILURE(bot)
                             .setDescription(bot.language.translate("feature.tickets.command.error.not_a_ticket"))
                             .build()).setEphemeral(true).queue()
                     }
 
                     // Send confirmation
                     if (event.channel.id != ticket.id)
-                        event.replyEmbeds(Embeds.SUCCESS(bot)
+                        event.replyEmbeds(
+                            Embeds.SUCCESS(bot)
                             .setDescription(bot.language.translate("feature.tickets.command.success.delete"))
                             .build()).setEphemeral(true).queue()
                 }

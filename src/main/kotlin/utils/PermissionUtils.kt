@@ -1,7 +1,7 @@
 package de.c4vxl.utils
 
 import de.c4vxl.bot.Bot
-import de.c4vxl.enums.Permission
+import de.c4vxl.config.enums.Permission
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Role
 

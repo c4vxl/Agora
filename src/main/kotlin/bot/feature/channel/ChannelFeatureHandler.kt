@@ -1,7 +1,7 @@
 package de.c4vxl.bot.feature.channel
 
 import de.c4vxl.bot.Bot
-import de.c4vxl.enums.Permission
+import de.c4vxl.config.enums.Permission
 import de.c4vxl.utils.ChannelUtils.deleteIfEmpty
 import de.c4vxl.utils.ChannelUtils.getChannel
 import de.c4vxl.utils.ChannelUtils.typeName

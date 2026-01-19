@@ -3,7 +3,7 @@ package de.c4vxl.bot.feature.settings
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.type.Feature
 import de.c4vxl.data.Database
-import de.c4vxl.enums.Embeds
+import de.c4vxl.config.enums.Embeds
 import de.c4vxl.utils.ResourceUtils
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions

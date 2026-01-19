@@ -8,8 +8,8 @@ import de.c4vxl.bot.feature.settings.PermissionFeature
 import de.c4vxl.bot.feature.settings.SettingsFeature
 import de.c4vxl.bot.feature.tickets.TicketFeature
 import de.c4vxl.bot.feature.type.Feature
-import de.c4vxl.bot.handler.ComponentHandler
 import de.c4vxl.bot.handler.CommandHandler
+import de.c4vxl.bot.handler.ComponentHandler
 import de.c4vxl.bot.handler.DataHandler
 import de.c4vxl.bot.handler.PermissionHandler
 import de.c4vxl.config.Config

@@ -1,7 +1,7 @@
 package de.c4vxl.bot.feature.tickets
 
 import de.c4vxl.bot.Bot
-import de.c4vxl.enums.Color
+import de.c4vxl.config.enums.Color
 import de.c4vxl.utils.ChannelUtils.deleteIfEmpty
 import de.c4vxl.utils.EmbedUtils.color
 import de.c4vxl.utils.PermissionUtils.rolesWithPermission
@@ -39,8 +39,8 @@ class TicketFeatureHandler(val feature: TicketFeature) {
             .addPermissionOverride(bot.guild.publicRole, mutableListOf(), mutableListOf(Permission.VIEW_CHANNEL))
             .apply {
                 bot.rolesWithPermission(
-                    de.c4vxl.enums.Permission.FEATURE_TICKETS_VIEW,
-                    de.c4vxl.enums.Permission.FEATURE_TICKETS_MANAGE
+                    de.c4vxl.config.enums.Permission.FEATURE_TICKETS_VIEW,
+                    de.c4vxl.config.enums.Permission.FEATURE_TICKETS_MANAGE
                 ).forEach {
                     this.addRolePermissionOverride(it.idLong, mutableListOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND), mutableListOf())
                 }
@@ -70,8 +70,8 @@ class TicketFeatureHandler(val feature: TicketFeature) {
             // Give roles with view permissions access
             .apply {
                 bot.rolesWithPermission(
-                    de.c4vxl.enums.Permission.FEATURE_TICKETS_VIEW,
-                    de.c4vxl.enums.Permission.FEATURE_TICKETS_MANAGE
+                    de.c4vxl.config.enums.Permission.FEATURE_TICKETS_VIEW,
+                    de.c4vxl.config.enums.Permission.FEATURE_TICKETS_MANAGE
                 ).forEach {
                     this.addRolePermissionOverride(it.idLong, mutableListOf(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND), mutableListOf())
                 }

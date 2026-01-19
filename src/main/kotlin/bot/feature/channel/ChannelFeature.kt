@@ -2,9 +2,9 @@ package de.c4vxl.bot.feature.channel
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.type.Feature
-import de.c4vxl.enums.Color
-import de.c4vxl.enums.Embeds
-import de.c4vxl.enums.Permission
+import de.c4vxl.config.enums.Color
+import de.c4vxl.config.enums.Embeds
+import de.c4vxl.config.enums.Permission
 import de.c4vxl.utils.ChannelUtils.getChannel
 import de.c4vxl.utils.ChannelUtils.typeName
 import de.c4vxl.utils.EmbedUtils.color

@@ -5,8 +5,8 @@ import de.c4vxl.bot.feature.WelcomeFeature
 import de.c4vxl.bot.feature.channel.ChannelFeature
 import de.c4vxl.bot.feature.tickets.TicketFeature
 import de.c4vxl.bot.feature.type.Feature
-import de.c4vxl.enums.Color
-import de.c4vxl.enums.Embeds
+import de.c4vxl.config.enums.Color
+import de.c4vxl.config.enums.Embeds
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
