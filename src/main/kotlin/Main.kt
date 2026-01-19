@@ -60,8 +60,8 @@ fun main() {
         }
     })
 
-    // Register dataset autosave
-    fixedRateTimer("dataset-autosave", daemon = true, period = Config.get<Double>("db_cache_save_interval").toLong()) {
+    // Register database autosave
+    fixedRateTimer("database-autosave", daemon = true, period = Config.get<Double>("db_cache_save_interval").toLong()) {
         Database.saveAll()
     }
 

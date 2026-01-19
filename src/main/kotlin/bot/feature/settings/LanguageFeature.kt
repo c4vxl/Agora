@@ -20,6 +20,10 @@ import java.util.*
  */
 class LanguageFeature(bot: Bot) : Feature<LanguageFeature>(bot, LanguageFeature::class.java) {
     init {
+        registerCommands()
+    }
+
+    override fun registerCommands() {
         bot.commandHandler.registerSlashCommand(
             Commands.slash("language", bot.language.translate("feature.lang.command.desc"))
                 .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR))
@@ -71,6 +75,9 @@ class LanguageFeature(bot: Bot) : Feature<LanguageFeature>(bot, LanguageFeature:
 
                     bot.dataHandler.set("metadata", "lang", language)
                     bot.language = Language.fromName(language)
+
+                    // Reload commands
+                    bot.reloadCommands()
 
                     event.replyEmbeds(
                         Embeds.SUCCESS(bot)

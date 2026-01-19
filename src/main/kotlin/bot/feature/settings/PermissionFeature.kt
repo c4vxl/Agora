@@ -19,6 +19,10 @@ import java.util.*
  */
 class PermissionFeature(bot: Bot) : Feature<PermissionFeature>(bot, PermissionFeature::class.java) {
     init {
+        registerCommands()
+    }
+
+    override fun registerCommands() {
         bot.commandHandler.registerSlashCommand(
             Commands.slash("permissions", bot.language.translate("feature.perms.command.desc"))
                 .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR))
@@ -49,9 +53,11 @@ class PermissionFeature(bot: Bot) : Feature<PermissionFeature>(bot, PermissionFe
                     event.replyEmbeds(
                         EmbedBuilder()
                             .setTitle(bot.language.translate("feature.perms.command.list.embed.title"))
-                            .setDescription("- " + de.c4vxl.enums.Permission.entries
-                                .joinToString("\n- ") {
-                                    it.name.lowercase(Locale.getDefault()) })
+                            .setDescription(
+                                "- " + de.c4vxl.enums.Permission.entries
+                                    .joinToString("\n- ") {
+                                        it.name.lowercase(Locale.getDefault())
+                                    })
                             .withTimestamp()
                             .color(Color.PRIMARY)
                             .build()
@@ -68,13 +74,26 @@ class PermissionFeature(bot: Bot) : Feature<PermissionFeature>(bot, PermissionFe
                         .setTitle(bot.language.translate("feature.perms.command.show.embed.title", role.asMention))
 
                     if (permissions.isEmpty())
-                        embed.setDescription(bot.language.translate("feature.perms.command.show.embed.empty", role.name))
+                        embed.setDescription(
+                            bot.language.translate(
+                                "feature.perms.command.show.embed.empty",
+                                role.name
+                            )
+                        )
                     else {
-                        embed.setDescription(bot.language.translate("feature.perms.command.show.embed.desc", role.asMention))
-                        embed.addField("- " + permissions
-                            .joinToString("\n- ") {
-                                it.name.lowercase(Locale.getDefault()) },
-                            "", false)
+                        embed.setDescription(
+                            bot.language.translate(
+                                "feature.perms.command.show.embed.desc",
+                                role.asMention
+                            )
+                        )
+                        embed.addField(
+                            "- " + permissions
+                                .joinToString("\n- ") {
+                                    it.name.lowercase(Locale.getDefault())
+                                },
+                            "", false
+                        )
                     }
 
                     event.replyEmbeds(embed.build()).setEphemeral(true).queue()
@@ -97,11 +116,15 @@ class PermissionFeature(bot: Bot) : Feature<PermissionFeature>(bot, PermissionFe
                                 .setDescription(bot.language.translate("feature.perms.command.set.failure"))
                                 .build()
                         ).setEphemeral(true).queue()
-
                     else
                         event.replyEmbeds(
                             Embeds.SUCCESS(bot)
-                                .setDescription(bot.language.translate("feature.perms.command.set.success", role.asMention))
+                                .setDescription(
+                                    bot.language.translate(
+                                        "feature.perms.command.set.success",
+                                        role.asMention
+                                    )
+                                )
                                 .addField(
                                     bot.language.translate("feature.perms.command.set.success.r1"),
                                     bot.language.translate("feature.perms.command.set.success.r2"),

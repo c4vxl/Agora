@@ -25,6 +25,52 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
  */
 class RulesFeature(bot: Bot) : Feature<RulesFeature>(bot, RulesFeature::class.java) {
     init {
+        registerCommands()
+
+        // Register button events
+        bot.componentHandler.registerButton("${this.name}_button_deny") {
+            bot.guild.kick(it.user)
+                .queue()
+        }
+        bot.componentHandler.registerButton("${this.name}_button_accept") {
+            val role = bot.guild.getRoleById(get<String>("role") ?: return@registerButton) ?: return@registerButton
+
+            // Exit if user already accepted
+            if (it.member?.hasRole(role) == true) {
+                it.replyEmbeds(
+                    EmbedBuilder()
+                        .color(Color.PRIMARY)
+                        .setDescription(bot.language.translate("feature.rules.already_accepted"))
+                        .build()
+                ).setEphemeral(true).queue()
+                return@registerButton
+            }
+
+            // Add role
+            bot.guild.addRoleToMember(it.user, role)
+                .queue()
+
+            // Send confirmation
+            it.replyEmbeds(
+                Embeds.SUCCESS(bot)
+                    .setDescription(bot.language.translate("feature.rules.success.accept"))
+                    .build()
+            ).setEphemeral(true).queue()
+        }
+
+        bot.jda.addEventListener(object : ListenerAdapter() {
+            override fun onChannelCreate(event: ChannelCreateEvent) {
+                if (event.guild.id != bot.guild.id) return
+
+                if (get<Boolean>("required") != true)
+                    return
+
+                updatePerms()
+            }
+        })
+    }
+
+    override fun registerCommands() {
         bot.commandHandler.registerSlashCommand(
             Commands.slash("rules", bot.language.translate("feature.rules.command.desc"))
                 .addSubcommands(
@@ -83,7 +129,7 @@ class RulesFeature(bot: Bot) : Feature<RulesFeature>(bot, RulesFeature::class.ja
 
                     // Exit if empty
                     if (mutableListOf(title, image, description, footer, fields)
-                        .filterNotNull().isEmpty()) {
+                            .filterNotNull().isEmpty()) {
                         event.replyEmbeds(
                             Embeds.FAILURE(bot)
                                 .setDescription(bot.language.translate("feature.rules.command.error.empty"))
@@ -129,48 +175,6 @@ class RulesFeature(bot: Bot) : Feature<RulesFeature>(bot, RulesFeature::class.ja
                 }
             }
         }
-
-        // Register button events
-        bot.componentHandler.registerButton("${this.name}_button_deny") {
-            bot.guild.kick(it.user)
-                .queue()
-        }
-        bot.componentHandler.registerButton("${this.name}_button_accept") {
-            val role = bot.guild.getRoleById(get<String>("role") ?: return@registerButton) ?: return@registerButton
-
-            // Exit if user already accepted
-            if (it.member?.hasRole(role) == true) {
-                it.replyEmbeds(
-                    EmbedBuilder()
-                        .color(Color.PRIMARY)
-                        .setDescription(bot.language.translate("feature.rules.already_accepted"))
-                        .build()
-                ).setEphemeral(true).queue()
-                return@registerButton
-            }
-
-            // Add role
-            bot.guild.addRoleToMember(it.user, role)
-                .queue()
-
-            // Send confirmation
-            it.replyEmbeds(
-                Embeds.SUCCESS(bot)
-                    .setDescription(bot.language.translate("feature.rules.success.accept"))
-                    .build()
-            ).setEphemeral(true).queue()
-        }
-
-        bot.jda.addEventListener(object : ListenerAdapter() {
-            override fun onChannelCreate(event: ChannelCreateEvent) {
-                if (event.guild.id != bot.guild.id) return
-
-                if (get<Boolean>("required") != true)
-                    return
-
-                updatePerms()
-            }
-        })
     }
 
     /**

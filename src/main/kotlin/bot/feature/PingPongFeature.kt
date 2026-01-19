@@ -17,4 +17,8 @@ class PingPongFeature(bot: Bot) : Feature<PingPongFeature>(bot, PingPongFeature:
                 .queue()
         }
     }
+
+    override fun registerCommands() {
+        // Nothing
+    }
 }

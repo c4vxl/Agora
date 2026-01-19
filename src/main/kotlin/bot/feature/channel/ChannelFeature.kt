@@ -40,6 +40,116 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
     val handler: ChannelFeatureHandler = ChannelFeatureHandler(this)
 
     init {
+        registerCommands()
+
+        // Register deleteall confirm button
+        bot.componentHandler.registerButton("${this@ChannelFeature.name}_deleteall_confirm") {
+            val channels = handler.getChannels(it.user).mapNotNull { x -> bot.guild.getChannel(x) }
+            handleDeleteAll(channels, it)
+        }
+
+        // Register buttons
+        bot.componentHandler.registerButton("${this@ChannelFeature.name}_create_voice") {
+            // Check for permission
+            if (it.member?.hasPermission(Permission.FEATURE_CHANNELS_VOICE, bot) != true) {
+                it.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
+                return@registerButton
+            }
+
+            it.replyModal(createModal("voice")).queue()
+        }
+
+        bot.componentHandler.registerButton("${this@ChannelFeature.name}_create_text") {
+            // Check for permission
+            if (it.member?.hasPermission(Permission.FEATURE_CHANNELS_TEXT, bot) != true) {
+                it.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
+                return@registerButton
+            }
+
+            it.replyModal(createModal("text")).queue()
+        }
+
+        bot.jda.addEventListener(object : ListenerAdapter() {
+            override fun onGuildVoiceUpdate(event: GuildVoiceUpdateEvent) {
+                if (event.guild.id != bot.guild.id) return
+
+                // Delete voice channels after everyone left
+                event.channelLeft?.let { channel ->
+                    if (channel.members.size <= 0)
+                        handler.remove(channel)
+                }
+
+                event.channelJoined?.let { channel ->
+                    if (channel.id != bot.dataHandler.get<String>(name, "join_to_create_voice"))
+                        return@let
+
+                    // Create channel
+                    val voice = handler.createChannel(
+                        "voice",
+                        event.member,
+                        bot.language.translate("feature.channel.default_name.voice", event.member.user.name),
+                        false
+                    )
+
+                    if (voice == null) {
+                        event.guild.kickVoiceMember(event.member.user)
+                            .queue()
+                        return@let
+                    }
+
+                    // Move user to new voice channel
+                    bot.guild.moveVoiceMember(event.member.user, voice as VoiceChannel)
+                        .queue()
+                }
+            }
+
+            override fun onModalInteraction(event: ModalInteractionEvent) {
+                if (event.guild?.id != bot.guild.id) return
+                val prefix = "${this@ChannelFeature.name}_create_"
+                if (!event.modalId.startsWith(prefix)) return
+
+                // Get config
+                val type = event.modalId.removePrefix(prefix)
+                val name =
+                    event.getValue("${prefix}name")?.asString
+                        ?: bot.language.translate("feature.channel.default_name.${type}", event.user.name)
+
+                // Create channel
+                val channel = handler.createChannel(type, event.member ?: return, name, false)
+
+                // Handle limit
+                if (channel == null) {
+                    event.replyEmbeds(
+                        limitEmbed(type)
+                    ).setEphemeral(true).queue()
+                    return
+                }
+
+                // Send feedback
+                event.replyEmbeds(
+                    successEmbed(type, channel, false)
+                ).setEphemeral(true).queue()
+            }
+
+            override fun onChannelDelete(event: ChannelDeleteEvent) {
+                if (event.guild.id != bot.guild.id) return
+
+                val type = event.channel.typeName ?: return
+
+                // Return if channel is not from feature
+                if (!handler.getChannels(type).contains(event.channel.id))
+                    return
+
+                // Log
+                logger.warn("Detected external channel removal. Updating config...")
+
+                // Remove
+                handler.remove(event.channel)
+            }
+        })
+    }
+
+    override fun registerCommands() {
         bot.commandHandler.registerSlashCommand(
             Commands.slash("channel", bot.language.translate("feature.channel.command.desc"))
                 .addSubcommands(
@@ -171,112 +281,6 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
                 else -> handleCreate(event)
             }
         }
-
-        // Register deleteall confirm button
-        bot.componentHandler.registerButton("${this@ChannelFeature.name}_deleteall_confirm") {
-            val channels = handler.getChannels(it.user).mapNotNull { x -> bot.guild.getChannel(x) }
-            handleDeleteAll(channels, it)
-        }
-
-        // Register buttons
-        bot.componentHandler.registerButton("${this@ChannelFeature.name}_create_voice") {
-            // Check for permission
-            if (it.member?.hasPermission(Permission.FEATURE_CHANNELS_VOICE, bot) != true) {
-                it.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
-                return@registerButton
-            }
-
-            it.replyModal(createModal("voice")).queue()
-        }
-
-        bot.componentHandler.registerButton("${this@ChannelFeature.name}_create_text") {
-            // Check for permission
-            if (it.member?.hasPermission(Permission.FEATURE_CHANNELS_TEXT, bot) != true) {
-                it.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
-                return@registerButton
-            }
-
-            it.replyModal(createModal("text")).queue()
-        }
-
-        bot.jda.addEventListener(object : ListenerAdapter() {
-            override fun onGuildVoiceUpdate(event: GuildVoiceUpdateEvent) {
-                if (event.guild.id != bot.guild.id) return
-
-                // Delete voice channels after everyone left
-                event.channelLeft?.let { channel ->
-                    if (channel.members.size <= 0)
-                        handler.remove(channel)
-                }
-
-                event.channelJoined?.let { channel ->
-                    if (channel.id != bot.dataHandler.get<String>(name, "join_to_create_voice"))
-                        return@let
-
-                    // Create channel
-                    val voice = handler.createChannel(
-                        "voice",
-                        event.member,
-                        bot.language.translate("feature.channel.default_name.voice", event.member.user.name),
-                        false
-                    )
-
-                    if (voice == null) {
-                        event.guild.kickVoiceMember(event.member.user)
-                            .queue()
-                        return@let
-                    }
-
-                    // Move user to new voice channel
-                    bot.guild.moveVoiceMember(event.member.user, voice as VoiceChannel)
-                        .queue()
-                }
-            }
-
-            override fun onModalInteraction(event: ModalInteractionEvent) {
-                if (event.guild?.id != bot.guild.id) return
-                val prefix = "${this@ChannelFeature.name}_create_"
-                if (!event.modalId.startsWith(prefix)) return
-
-                // Get config
-                val type = event.modalId.removePrefix(prefix)
-                val name =
-                    event.getValue("${prefix}name")?.asString
-                        ?: bot.language.translate("feature.channel.default_name.${type}", event.user.name)
-
-                // Create channel
-                val channel = handler.createChannel(type, event.member ?: return, name, false)
-
-                // Handle limit
-                if (channel == null) {
-                    event.replyEmbeds(
-                        limitEmbed(type)
-                    ).setEphemeral(true).queue()
-                    return
-                }
-
-                // Send feedback
-                event.replyEmbeds(
-                    successEmbed(type, channel, false)
-                ).setEphemeral(true).queue()
-            }
-
-            override fun onChannelDelete(event: ChannelDeleteEvent) {
-                if (event.guild.id != bot.guild.id) return
-
-                val type = event.channel.typeName ?: return
-
-                // Return if channel is not from feature
-                if (!handler.getChannels(type).contains(event.channel.id))
-                    return
-
-                // Log
-                logger.warn("Detected external channel removal. Updating config...")
-
-                // Remove
-                handler.remove(event.channel)
-            }
-        })
     }
 
     private fun createModal(type: String): Modal {

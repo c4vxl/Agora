@@ -79,4 +79,13 @@ class Bot(
 
         featureRegistry[feature.name] = feature
     }
+
+    /**
+     * Reloads all commands from features
+     */
+    fun reloadCommands() {
+        commandHandler.unregisterAll()
+        featureRegistry.values.forEach { it.registerCommands() }
+        commandHandler.update()
+    }
 }

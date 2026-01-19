@@ -8,7 +8,7 @@ import org.slf4j.Logger
 /**
  * The base for guild-specific features
  */
-open class Feature<T>(
+abstract class Feature<T>(
     val bot: Bot,
     val clazz: Class<T>,
     val name: String = className(clazz)
@@ -18,4 +18,6 @@ open class Feature<T>(
     init {
         logger.info("Initializing feature '${name}' for guild '${bot.guild.id}'")
     }
+
+    abstract fun registerCommands()
 }

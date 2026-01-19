@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
-import java.util.*
 
 /**
  * A simple feature that allows server admins to configure default roles for newly joined members
@@ -32,6 +31,19 @@ class DefaultRoleFeature(bot: Bot) : Feature<DefaultRoleFeature>(bot, DefaultRol
         }
 
     init {
+        registerCommands()
+
+        // Register handler
+        bot.jda.addEventListener(object : ListenerAdapter() {
+            override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
+                if (event.guild.id != bot.guild.id) return
+
+                registry.forEach { bot.guild.addRoleToMember(event.user, it) }
+            }
+        })
+    }
+
+    override fun registerCommands() {
         bot.commandHandler.registerSlashCommand(
             Commands.slash("default-roles", bot.language.translate("feature.default_roles.command.desc"))
                 .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR))
@@ -73,7 +85,12 @@ class DefaultRoleFeature(bot: Bot) : Feature<DefaultRoleFeature>(bot, DefaultRol
                     // Send confirmation
                     event.replyEmbeds(
                         Embeds.SUCCESS(bot)
-                            .setDescription(bot.language.translate("feature.default_roles.command.add.success", role.asMention))
+                            .setDescription(
+                                bot.language.translate(
+                                    "feature.default_roles.command.add.success",
+                                    role.asMention
+                                )
+                            )
                             .build()
                     ).setEphemeral(true).queue()
                 }
@@ -86,20 +103,16 @@ class DefaultRoleFeature(bot: Bot) : Feature<DefaultRoleFeature>(bot, DefaultRol
                     // Send confirmation
                     event.replyEmbeds(
                         Embeds.SUCCESS(bot)
-                            .setDescription(bot.language.translate("feature.default_roles.command.remove.success", role.asMention))
+                            .setDescription(
+                                bot.language.translate(
+                                    "feature.default_roles.command.remove.success",
+                                    role.asMention
+                                )
+                            )
                             .build()
                     ).setEphemeral(true).queue()
                 }
             }
         }
-
-        // Register handler
-        bot.jda.addEventListener(object : ListenerAdapter() {
-            override fun onGuildMemberJoin(event: GuildMemberJoinEvent) {
-                if (event.guild.id != bot.guild.id) return
-
-                registry.forEach { bot.guild.addRoleToMember(event.user, it) }
-            }
-        })
     }
 }

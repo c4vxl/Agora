@@ -31,7 +31,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
  * Feature for managing activities
  */
 class ActivityFeature(bot: Bot) : Feature<ActivityFeature>(bot, ActivityFeature::class.java) {
-    init {
+    override fun registerCommands() {
         bot.commandHandler.registerSlashCommand(
             Commands.slash("activities", bot.language.translate("feature.activities.command.desc"))
                 .addSubcommands(
@@ -78,7 +78,7 @@ class ActivityFeature(bot: Bot) : Feature<ActivityFeature>(bot, ActivityFeature:
             if (
                 listOf("add", "remove", "list-members").contains(event.subcommandName) &&
                 event.member?.hasPermission(Permission.FEATURE_ACTIVITIES_MANAGE, bot) != true
-                ) {
+            ) {
                 event.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
                 return@registerSlashCommand
             }
@@ -224,6 +224,10 @@ class ActivityFeature(bot: Bot) : Feature<ActivityFeature>(bot, ActivityFeature:
                 }
             }
         }
+    }
+
+    init {
+        registerCommands()
 
         bot.componentHandler.registerModal("${this@ActivityFeature.name}_custom") { event ->
             val activity = event.getValue("${this@ActivityFeature.name}_custom_name")!!.asString

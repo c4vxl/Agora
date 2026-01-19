@@ -35,6 +35,21 @@ class DataHandler(
         data(module)[key] as? R
 
     /**
+     * Deletes all data entries for a specific module
+     * @param module The name of the module
+     */
+    fun delete(module: String) {
+        data(module).clear()
+        Database.makeDirty(bot.guild.idLong)
+    }
+
+    /**
+     * Deletes all data entries for a specific module
+     */
+    inline fun <reified T> delete() =
+        delete(ClassUtils.className(T::class.java))
+
+    /**
      * Set the value of a specific element in the data object of a module
      * @param module The name of the module
      * @param key The key to the data element

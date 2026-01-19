@@ -22,6 +22,13 @@ class CommandHandler(
     private val slashCommands: MutableMap<SlashCommandData, (SlashCommandInteractionEvent) -> Unit> = mutableMapOf()
 
     /**
+     * Unregisters all commands
+     */
+    fun unregisterAll() {
+        slashCommands.clear()
+    }
+
+    /**
      * Register a slash command to the guild
      * @param command The command to register
      * @param handler The handler to handle the command when run by a user

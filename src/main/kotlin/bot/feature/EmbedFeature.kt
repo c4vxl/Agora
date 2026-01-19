@@ -20,6 +20,10 @@ import java.util.*
  */
 class EmbedFeature(bot: Bot) : Feature<EmbedFeature>(bot, EmbedFeature::class.java) {
     init {
+        registerCommands()
+    }
+
+    override fun registerCommands() {
         bot.commandHandler.registerSlashCommand(
             Commands.slash("embed", bot.language.translate("feature.embed.command.desc"))
                 .addOption(OptionType.BOOLEAN, "timestamp", bot.language.translate("feature.embed.command.timestamp"))

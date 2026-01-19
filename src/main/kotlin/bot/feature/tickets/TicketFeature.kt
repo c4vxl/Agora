@@ -27,6 +27,86 @@ class TicketFeature(bot: Bot) : Feature<TicketFeature>(bot, TicketFeature::class
     val handler: TicketFeatureHandler = TicketFeatureHandler(this)
 
     init {
+        registerCommands()
+
+        bot.componentHandler.registerButton("${this@TicketFeature.name}_create_ticket") { event ->
+            if (event.member?.hasPermission(Permission.FEATURE_TICKETS_OPEN, bot) != true) {
+                event.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
+                return@registerButton
+            }
+
+            event.replyModal(Modal.create(
+                "${this@TicketFeature.name}_create",
+                bot.language.translate("feature.tickets.modal.title")
+            )
+                .addComponents(
+                    Label.of(
+                        bot.language.translate("feature.tickets.modal.name"),
+                        TextInput.create("${this@TicketFeature.name}_create_name", TextInputStyle.SHORT).build()
+                    ),
+                    Label.of(
+                        bot.language.translate("feature.tickets.modal.desc"),
+                        bot.language.translate("feature.tickets.modal.desc.desc"),
+                        TextInput.create("${this@TicketFeature.name}_create_desc", TextInputStyle.PARAGRAPH).build()
+                    )
+                )
+                .build()
+            ).queue()
+        }
+
+        bot.componentHandler.registerModal("${this@TicketFeature.name}_create") { event ->
+            val name = event.getValue("${this@TicketFeature.name}_create_name")!!.asString
+            val description = event.getValue("${this@TicketFeature.name}_create_desc")!!.asString
+
+            val ticket = handler.open(name, description, event.user)
+
+            event.replyEmbeds(
+                Embeds.SUCCESS(bot)
+                    .setTitle(bot.language.translate("feature.tickets.success.opened.title"))
+                    .setDescription(bot.language.translate("feature.tickets.success.opened.desc", ticket.asMention))
+                    .build()
+            ).setEphemeral(true).queue()
+        }
+
+        bot.componentHandler.registerButton("${name}_button_delete") { event ->
+            if (!checkManagePerms(event)) return@registerButton
+
+            handler.delete(event.channel.asTextChannel())
+        }
+
+        bot.componentHandler.registerButton("${name}_button_save") { event ->
+            if (!checkManagePerms(event)) return@registerButton
+
+            // Save
+            handler.save(event.channel.asTextChannel())
+
+            // Send confirmation
+            event.replyEmbeds(
+                Embeds.SUCCESS(bot)
+                    .setDescription(bot.language.translate("feature.tickets.success.saved"))
+                    .build()
+            ).setEphemeral(true).queue()
+        }
+
+        bot.componentHandler.registerButton("${name}_button_reopen") { event ->
+            if (!checkManagePerms(event)) return@registerButton
+
+            // Save
+            handler.reopen(event.channel.asTextChannel())
+
+            // Delete message
+            event.message.delete().queue()
+
+            // Send confirmation
+            event.replyEmbeds(
+                Embeds.SUCCESS(bot)
+                    .setDescription(bot.language.translate("feature.tickets.success.reopen"))
+                    .build()
+            ).setEphemeral(true).queue()
+        }
+    }
+
+    override fun registerCommands() {
         bot.commandHandler.registerSlashCommand(
             Commands.slash("ticket", "Play ping-pong with the bot!")
                 .addSubcommands(
@@ -121,82 +201,6 @@ class TicketFeature(bot: Bot) : Feature<TicketFeature>(bot, TicketFeature::class
                             .build()).setEphemeral(true).queue()
                 }
             }
-        }
-
-        bot.componentHandler.registerButton("${this@TicketFeature.name}_create_ticket") { event ->
-            if (event.member?.hasPermission(Permission.FEATURE_TICKETS_OPEN, bot) != true) {
-                event.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
-                return@registerButton
-            }
-
-            event.replyModal(Modal.create(
-                "${this@TicketFeature.name}_create",
-                bot.language.translate("feature.tickets.modal.title")
-            )
-                .addComponents(
-                    Label.of(
-                        bot.language.translate("feature.tickets.modal.name"),
-                        TextInput.create("${this@TicketFeature.name}_create_name", TextInputStyle.SHORT).build()
-                    ),
-                    Label.of(
-                        bot.language.translate("feature.tickets.modal.desc"),
-                        bot.language.translate("feature.tickets.modal.desc.desc"),
-                        TextInput.create("${this@TicketFeature.name}_create_desc", TextInputStyle.PARAGRAPH).build()
-                    )
-                )
-                .build()
-            ).queue()
-        }
-
-        bot.componentHandler.registerModal("${this@TicketFeature.name}_create") { event ->
-            val name = event.getValue("${this@TicketFeature.name}_create_name")!!.asString
-            val description = event.getValue("${this@TicketFeature.name}_create_desc")!!.asString
-
-            val ticket = handler.open(name, description, event.user)
-
-            event.replyEmbeds(
-                Embeds.SUCCESS(bot)
-                    .setTitle(bot.language.translate("feature.tickets.success.opened.title"))
-                    .setDescription(bot.language.translate("feature.tickets.success.opened.desc", ticket.asMention))
-                    .build()
-            ).setEphemeral(true).queue()
-        }
-
-        bot.componentHandler.registerButton("${name}_button_delete") { event ->
-            if (!checkManagePerms(event)) return@registerButton
-
-            handler.delete(event.channel.asTextChannel())
-        }
-
-        bot.componentHandler.registerButton("${name}_button_save") { event ->
-            if (!checkManagePerms(event)) return@registerButton
-
-            // Save
-            handler.save(event.channel.asTextChannel())
-
-            // Send confirmation
-            event.replyEmbeds(
-                Embeds.SUCCESS(bot)
-                    .setDescription(bot.language.translate("feature.tickets.success.saved"))
-                    .build()
-            ).setEphemeral(true).queue()
-        }
-
-        bot.componentHandler.registerButton("${name}_button_reopen") { event ->
-            if (!checkManagePerms(event)) return@registerButton
-
-            // Save
-            handler.reopen(event.channel.asTextChannel())
-
-            // Delete message
-            event.message.delete().queue()
-
-            // Send confirmation
-            event.replyEmbeds(
-                Embeds.SUCCESS(bot)
-                    .setDescription(bot.language.translate("feature.tickets.success.reopen"))
-                    .build()
-            ).setEphemeral(true).queue()
         }
     }
 

@@ -21,6 +21,10 @@ class WelcomeFeature(bot: Bot) : Feature<WelcomeFeature>(bot, WelcomeFeature::cl
         })
     }
 
+    override fun registerCommands() {
+        // Nothing
+    }
+
     private fun welcome(user: User) {
         val channelId = bot.dataHandler.get<String>(this@WelcomeFeature.name, "channel") ?: return
         val channel = bot.guild.getTextChannelById(channelId)

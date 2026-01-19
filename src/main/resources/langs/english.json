@@ -40,8 +40,10 @@
   "feature.settings.command.welcome.footer.desc": "Set the footer of the welcome message (Variables: $0)",
   "feature.settings.command.welcome.thumbnail.desc": "Set the thumbnail of the welcome message (Variables: $0)",
   "feature.settings.command.welcome.image.desc": "Set the image in the welcome message (Variables: $0)",
+  "feature.settings.command.welcome.reset.desc": "If set to true, the settings will be reset",
   "feature.settings.command.welcome.color.desc": "Set the color of the welcome message (Variables: $0)",
   "feature.settings.command.welcome.error.empty": "Welcome message cannot be empty!",
+  "feature.settings.command.welcome.success.reset": "Successfully reset configuration!",
 
   "--- Feature: Permissions ---": "",
   "feature.perms.command.desc": "Manage the permission system",

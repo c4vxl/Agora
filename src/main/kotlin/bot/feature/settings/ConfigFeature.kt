@@ -18,6 +18,10 @@ import net.dv8tion.jda.api.utils.FileUpload
  */
 class ConfigFeature(bot: Bot) : Feature<ConfigFeature>(bot, ConfigFeature::class.java) {
     init {
+        registerCommands()
+    }
+
+    override fun registerCommands() {
         bot.commandHandler.registerSlashCommand(
             Commands.slash("config", bot.language.translate("feature.config.command.desc"))
                 .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR))
