@@ -55,6 +55,7 @@
   "feature.settings.command.be-real.start.desc": "The time a day should start. Format: HH:mm",
   "feature.settings.command.be-real.end.desc": "The time a day should end. Format: HH:mm",
   "feature.settings.command.be-real.num.desc": "The amount of posts that should be requested per day",
+  "feature.settings.command.be-real.time.desc": "The amount minutes users have time to post a BeReal",
 
   "--- Feature: Permissions ---": "",
   "feature.perms.command.desc": "Manage the permission system",

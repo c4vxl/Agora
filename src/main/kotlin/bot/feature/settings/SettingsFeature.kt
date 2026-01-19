@@ -62,7 +62,8 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                         .addOption(OptionType.CHANNEL, "channel", bot.language.translate("feature.settings.command.be-real.channel.desc"))
                         .addOption(OptionType.STRING, "start_time", bot.language.translate("feature.settings.command.be-real.start.desc"))
                         .addOption(OptionType.STRING, "end_time", bot.language.translate("feature.settings.command.be-real.end.desc"))
-                        .addOption(OptionType.INTEGER, "amount", bot.language.translate("feature.settings.command.be-real.num.desc")),
+                        .addOption(OptionType.INTEGER, "amount", bot.language.translate("feature.settings.command.be-real.num.desc"))
+                        .addOption(OptionType.INTEGER, "time", bot.language.translate("feature.settings.command.be-real.time.desc")),
                 )
         ) { event ->
             when (event.subcommandName) {
@@ -91,6 +92,7 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                     val start = event.getOption("start_time", OptionMapping::getAsString)
                     val end = event.getOption("end_time", OptionMapping::getAsString)
                     val amount = event.getOption("amount", OptionMapping::getAsInt)
+                    val time = event.getOption("time", OptionMapping::getAsInt)
 
                     start?.let {
                         val parts = it.split(":")
@@ -119,6 +121,7 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                     bot.dataHandler.set<BeRealFeature>("enabled", enabled)
                     channel?.let { bot.dataHandler.set<BeRealFeature>("channel", it.id) }
                     amount?.let { bot.dataHandler.set<BeRealFeature>("amount", amount) }
+                    time?.let { bot.dataHandler.set<BeRealFeature>("time", time) }
                 }
 
                 // Feature: Welcome
