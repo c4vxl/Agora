@@ -36,6 +36,8 @@ import kotlin.random.Random
 class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class.java) {
     // Cache of scheduled tasks
     private val scheduledTasks: MutableList<ScheduledFuture<*>> = mutableListOf()
+    private var successfullyUploaded: MutableList<String> = mutableListOf()
+    private var hasActiveBeReal = false
 
     init {
         registerCommands()
@@ -160,22 +162,9 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
         bot.componentHandler.registerButton("${this.name}_btn_leaderboard") { event ->
             val leaderboard = leaderboard(event.user)
 
-            if (leaderboard == null) {
-                event.replyEmbeds(
-                    Embeds.FAILURE(bot)
-                        .setDescription(bot.language.translate("feature.be-real.command.leaderboard.error"))
-                        .build()
-                ).setEphemeral(true).queue()
-                return@registerButton
-            }
-
             event.replyEmbeds(leaderboard).setEphemeral(true).queue()
         }
     }
-
-    var successfullyUploaded: MutableList<String> = mutableListOf()
-
-    var hasActiveBeReal = false
 
     val isEnabled: Boolean
         get() = bot.dataHandler.get<Boolean>(this.name, "enabled") ?: false
@@ -192,7 +181,10 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
         set(value) = bot.dataHandler.set(this.name, "channel", value?.id ?: "")
 
     var streaks: MutableMap<String, Int>
-        get() = bot.dataHandler.get<MutableMap<String, Int>>(this.name, "streak") ?: mutableMapOf()
+        get() =
+            bot.dataHandler.get<MutableMap<String, Double>>(this.name, "streak")
+                ?.mapValues { it.value.toInt() }?.toMutableMap()
+                ?: mutableMapOf()
         set(value) = bot.dataHandler.set(this.name, "streak", value)
 
     override fun registerCommands() {
@@ -283,15 +275,6 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
 
                 "leaderboard" -> {
                     val leaderboard = leaderboard(event.user)
-
-                    if (leaderboard == null) {
-                        event.replyEmbeds(
-                            Embeds.FAILURE(bot)
-                                .setDescription(bot.language.translate("feature.be-real.command.leaderboard.error"))
-                                .build()
-                        ).setEphemeral(true).queue()
-                        return@registerSlashCommand
-                    }
 
                     event.replyEmbeds(leaderboard).setEphemeral(true).queue()
                 }
@@ -426,14 +409,16 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
         if (!hasActiveBeReal) return
 
         // Update streaks
+        val failed = participants.filter { !successfullyUploaded.contains(it) }
         streaks = streaks.apply {
             successfullyUploaded.forEach {
                 this[it] = this.getOrDefault(it, 0) + 1
             }
+
+            failed.forEach { this.remove(it) }
         }
 
         // Send end message
-        val failed = participants.filter { !successfullyUploaded.contains(it) }
         channel?.sendMessage(
             MessageCreateBuilder()
                 .addEmbeds(
@@ -464,29 +449,41 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
      * Generates an embed with a leaderboard
      * @param self The user that requested the leaderboard
      */
-    private fun leaderboard(self: User): MessageEmbed? {
-        val leaderboard = streaks.toList().sortedBy { it.second }.toMap()
-        val entries = leaderboard.entries.toList().mapNotNull {
-            val user = bot.guild.getMemberById(it.key) ?: return@mapNotNull null
-            Pair(user, it.value)
-        }
+    private fun leaderboard(self: User): MessageEmbed {
+        val entries = streaks
+            .asSequence()
+            .sortedByDescending { it.value }
+            .mapNotNull { (id, streak) ->
+                val member = bot.guild.retrieveMemberById(id).complete() ?: return@mapNotNull null
+                member to streak
+            }
+            .toList()
 
-        val own = entries.find { it.first.id == self.id } ?: return null
+        // Get own rank
+        val ownIndex = entries.indexOfFirst { it.first.id == self.id }
+        val ownStreak = if (ownIndex != -1) entries[ownIndex].second else 0
+        val ownRank = if (ownIndex != -1) ownIndex + 1 else "`<NONE>`"
+
+        // Get top 3
+        val top = entries.take(3)
+        fun topMention(i: Int) = top.getOrNull(i)?.first?.asMention ?: "/"
+        fun topStreak(i: Int) = top.getOrNull(i)?.second?.toString() ?: "/"
+
+        // Get rest of the leaderboard
+        val rest = entries.drop(3)
+            .joinToString { "\n- ${it.first.asMention} (${it.second}" }
 
         return EmbedBuilder()
             .color(Color.PRIMARY)
             .setTitle(bot.language.translate("feature.be-real.notification.leaderboard.title"))
             .setDescription(bot.language.translate(
                 "feature.be-real.notification.leaderboard.desc",
-                entries.getOrNull(0)?.first?.asMention ?: "/",
-                entries.getOrNull(0)?.second?.toString() ?: "/",
-                entries.getOrNull(1)?.first?.asMention ?: "/",
-                entries.getOrNull(1)?.second?.toString() ?: "/",
-                entries.getOrNull(2)?.first?.asMention ?: "/",
-                entries.getOrNull(2)?.second?.toString() ?: "/",
-                entries.subList(3.coerceAtMost(entries.size), entries.size).joinToString { "\n- ${it.first.asMention} (Streak: ${it.second}" },
-                "#" + (entries.indexOf(own) + 1).toString(),
-                own.second.toString()
+                topMention(0), topStreak(0),
+                topMention(1), topStreak(1),
+                topMention(2), topStreak(2),
+                rest,
+                "#$ownRank",
+                ownStreak.toString()
             ))
             .withTimestamp()
             .build()
@@ -532,7 +529,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
 
         // Send dms
         participants.forEach {
-            val user = bot.guild.getMemberById(it)?.user ?: return@forEach
+            val user = bot.guild.retrieveMemberById(it).complete()?.user ?: return@forEach
 
             user.openPrivateChannel().queue { pc ->
                 pc.sendMessage(
