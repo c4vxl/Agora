@@ -5,7 +5,7 @@ import de.c4vxl.bot.feature.onboarding.WelcomeFeature
 import de.c4vxl.bot.feature.game.BeRealFeature
 import de.c4vxl.bot.feature.util.channel.ChannelFeature
 import de.c4vxl.bot.feature.util.tickets.TicketFeature
-import de.c4vxl.bot.feature.type.Feature
+import de.c4vxl.bot.feature.Feature
 import de.c4vxl.config.enums.Color
 import de.c4vxl.config.enums.Embeds
 import net.dv8tion.jda.api.Permission

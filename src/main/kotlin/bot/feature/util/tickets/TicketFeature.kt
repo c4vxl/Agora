@@ -1,7 +1,7 @@
 package de.c4vxl.bot.feature.util.tickets
 
 import de.c4vxl.bot.Bot
-import de.c4vxl.bot.feature.type.Feature
+import de.c4vxl.bot.feature.Feature
 import de.c4vxl.config.enums.Embeds
 import de.c4vxl.config.enums.Permission
 import de.c4vxl.utils.PermissionUtils.hasPermission

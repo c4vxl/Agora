@@ -2,7 +2,7 @@ package de.c4vxl.bot.feature.onboarding
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.util.EmbedFeature
-import de.c4vxl.bot.feature.type.Feature
+import de.c4vxl.bot.feature.Feature
 import de.c4vxl.config.enums.Color
 import de.c4vxl.config.enums.Embeds
 import de.c4vxl.config.enums.Permission

@@ -12,7 +12,7 @@ import de.c4vxl.bot.feature.settings.LanguageFeature
 import de.c4vxl.bot.feature.settings.PermissionFeature
 import de.c4vxl.bot.feature.settings.SettingsFeature
 import de.c4vxl.bot.feature.util.tickets.TicketFeature
-import de.c4vxl.bot.feature.type.Feature
+import de.c4vxl.bot.feature.Feature
 import de.c4vxl.bot.feature.util.EmbedFeature
 import de.c4vxl.bot.handler.CommandHandler
 import de.c4vxl.bot.handler.ComponentHandler

@@ -1,4 +1,4 @@
-package de.c4vxl.bot.feature.type
+package de.c4vxl.bot.feature
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.utils.ClassUtils.className

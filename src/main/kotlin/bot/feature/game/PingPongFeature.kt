@@ -1,7 +1,7 @@
 package de.c4vxl.bot.feature.game
 
 import de.c4vxl.bot.Bot
-import de.c4vxl.bot.feature.type.Feature
+import de.c4vxl.bot.feature.Feature
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 
 /**
