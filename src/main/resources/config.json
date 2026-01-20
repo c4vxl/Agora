@@ -3,6 +3,7 @@
     "db_path": "./db/",
     "db_cache_save_interval": 30000,
     "db_pretty_print": false,
+    "lang_dir": "./langs/",
     "activity": "Just vibing",
     "status": "idle",
     "only_join_whitelisted": false,

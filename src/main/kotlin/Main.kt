@@ -4,6 +4,7 @@ import de.c4vxl.bot.Bot
 import de.c4vxl.bot.handler.static.StaticButtonHandler
 import de.c4vxl.config.Config
 import de.c4vxl.data.Database
+import de.c4vxl.language.Language
 import de.c4vxl.utils.LoggerUtils.createLogger
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
@@ -29,6 +30,9 @@ fun main() {
 
     // Register static handlers
     StaticButtonHandler.init(jda)
+
+    // Load languages
+    Language.loadLanguages()
 
     // Create bot-instance for every guild the bot is in
     logger.info("Enabling bot for guilds")
