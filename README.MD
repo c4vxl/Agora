@@ -107,6 +107,7 @@ Below is a breakdown of each option:
 | `db_path` | _Path to the folder where the bot stores its database files. **Default: ./db/**._ |
 | `db_cache_save_interval` | _Interval in milliseconds for saving the in-memory database cache to disk. **Default: 30000 (30 seconds)**._ |
 | `db_pretty_print` | _If true, database files are saved in a human-readable format (JSON pretty-printed). **Default: false**._ |
+| `lang_dir` | _Path to the folder where the translation files are stored. **Default: ./langs/**._ |
 | `activity` | _The bot’s Discord activity message (what it “is doing”). **Default: "Just vibing"**._ |
 | `status` | _The bot’s Discord status. Options include `online`, `idle`, `dnd`, `invisible`. **Default: idle**._ |
 | `only_join_whitelisted` | _If true, the bot will only join guilds listed in whitelist. **Default: false**._ |
