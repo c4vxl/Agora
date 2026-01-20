@@ -114,7 +114,7 @@ class ActivityFeature(bot: Bot) : Feature<ActivityFeature>(bot, ActivityFeature:
                     val name: String = event.getOption("name", OptionMapping::getAsString) ?: return@registerSlashCommand
 
                     val members = activities.getOrDefault(name, mutableListOf())
-                        .mapNotNull { bot.guild.getMemberById(it) }
+                        .mapNotNull { bot.guild.retrieveMemberById(it).complete() }
 
                     event.replyEmbeds(
                         EmbedBuilder()
@@ -387,7 +387,7 @@ class ActivityFeature(bot: Bot) : Feature<ActivityFeature>(bot, ActivityFeature:
      */
     private fun start(activity: String, owner: User, message: String?): Int {
         val interested = activities[activity] ?: return 0
-        val users = interested.mapNotNull { bot.guild.getMemberById(it) }
+        val users = interested.mapNotNull { bot.guild.retrieveMemberById(it).complete() }
 
         fun get(x: String, vararg args: String): String =
             bot.language.translate("feature.activities.notification.$x", *args)

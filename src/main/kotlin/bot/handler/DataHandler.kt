@@ -31,8 +31,17 @@ class DataHandler(
      * @param module The name of the module
      * @param key The key to the data element
      */
-    inline fun <reified R> get(module: String, key: String): R? =
-        data(module)[key] as? R
+    inline fun <reified R> get(module: String, key: String): R? {
+        val obj = data(module)[key]
+
+        if (R::class.java.name.equals("java.lang.Integer"))
+            return (obj as? Double)?.toInt() as? R
+
+        if (R::class.java.name.equals("java.lang.Long"))
+            return (obj as? Double)?.toLong() as? R
+
+        return data(module)[key] as? R
+    }
 
     /**
      * Deletes all data entries for a specific module
