@@ -399,6 +399,9 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
             }, delay, TimeUnit.MILLISECONDS))
         }
 
+        // Logging
+        logger.info("Scheduling next BeReal times for guild '${bot.guild.id}': ${times.joinToString(", ") { "${it.hour}:${it.minute}" }}")
+
         return times
     }
 
@@ -443,6 +446,9 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
         // Reset
         hasActiveBeReal = false
         successfullyUploaded.clear()
+
+        // Logging
+        logger.info("BeReal has stopped for guild '${bot.guild.id}'")
     }
 
     /**
@@ -565,6 +571,9 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
         Scheduler.scheduler.schedule({
             end()
         }, time.toLong(), TimeUnit.MINUTES)
+
+        // Logging
+        logger.info("BeReal has been started for guild '${bot.guild.id}'")
     }
 
     /**
