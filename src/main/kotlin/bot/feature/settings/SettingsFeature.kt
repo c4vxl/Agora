@@ -120,8 +120,8 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
 
                     bot.dataHandler.set<BeRealFeature>("enabled", enabled)
                     channel?.let { bot.dataHandler.set<BeRealFeature>("channel", it.id) }
-                    amount?.let { bot.dataHandler.set<BeRealFeature>("amount", amount) }
-                    time?.let { bot.dataHandler.set<BeRealFeature>("time", time) }
+                    amount?.let { bot.dataHandler.set<BeRealFeature>("amount", it.toDouble()) }
+                    time?.let { bot.dataHandler.set<BeRealFeature>("time", it.toDouble()) }
                 }
 
                 // Feature: Welcome
@@ -188,10 +188,10 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                     }
 
                     if (maxVoice != null)
-                        bot.dataHandler.set<ChannelFeature>("max_voice", maxVoice)
+                        bot.dataHandler.set<ChannelFeature>("max_voice", maxVoice.toDouble())
 
                     if (maxText != null)
-                        bot.dataHandler.set<ChannelFeature>("max_text", maxText)
+                        bot.dataHandler.set<ChannelFeature>("max_text", maxText.toDouble())
 
                     if (voiceCategory != null)
                         bot.dataHandler.set<ChannelFeature>("voice_category", voiceCategory)
