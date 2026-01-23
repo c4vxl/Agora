@@ -476,8 +476,9 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
         fun topStreak(i: Int) = top.getOrNull(i)?.second?.toString() ?: "/"
 
         // Get rest of the leaderboard
-        var i = -1
+        var i = 3
         val rest = entries.drop(3)
+            .take(7) // only show top 10
             .joinToString {
                 i += 1
                 "\n${bot.language.translate("feature.be-real.notification.leaderboard.line", i.toString(), it.first.asMention, it.second.toString())}"
