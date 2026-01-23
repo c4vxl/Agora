@@ -291,6 +291,7 @@
   "feature.be-real.notification.end.btn.leaderboard": "\uD83E\uDD47 View Leaderboard",
   "feature.be-real.notification.leaderboard.title": "BeReal Leaderboard:",
   "feature.be-real.notification.leaderboard.desc": "Here's the current BeReal-Leaderboard:\n\n- \uD83E\uDD47: $0 (Streak: $1)\n- \uD83E\uDD48: $2 (Streak: $3)\n- \uD83E\uDD49: $4 (Streak: $5)\n$6\n\n----------------------------------------------\n**You:** Place **$7** (Streak: $8)",
+  "feature.be-real.notification.leaderboard.line": "- **#$0** $1 (Streak: $2)",
   "feature.be-real.notification.public.title": "It's time to be real again!",
   "feature.be-real.notification.public.desc": "Everybody listen up! Another BeReal has started.\nPost a picture of what you are doing within the next **$0** minutes into this channel to keep your streak going.\n\nCurrently there are/is **$1** user(s) playing!\n_If you want to join, use **/be-real join** or press the button!_",
   "feature.be-real.notification.public.btn.quit": "\uD83D\uDEAB Leave BeReal",
