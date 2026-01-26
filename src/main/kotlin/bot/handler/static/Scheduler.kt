@@ -6,5 +6,5 @@ import java.util.concurrent.Executors
  * Holds a global thread pool scheduler
  */
 object Scheduler {
-    val scheduler = Executors.newScheduledThreadPool(2)
+    val scheduler = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors())
 }
