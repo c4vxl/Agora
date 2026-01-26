@@ -65,7 +65,9 @@ class DataHandler(
      * @param value The new value
      */
     fun set(module: String, key: String, value: Any) {
-        data(module)[key] = value
+        data(module)[key] = if (value is Int) value.toDouble()
+                            else value
+
         Database.makeDirty(bot.guild.idLong)
     }
 

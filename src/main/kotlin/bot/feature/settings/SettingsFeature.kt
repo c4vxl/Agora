@@ -108,8 +108,8 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
 
                     end?.let {
                         val parts = it.split(":")
-                        val hours = parts.getOrNull(0) as? Int?
-                        val mins = parts.getOrNull(1) as? Int?
+                        val hours = parts.getOrNull(0)?.toIntOrNull()
+                        val mins = parts.getOrNull(1)?.toIntOrNull()
 
                         if (hours != null && hours <= 24)
                             bot.dataHandler.set<BeRealFeature>("end.h", hours)
