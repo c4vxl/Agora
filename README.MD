@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://cdn.c4vxl.de/Agora/logo.png" alt="Bot Logo" style="width: 35ch">
+  <img src="https://cdn.c4vxl.de/Agora/logo-clear.png" alt="Bot Logo" style="width: 35ch">
 </p>
 
 <h2 align="center">Agora – A Fair & Feature-Rich Discord Bot</h2>
@@ -93,7 +93,7 @@ The bot follows a **clean, modular architecture**:
 | [**/config/**](https://github.com/c4vxl/Agora/tree/main/src/main/kotlin/config/) | Configuration loader and interface. |
 | [**/language/**](https://github.com/c4vxl/Agora/tree/main/src/main/kotlin/language/) | Multi-language support and localization logic. |
 | [**/utils/**](https://github.com/c4vxl/Agora/tree/main/src/main/kotlin/utils/) | Shared utilities for embeds, permissions, channels, logging and more. |
-| [**/enums/**](https://github.com/c4vxl/Agora/tree/main/src/main/kotlin/enums/) | Global constants such as colors, embeds or permissions. |
+| [**/enums/**](https://github.com/c4vxl/Agora/tree/main/src/main/kotlin/config/enums/) | Global constants such as colors, embeds or permissions. |
 
 <br>
 
