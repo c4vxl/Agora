@@ -1,6 +1,7 @@
 package de.c4vxl
 
 import de.c4vxl.bot.Bot
+import de.c4vxl.bot.handler.static.Scheduler
 import de.c4vxl.bot.handler.static.StaticButtonHandler
 import de.c4vxl.config.Config
 import de.c4vxl.data.Database
@@ -61,6 +62,9 @@ fun main() {
 
             // Delete database
             Database.delete(event.guild.idLong)
+
+            // Delete scheduler
+            Scheduler.remove(event.guild)
         }
     })
 

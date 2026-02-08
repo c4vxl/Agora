@@ -370,7 +370,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
 
         val delay = Duration.between(now, nextMidnight).toMillis()
 
-        Scheduler.scheduler.schedule({
+        Scheduler.get(bot.guild).schedule({
             reload()
             scheduleReload()
         }, delay, TimeUnit.MILLISECONDS)
@@ -394,7 +394,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
 
             val delay = Duration.between(now, time).toMillis()
 
-            scheduledTasks.add(Scheduler.scheduler.schedule({
+            scheduledTasks.add(Scheduler.get(bot.guild).schedule({
                 start()
             }, delay, TimeUnit.MILLISECONDS))
         }
@@ -573,7 +573,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
         hasActiveBeReal = true
 
         // schedule end
-        Scheduler.scheduler.schedule({
+        Scheduler.get(bot.guild).schedule({
             end()
         }, time.toLong(), TimeUnit.MINUTES)
 
