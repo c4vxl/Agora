@@ -91,9 +91,9 @@ The bot follows a **clean, modular architecture**:
 | [**/bot/handler/**](https://github.com/c4vxl/Agora/tree/main/src/main/kotlin/bot/handler/) | Centralized handling of guild-specific data, commands, components, etc. |
 | [**/data/**](https://github.com/c4vxl/Agora/tree/main/src/main/kotlin/data/) | Database, caching and guild-specific data structures. |
 | [**/config/**](https://github.com/c4vxl/Agora/tree/main/src/main/kotlin/config/) | Configuration loader and interface. |
+| [**/config/enums/**](https://github.com/c4vxl/Agora/tree/main/src/main/kotlin/config/enums/) | Global constants such as colors, embeds or permissions. |
 | [**/language/**](https://github.com/c4vxl/Agora/tree/main/src/main/kotlin/language/) | Multi-language support and localization logic. |
 | [**/utils/**](https://github.com/c4vxl/Agora/tree/main/src/main/kotlin/utils/) | Shared utilities for embeds, permissions, channels, logging and more. |
-| [**/enums/**](https://github.com/c4vxl/Agora/tree/main/src/main/kotlin/config/enums/) | Global constants such as colors, embeds or permissions. |
 
 <br>
 
