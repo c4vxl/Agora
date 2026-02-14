@@ -14,10 +14,36 @@ import net.dv8tion.jda.api.requests.restaction.ChannelAction
 
 /**
  * Class for handling the data of the ChannelFeature
- * @see de.c4vxl.bot.feature.channel.ChannelFeature
+ * @see de.c4vxl.bot.feature.util.channel.ChannelFeature
  */
 class ChannelFeatureHandler(val feature: ChannelFeature) {
     private val bot: Bot = feature.bot
+
+    var presets: MutableMap<String, MutableMap<String, MutableList<String>>>
+        get() = bot.dataHandler.get<MutableMap<String, MutableMap<String, MutableList<String>>>>(feature.name, "presets") ?: mutableMapOf()
+        set(value) = bot.dataHandler.set(feature.name, "presets", value)
+
+    /**
+     * Returns the preset list of a user
+     * @param user The user
+     */
+    fun getPreset(user: User): MutableMap<String, MutableList<Member>> {
+        val preset: MutableMap<String, MutableList<String>> =
+            presets[user.id] ?: mutableMapOf("a" to mutableListOf(), "d" to mutableListOf())
+
+        return preset.mapValues { it.value.map { id -> bot.guild.retrieveMemberById(id).complete() }.toMutableList() }.toMutableMap()
+    }
+
+    /**
+     * Sets the preset list of a user
+     * @param user The user
+     * @param list The preset list
+     */
+    fun setPreset(user: User, list: MutableMap<String, MutableList<Member>>) {
+        this.presets = this.presets.apply {
+            this[user.id] = list.mapValues { it.value.map { u -> u.id }.toMutableList() }.toMutableMap()
+        }
+    }
 
     /**
      * Returns the config value for the maximum channels of a type a user is allowed to have
@@ -62,6 +88,8 @@ class ChannelFeatureHandler(val feature: ChannelFeature) {
             else    -> return null
         }
 
+        val preset = getPreset(owner.user)
+
         // Handle permissions
         action
             .addPermissionOverride(
@@ -80,6 +108,15 @@ class ChannelFeatureHandler(val feature: ChannelFeature) {
                 // Deny view permission to everyone if channel is private
                 if (private) mutableListOf(net.dv8tion.jda.api.Permission.VIEW_CHANNEL) else mutableListOf()
             )
+            .apply {
+                preset["a"]?.forEach { a ->
+                    this.addMemberPermissionOverride(a.idLong, mutableListOf(net.dv8tion.jda.api.Permission.VIEW_CHANNEL), mutableListOf())
+                }
+
+                preset["d"]?.forEach { a ->
+                    this.addMemberPermissionOverride(a.idLong, mutableListOf(), mutableListOf(net.dv8tion.jda.api.Permission.VIEW_CHANNEL))
+                }
+            }
             .addMemberPermissionOverride(
                 owner.idLong,
                 net.dv8tion.jda.api.Permission.entries,  // Grant all permissions to owner

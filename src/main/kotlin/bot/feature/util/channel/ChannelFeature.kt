@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.components.buttons.Button
 import net.dv8tion.jda.api.components.label.Label
 import net.dv8tion.jda.api.components.textinput.TextInput
 import net.dv8tion.jda.api.components.textinput.TextInputStyle
+import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.Channel
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel
 import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent
@@ -173,10 +174,80 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
                     // /channel buttons
                     SubcommandData("buttons", bot.language.translate("feature.channel.command.buttons.desc"))
                         .addOption(OptionType.STRING, "voice", bot.language.translate("feature.channel.command.buttons.voice.desc"))
-                        .addOption(OptionType.STRING, "text", bot.language.translate("feature.channel.command.buttons.text.desc"))
+                        .addOption(OptionType.STRING, "text", bot.language.translate("feature.channel.command.buttons.text.desc")),
+
+                    // /channel preset
+                    SubcommandData("preset", bot.language.translate("feature.channel.command.preset.desc"))
+                        .addOption(OptionType.USER, "grant", bot.language.translate("feature.channel.command.preset.grant.desc"))
+                        .addOption(OptionType.USER, "deny", bot.language.translate("feature.channel.command.preset.deny.desc"))
+                        .addOption(OptionType.USER, "unset", bot.language.translate("feature.channel.command.preset.unset.desc")),
                 )
         ) { event ->
             when (event.subcommandName) {
+                "preset" -> {
+                    val grant: User? = event.getOption("grant", OptionMapping::getAsUser)
+                    val deny: User? = event.getOption("deny", OptionMapping::getAsUser)
+                    val unset: User? = event.getOption("unset", OptionMapping::getAsUser)
+
+                    val preset = this.handler.getPreset(event.user)
+
+                    // Show preset list
+                    if (grant == null && deny == null && unset == null) {
+                        event.replyEmbeds(
+                            EmbedBuilder()
+                                .setTitle(bot.language.translate("feature.channel.command.preset.list.embed.title"))
+                                .setDescription(
+                                    """
+                                        **${bot.language.translate("feature.channel.command.preset.list.granted.embed.title")}**
+                                        ${preset["a"]?.take(99)?.joinToString("\n") {
+                                            "\\- ${it.asMention}"
+                                        }}
+                                        
+                                        **${bot.language.translate("feature.channel.command.preset.list.denied.embed.title")}**
+                                        ${preset["d"]?.take(99)?.joinToString("\n") {
+                                            "\\- ${it.asMention}"
+                                        }}
+                                    """.trimIndent()
+                                )
+                                .withTimestamp()
+                                .color(Color.PRIMARY)
+                                .build()
+                        ).setEphemeral(true).queue()
+                        return@registerSlashCommand
+                    }
+
+                    // Grant member
+                    grant?.let { g ->
+                        preset["a"] = preset["a"]!!.apply {
+                            this.add(bot.guild.retrieveMember(g).complete())
+                        }
+                    }
+
+                    // Deny member
+                    deny?.let { d ->
+                        preset["d"] = preset["d"]!!.apply {
+                            this.add(bot.guild.retrieveMember(d).complete())
+                        }
+                    }
+
+                    // Unset member
+                    unset?.let { u ->
+                        bot.guild.retrieveMember(u).complete().let {
+                            preset["a"] = preset["a"]!!.apply { this.remove(it) }
+                            preset["d"] = preset["d"]!!.apply { this.remove(it) }
+                        }
+                    }
+
+                    this.handler.setPreset(event.user, preset)
+
+                    // Send feedback
+                    event.replyEmbeds(
+                        Embeds.SUCCESS(bot)
+                            .setDescription(bot.language.translate("feature.channel.command.preset.success"))
+                            .build()
+                    ).setEphemeral(true).queue()
+                }
+
                 "buttons" -> {
                     if (event.member?.hasPermission(Permission.FEATURE_CHANNELS_BUTTONS, bot) != true) {
                         event.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
