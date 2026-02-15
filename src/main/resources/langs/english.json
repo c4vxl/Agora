@@ -23,6 +23,8 @@
   "perms.feature_activities_manage.desc": "Allows users to manage the activities feature",
   "perms.feature_be_real.desc": "Allows users to join the BeReal mini-game",
   "perms.feature_be_real_manage.desc": "Allows users to manage the BeReal feature",
+  "perms.feature_self_roles.desc": "Allows users to use the self roles feature",
+  "perms.feature_self_roles_manage.desc": "Allows users to create self-roles modals",
 
   "--- Feature: Settings ---": "",
   "feature.settings.command.desc": "Modify the settings of the different features of this bot",
@@ -314,5 +316,16 @@
   "feature.be-real.command.stop.success": "Successfully stopped all running BeReals!",
   "feature.be-real.command.reload.success": "Successfully scheduled BeReal for these times:\n\n$0",
   "feature.be-real.command.leaderboard.error": "Failed to generate leaderboard!",
-  "feature.be-real.command.buttons.success": "Created buttons successfully!"
+  "feature.be-real.command.buttons.success": "Created buttons successfully!",
+
+  "--- Feature: Self Roles ---": "",
+  "feature.self-roles.command.desc": "Allows users to choose about what roles they want to assign to themself",
+  "feature.self-roles.paste.command.desc": "Pastes a self roles modal into the current channel",
+  "feature.self-roles.paste.command.set.error.no_roles": "You didn't pass any roles. Use /self-roles set roles:@role1 @role2",
+  "feature.self-roles.paste.command.success": "Successfully created modal for the following roles:\n\\- $0",
+  "feature.self-roles.delete.success": "Successfully deleted modal of the following roles:\n\\- $0",
+  "feature.self-roles.grant.success": "Successfully granted you the role $0",
+  "feature.self-roles.remove.success": "Successfully removed the role $0 from you",
+  "feature.self-roles.label.command.desc": "The label of the button",
+  "feature.self-roles.button.default.label": "Choose Roles"
 }

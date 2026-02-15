@@ -13,6 +13,7 @@ import de.c4vxl.bot.feature.settings.PermissionFeature
 import de.c4vxl.bot.feature.settings.SettingsFeature
 import de.c4vxl.bot.feature.util.tickets.TicketFeature
 import de.c4vxl.bot.feature.Feature
+import de.c4vxl.bot.feature.onboarding.SelfRolesFeature
 import de.c4vxl.bot.feature.util.EmbedFeature
 import de.c4vxl.bot.handler.CommandHandler
 import de.c4vxl.bot.handler.ComponentHandler
@@ -64,6 +65,7 @@ class Bot(
         registerFeature<WelcomeFeature>(this)
         registerFeature<ConfigFeature>(this)
         registerFeature<BeRealFeature>(this)
+        registerFeature<SelfRolesFeature>(this)
 
         // Initialize command handler
         commandHandler.initHandlers()
