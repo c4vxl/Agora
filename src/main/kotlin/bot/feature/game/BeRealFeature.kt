@@ -361,10 +361,17 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
         }
     }
 
+    private var reloadScheduled: Boolean = false
+
     /**
      * Schedules a reload for every midnight to create new random times
      */
     private fun scheduleReload() {
+        if (reloadScheduled)
+            return
+
+        this.reloadScheduled = true
+
         val now = LocalDateTime.now()
         val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay()
 
@@ -372,6 +379,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
 
         Scheduler.get(bot.guild).schedule({
             reload()
+            this.reloadScheduled = false
             scheduleReload()
         }, delay, TimeUnit.MILLISECONDS)
     }
