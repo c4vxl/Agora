@@ -631,6 +631,6 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
         return (1..num).map {
             val randomSec = Random.nextInt(start, end)
             LocalDateTime.of(date, LocalTime.ofSecondOfDay(randomSec.toLong()))
-        }.sorted()
+        }.distinct().sorted()
     }
 }
