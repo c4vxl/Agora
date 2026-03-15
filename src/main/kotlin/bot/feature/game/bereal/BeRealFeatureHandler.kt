@@ -49,7 +49,10 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
             val channelName = bot.dataHandler.get<String>(this.feature.name, "channel") ?: return null
             return bot.guild.getTextChannelById(channelName)
         }
-        set(value) = bot.dataHandler.set(this.feature.name, "channel", value?.id ?: "")
+        set(value) {
+            bot.dataHandler.set(this.feature.name, "channel", value?.id ?: "")
+            reloadView()
+        }
 
     /**
      * Holds the streaks of the participants
