@@ -16,10 +16,22 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.requests.GatewayIntent
 import org.slf4j.Logger
+import java.io.File
 import kotlin.concurrent.fixedRateTimer
+import kotlin.system.exitProcess
 
 fun main() {
     val logger: Logger = createLogger("Agora")
+    val lockFile = File(".agora_lock")
+
+    // Exit on lock
+    if (lockFile.exists()) {
+        logger.error("Lock file exists. Another instance seems to be running. If you believe this is a mistake, delete '${lockFile.name}' and re-run!")
+        exitProcess(0)
+    }
+
+    // Create lock
+    lockFile.createNewFile()
 
     // Create JDA instance
     logger.info("Creating JDA instance")
@@ -80,5 +92,6 @@ fun main() {
         logger.info("Shutting down...")
         Database.saveAll()
         jda.shutdown()
+        lockFile.delete()
     })
 }
