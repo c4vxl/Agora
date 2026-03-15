@@ -1,6 +1,7 @@
 package de.c4vxl.bot.feature
 
 import de.c4vxl.bot.Bot
+import de.c4vxl.bot.handler.global.scheduling.TaskGroup
 import de.c4vxl.utils.ClassUtils.className
 import de.c4vxl.utils.LoggerUtils.createLogger
 import org.slf4j.Logger
@@ -11,7 +12,8 @@ import org.slf4j.Logger
 abstract class Feature<T>(
     val bot: Bot,
     val clazz: Class<T>,
-    val name: String = className(clazz)
+    val name: String = className(clazz),
+    val tasks: TaskGroup = TaskGroup()
 ) {
     val logger: Logger = createLogger(clazz)
 

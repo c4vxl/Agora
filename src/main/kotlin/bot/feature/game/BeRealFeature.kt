@@ -2,7 +2,6 @@ package de.c4vxl.bot.feature.game
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.Feature
-import de.c4vxl.bot.handler.static.Scheduler
 import de.c4vxl.config.enums.Color
 import de.c4vxl.config.enums.Embeds
 import de.c4vxl.config.enums.Permission
@@ -26,7 +25,6 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
@@ -34,8 +32,6 @@ import kotlin.random.Random
  * A game feature prompting users to post a picture of what they're doing at the moment at random times a day
  */
 class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class.java) {
-    // Cache of scheduled tasks
-    private val scheduledTasks: MutableList<ScheduledFuture<*>> = mutableListOf()
     private var successfullyUploaded: MutableList<String> = mutableListOf()
     private var hasActiveBeReal = false
 
@@ -375,13 +371,13 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
         val now = LocalDateTime.now()
         val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay()
 
-        val delay = Duration.between(now, nextMidnight).toMillis()
-
-        Scheduler.get(bot.guild).schedule({
-            reload()
-            this.reloadScheduled = false
-            scheduleReload()
-        }, delay, TimeUnit.MILLISECONDS)
+        this.tasks.schedule(Duration.between(now, nextMidnight).toSeconds(),
+            {
+                reload()
+                this.reloadScheduled = false
+                scheduleReload()
+            }
+        )
     }
 
     /**
@@ -391,9 +387,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
         val times = generateTimes()
 
         // Clear old schedule
-        Scheduler.schedulers.remove(this.bot.guild.idLong)
-        scheduledTasks.forEach { it.cancel(false) }
-        scheduledTasks.clear()
+        this.tasks.cancelAll()
 
         val now = LocalDateTime.now()
 
@@ -401,11 +395,9 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
         times.forEach { time ->
             if (time.isBefore(now)) return@forEach
 
-            val delay = Duration.between(now, time).toMillis()
-
-            scheduledTasks.add(Scheduler.get(bot.guild).schedule({
+            this.tasks.schedule(Duration.between(now, time).toSeconds(), {
                 start()
-            }, delay, TimeUnit.MILLISECONDS))
+            })
         }
 
         // Logging
@@ -582,9 +574,9 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
         hasActiveBeReal = true
 
         // schedule end
-        Scheduler.get(bot.guild).schedule({
+        this.tasks.schedule(time.toLong(), {
             end()
-        }, time.toLong(), TimeUnit.MINUTES)
+        }, TimeUnit.MINUTES)
 
         // Logging
         logger.info("BeReal has been started for guild '${bot.guild.id}'")
