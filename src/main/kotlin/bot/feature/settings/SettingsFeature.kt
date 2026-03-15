@@ -8,6 +8,7 @@ import de.c4vxl.bot.feature.util.channel.ChannelFeature
 import de.c4vxl.bot.feature.util.tickets.TicketFeature
 import de.c4vxl.config.enums.Color
 import de.c4vxl.config.enums.Embeds
+import de.c4vxl.utils.BeRealUtils
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.channel.ChannelType
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
@@ -94,29 +95,66 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                     val amount = event.getOption("amount", OptionMapping::getAsInt)
                     val time = event.getOption("time", OptionMapping::getAsInt)
 
-                    start?.let {
-                        val parts = it.split(":")
-                        val hours = parts.getOrNull(0)?.toIntOrNull()
-                        val mins = parts.getOrNull(1)?.toIntOrNull()
-
-                        if (hours != null && hours <= 24)
-                            bot.dataHandler.set<BeRealFeature>("start.h", hours)
-
-                        if (mins != null && mins <= 60)
-                            bot.dataHandler.set<BeRealFeature>("start.m", mins)
+                    val allDays = buildList {
+                        add("all")
+                        addAll(BeRealUtils.days)
                     }
 
-                    end?.let {
-                        val parts = it.split(":")
-                        val hours = parts.getOrNull(0)?.toIntOrNull()
-                        val mins = parts.getOrNull(1)?.toIntOrNull()
+                    start?.split(";")
+                        ?.map { it.split(":") }
+                        ?.forEach { parts ->
+                            // Get day
+                            var day = if (parts.size == 3) parts[0]
+                            else "all"
 
-                        if (hours != null && hours <= 24)
-                            bot.dataHandler.set<BeRealFeature>("end.h", hours)
+                            // Default to all if day format is invalid
+                            if (!allDays.contains(day))
+                                day = "all"
 
-                        if (mins != null && mins <= 60)
-                            bot.dataHandler.set<BeRealFeature>("end.m", mins)
-                    }
+                            // Get time
+                            val hours = if (parts.size == 3) parts.getOrNull(1)?.toIntOrNull()
+                                        else parts.getOrNull(0)?.toIntOrNull()
+                            val mins = if (parts.size == 3) parts.getOrNull(2)?.toIntOrNull()
+                                        else parts.getOrNull(1)?.toIntOrNull()
+
+                            if (hours != null && hours <= 24 && hours >= 0) {
+                                bot.dataHandler.set<BeRealFeature>("start.$day.h", hours)
+                                bot.dataHandler.set<BeRealFeature>("start.all.h", hours)
+                            }
+
+                            if (mins != null && mins <= 60 && mins >= 0) {
+                                bot.dataHandler.set<BeRealFeature>("start.$day.m", mins)
+                                bot.dataHandler.set<BeRealFeature>("start.all.m", mins)
+                            }
+                        }
+
+                    end?.split(";")
+                        ?.map { it.split(":") }
+                        ?.forEach { parts ->
+                            // Get day
+                            var day = if (parts.size == 3) parts[0]
+                            else "all"
+
+                            // Default to all if day format is invalid
+                            if (!allDays.contains(day))
+                                day = "all"
+
+                            // Get time
+                            val hours = if (parts.size == 3) parts.getOrNull(1)?.toIntOrNull()
+                                        else parts.getOrNull(0)?.toIntOrNull()
+                            val mins = if (parts.size == 3) parts.getOrNull(2)?.toIntOrNull()
+                                        else parts.getOrNull(1)?.toIntOrNull()
+
+                            if (hours != null && hours <= 24 && hours >= 0) {
+                                bot.dataHandler.set<BeRealFeature>("end.$day.h", hours)
+                                bot.dataHandler.set<BeRealFeature>("end.all.h", hours)
+                            }
+
+                            if (mins != null && mins <= 60 && mins >= 0) {
+                                bot.dataHandler.set<BeRealFeature>("end.$day.m", mins)
+                                bot.dataHandler.set<BeRealFeature>("end.all.m", mins)
+                            }
+                        }
 
                     bot.dataHandler.set<BeRealFeature>("enabled", enabled)
                     channel?.let { bot.dataHandler.set<BeRealFeature>("channel", it.id) }

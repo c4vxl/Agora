@@ -55,8 +55,8 @@
   "feature.settings.command.be-real.desc": "Modify the settings of the 'BeReal' feature",
   "feature.settings.command.be-real.enabled.desc": "If set to true, BeReal is enabled, if not, BeReal game is paused",
   "feature.settings.command.be-real.channel.desc": "The channel where users will be prompted to post their pictures in to",
-  "feature.settings.command.be-real.start.desc": "The time a day should start. Format: HH:mm",
-  "feature.settings.command.be-real.end.desc": "The time a day should end. Format: HH:mm",
+  "feature.settings.command.be-real.start.desc": "The time a day should start. Format: mo:HH:mm;tu:HH:mm;...",
+  "feature.settings.command.be-real.end.desc": "The time a day should end. Format: mo:HH:mm;tu:HH:mm;...",
   "feature.settings.command.be-real.num.desc": "The amount of posts that should be requested per day",
   "feature.settings.command.be-real.time.desc": "The amount minutes users have time to post a BeReal",
 
