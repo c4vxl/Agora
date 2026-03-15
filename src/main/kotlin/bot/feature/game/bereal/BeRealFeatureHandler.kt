@@ -1,0 +1,278 @@
+package de.c4vxl.bot.feature.game.bereal
+
+import de.c4vxl.config.enums.Color
+import de.c4vxl.utils.BeRealUtils
+import de.c4vxl.utils.EmbedUtils.color
+import de.c4vxl.utils.EmbedUtils.withTimestamp
+import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.components.actionrow.ActionRow
+import net.dv8tion.jda.api.components.buttons.Button
+import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
+import java.time.Duration
+import java.time.LocalDateTime
+import java.util.concurrent.TimeUnit
+
+class BeRealFeatureHandler(val feature: BeRealFeature) {
+    val bot = feature.bot
+    val logger = feature.logger
+
+    /**
+     * Returns {@code true} if the game is enabled
+     */
+    val isEnabled: Boolean
+        get() = bot.dataHandler.get<Boolean>(this.feature.name, "enabled") ?: false
+
+    /**
+     * Holds a list of participants
+     */
+    var participants: MutableList<String>
+        get() = bot.dataHandler.get<MutableList<String>>(this.feature.name, "participants") ?: mutableListOf()
+        set(value) = bot.dataHandler.set(this.feature.name, "participants", value)
+
+    /**
+     * Holds the channel where BeReals will be posted in to
+     */
+    var channel: TextChannel?
+        get() {
+            val channelName = bot.dataHandler.get<String>(this.feature.name, "channel") ?: return null
+            return bot.guild.getTextChannelById(channelName)
+        }
+        set(value) = bot.dataHandler.set(this.feature.name, "channel", value?.id ?: "")
+
+    /**
+     * Holds the streaks of the participants
+     */
+    var streaks: MutableMap<String, Int>
+        get() =
+            bot.dataHandler.get<MutableMap<String, Double>>(this.feature.name, "streak")
+                ?.mapValues { it.value.toInt() }?.toMutableMap()
+                ?: mutableMapOf()
+        set(value) = bot.dataHandler.set(this.feature.name, "streak", value)
+
+    /**
+     * Holds whether a BeReal is currently active
+     */
+    var hasActiveBeReal: Boolean = false
+
+    /**
+     * Holds a list of people who have uploaded a picture in the current BeReal
+     */
+    val successfullyUploaded = mutableListOf<String>()
+
+    /**
+     * Ends the currently running BeReal
+     */
+    fun end() {
+        if (!hasActiveBeReal) return
+
+        // Update streaks
+        val failed = participants.filter { !successfullyUploaded.contains(it) }
+        streaks = streaks.apply {
+            successfullyUploaded.forEach {
+                this[it] = this.getOrDefault(it, 0) + 1
+            }
+
+            failed.forEach { this.remove(it) }
+        }
+
+        // Send end message
+        channel?.sendMessage(
+            MessageCreateBuilder()
+                .addEmbeds(
+                    EmbedBuilder()
+                        .withTimestamp()
+                        .color(Color.PRIMARY)
+                        .setTitle(bot.language.translate("feature.be-real.notification.end.title"))
+                        .setDescription(bot.language.translate("feature.be-real.notification.end.desc", failed.size.toString(), successfullyUploaded.size.toString()))
+                        .setFooter(bot.language.translate("feature.be-real.notification.end.footer"))
+                        .build()
+                )
+                .addComponents(
+                    ActionRow.of(
+                        Button.primary(
+                            "${this.feature.name}_btn_leaderboard",
+                            bot.language.translate("feature.be-real.notification.end.btn.leaderboard")
+                        )
+                    ))
+                .build()
+        )?.queue()
+
+        // Reset
+        hasActiveBeReal = false
+        successfullyUploaded.clear()
+
+        // Logging
+        logger.info("BeReal has stopped for guild '${bot.guild.id}'")
+    }
+
+    /**
+     * Starts a BeReal
+     */
+    fun start() {
+        if (hasActiveBeReal) return
+
+        if (channel == null)
+            return
+
+        // Time for BeReal
+        val time = bot.dataHandler.get<Int>(this.feature.name, "time") ?: 5
+
+        // Send public announcement
+        fun get(x: String, vararg args: String): String = bot.language.translate("feature.be-real.notification.${x}", *args)
+        channel?.sendMessage(
+            MessageCreateBuilder()
+                .addEmbeds(
+                    EmbedBuilder()
+                        .withTimestamp()
+                        .color(Color.DANGER)
+                        .setTitle(get("public.title"))
+                        .setDescription(get("public.desc", time.toString(), participants.size.toString()))
+                        .build()
+                )
+                .addComponents(
+                    ActionRow.of(
+                        Button.danger(
+                            "${this.feature.name}_btn_leave",
+                            bot.language.translate("feature.be-real.notification.public.btn.quit")
+                        ),
+                        Button.primary(
+                            "${this.feature.name}_btn_join",
+                            bot.language.translate("feature.be-real.notification.public.btn.join")
+                        )
+                    ))
+                .build()
+        )?.queue()
+
+        // Send dms
+        participants.forEach {
+            val user = bot.guild.retrieveMemberById(it).complete()?.user ?: return@forEach
+
+            user.openPrivateChannel().queue { pc ->
+                pc.sendMessage(
+                    MessageCreateBuilder()
+                        .addEmbeds(
+                            EmbedBuilder()
+                                .withTimestamp()
+                                .color(Color.DANGER)
+                                .setTitle(get("title"))
+                                .setDescription(get("desc", user.asMention, bot.guild.name, channel!!.asMention, time.toString()))
+                                .setFooter(get("footer", bot.guild.name))
+                                .build()
+                        )
+                        .addComponents(
+                            ActionRow.of(
+                                Button.danger(
+                                    "agora_dm_delete_all",
+                                    bot.language.translate("global.button.dm_delete_all")
+                                ),
+                                Button.primary(
+                                    "agora_delete_message",
+                                    bot.language.translate("global.button.delete_msg")
+                                )
+                            ))
+                        .build()
+                ).queue()
+            }
+        }
+
+        hasActiveBeReal = true
+
+        // schedule end
+        this.feature.tasks.schedule(time.toLong(), {
+            end()
+        }, TimeUnit.MINUTES)
+
+        // Logging
+        logger.info("BeReal has been started for guild '${bot.guild.id}'")
+    }
+
+    /**
+     * Generates an embed with a leaderboard
+     * @param self The user that requested the leaderboard
+     */
+    fun leaderboard(self: User): MessageEmbed {
+        val entries = streaks
+            .asSequence()
+            .sortedByDescending { it.value }
+            .mapNotNull { (id, streak) ->
+                val member = bot.guild.retrieveMemberById(id).complete() ?: return@mapNotNull null
+                member to streak
+            }
+            .toList()
+
+        // Get own rank
+        val ownIndex = entries.indexOfFirst { it.first.id == self.id }
+        val ownStreak = if (ownIndex != -1) entries[ownIndex].second else 0
+        val ownRank = if (ownIndex != -1) ownIndex + 1 else "`<NONE>`"
+
+        // Get top 3
+        val top = entries.take(3)
+        fun topMention(i: Int) = top.getOrNull(i)?.first?.asMention ?: "/"
+        fun topStreak(i: Int) = top.getOrNull(i)?.second?.toString() ?: "/"
+
+        // Get rest of the leaderboard
+        var i = 3
+        val rest = entries.drop(3)
+            .take(7) // only show top 10
+            .joinToString {
+                i += 1
+                "\n${bot.language.translate("feature.be-real.notification.leaderboard.line", i.toString(), it.first.asMention, it.second.toString())}"
+            }
+
+        return EmbedBuilder()
+            .color(Color.PRIMARY)
+            .setTitle(bot.language.translate("feature.be-real.notification.leaderboard.title"))
+            .setDescription(bot.language.translate(
+                "feature.be-real.notification.leaderboard.desc",
+                topMention(0), topStreak(0),
+                topMention(1), topStreak(1),
+                topMention(2), topStreak(2),
+                rest,
+                "#$ownRank",
+                ownStreak.toString()
+            ))
+            .withTimestamp()
+            .build()
+    }
+
+    /**
+     * Registers new BeReal times
+     */
+    fun reload(): List<LocalDateTime> {
+        this.feature.tasks.cancelAll()
+
+        val times = BeRealUtils.generateTimes(this.feature)
+        val now = LocalDateTime.now()
+
+        times.filter { it.isAfter(now) }.forEach { time ->
+            val delay = Duration.between(now, time).toSeconds()
+
+            this.feature.tasks.schedule(delay, {
+                start()
+            })
+        }
+
+        // Logging
+        logger.info("Scheduled BeReal times for guild '${bot.guild.id}': ${times.joinToString(", ") { "${it.hour}:${it.minute}" }}")
+
+        return times
+    }
+
+    /**
+     * Reschedules BeReal times daily
+     */
+    fun scheduleDailyReload() {
+        val now = LocalDateTime.now()
+        val midnight = now.toLocalDate().plusDays(1).atStartOfDay()
+
+        val initialDelay = Duration.between(now, midnight).toMillis()
+
+        this.feature.tasks.scheduleAtFixedRate(initialDelay, TimeUnit.DAYS.toMillis(1), {
+            // Schedule new times
+
+        }, TimeUnit.MILLISECONDS)
+    }
+}
