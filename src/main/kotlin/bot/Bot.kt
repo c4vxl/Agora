@@ -45,7 +45,7 @@ class Bot(
     var language: Language = Language.fromName(dataHandler.get<String>("metadata", "lang") ?: Language.DEFAULT)
 
     // Contains all the feature instances of this bot
-    private val featureRegistry: MutableMap<String, Feature<*>> = mutableMapOf()
+    val featureRegistry: MutableMap<String, Feature<*>> = mutableMapOf()
 
     // Initialize Bot
     init {
@@ -86,8 +86,14 @@ class Bot(
         val instance: Any = T::class.java.constructors[0]?.newInstance(*args) ?: return
         val feature: Feature<*> = instance as? Feature<*> ?: return
 
-        featureRegistry[feature.name] = feature
+        featureRegistry[name] = feature
     }
+
+    /**
+     * Returns a feature from registry
+     */
+    inline fun <reified T : Feature<*>> getFeature(): T? =
+        featureRegistry[className(T::class.java)] as? T
 
     /**
      * Reloads all commands from features
