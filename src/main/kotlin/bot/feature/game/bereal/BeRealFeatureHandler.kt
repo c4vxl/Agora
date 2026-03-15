@@ -70,6 +70,7 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
 
         // Update streaks
         val failed = participants.filter { !successfullyUploaded.contains(it) }
+        val numLost = failed.filter { (streaks[it] ?: 0) != 0 }.size
         streaks = streaks.apply {
             successfullyUploaded.forEach {
                 this[it] = this.getOrDefault(it, 0) + 1
@@ -86,7 +87,7 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
                         .withTimestamp()
                         .color(Color.PRIMARY)
                         .setTitle(bot.language.translate("feature.be-real.notification.end.title"))
-                        .setDescription(bot.language.translate("feature.be-real.notification.end.desc", failed.size.toString(), successfullyUploaded.size.toString()))
+                        .setDescription(bot.language.translate("feature.be-real.notification.end.desc", numLost.toString(), successfullyUploaded.size.toString()))
                         .setFooter(bot.language.translate("feature.be-real.notification.end.footer"))
                         .build()
                 )
