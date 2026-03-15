@@ -152,7 +152,9 @@
 
   "--- Feature: Rules ---": "",
   "feature.rules.command.desc": "Allows you to set rules that new users must accept before they can see other channels",
+  "feature.rules.command.reloadView.desc": "Run this to fix potential channel permission bugs caused by the rules system",
   "feature.rules.command.set.desc": "Allows you to set rules that new users must accept before they can see other channels",
+  "feature.rules.command.reloadView.success": "Successfully reloaded permissions!",
   "feature.rules.command.set.channel.desc": "Set the rules channel",
   "feature.rules.command.set.role.desc": "Set the role every user should receive after accepting the rules",
   "feature.rules.command.set.title.desc": "Set the title of the rules embed",

@@ -88,7 +88,9 @@ class RulesFeature(bot: Bot) : Feature<RulesFeature>(bot, RulesFeature::class.ja
                             }
                         },
 
-                    SubcommandData("remove", bot.language.translate("feature.rules.command.remove.desc"))
+                    SubcommandData("remove", bot.language.translate("feature.rules.command.remove.desc")),
+
+                    SubcommandData("reloadView", bot.language.translate("feature.rules.command.reloadView.desc"))
                 )
         ) { event ->
             // Ensure user has permission
@@ -171,6 +173,18 @@ class RulesFeature(bot: Bot) : Feature<RulesFeature>(bot, RulesFeature::class.ja
                     event.replyEmbeds(
                         Embeds.SUCCESS(bot)
                             .setDescription(bot.language.translate("feature.rules.command.remove.success"))
+                            .build()
+                    ).setEphemeral(true).queue()
+                }
+
+                "reloadView" -> {
+                    // Update
+                    updatePerms()
+
+                    // Send confirmation
+                    event.replyEmbeds(
+                        Embeds.SUCCESS(bot)
+                            .setDescription(bot.language.translate("feature.rules.command.reloadView.success"))
                             .build()
                     ).setEphemeral(true).queue()
                 }
