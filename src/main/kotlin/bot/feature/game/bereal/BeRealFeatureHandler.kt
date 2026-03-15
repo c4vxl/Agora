@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 import java.time.Duration
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
@@ -308,6 +309,24 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
     }
 
     /**
+     * Schedules a BeReal for this day
+     * @param hour The hour the BeReal happens in
+     * @param min The minute the BeReal starts
+     */
+    fun schedule(hour: Int, min: Int) {
+        val time = LocalTime.of(hour, min)
+        val now = LocalTime.now()
+
+        // Already over
+        if (now.isAfter(time)) return
+
+        // Schedule
+        this.feature.tasks.schedule(Duration.between(now, time).toSeconds(), {
+            start()
+        })
+    }
+
+    /**
      * Registers new BeReal times
      */
     fun reload(): List<LocalDateTime> {
@@ -323,9 +342,6 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
                 start()
             })
         }
-
-        // Recalculate channel view
-        reloadView()
 
         // Logging
         logger.info("Scheduled BeReal times for guild '${bot.guild.id}': ${times.joinToString(", ") { "${it.hour}:${it.minute}" }}")
@@ -345,6 +361,9 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
         this.feature.tasks.scheduleAtFixedRate(initialDelay, TimeUnit.DAYS.toMillis(1), {
             // Schedule new times
             reload()
+
+            // Recalculate channel view
+            reloadView()
         }, TimeUnit.MILLISECONDS)
     }
 }

@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
+import kotlin.math.min
 
 /**
  * A game feature prompting users to post a picture of what they're doing at the moment at random times a day
@@ -183,7 +184,12 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
                     // /be-real leaderboard
                     SubcommandData("leaderboard", bot.language.translate("feature.be-real.command.leaderboard.desc")),
 
+                    // /be-real list-members
                     SubcommandData("list-members", bot.language.translate("feature.be-real.command.list.desc")),
+
+                    // /be-real schedule
+                    SubcommandData("schedule", bot.language.translate("feature.be-real.command.schedule.desc"))
+                        .addOption(OptionType.STRING, "time", bot.language.translate("feature.be-real.command.schedule.time.desc"), true),
 
                     // /be-real buttons
                     SubcommandData("buttons", bot.language.translate("feature.be-real.command.buttons.desc"))
@@ -201,7 +207,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
             }
 
             if (
-                listOf("reload", "start", "end", "buttons", "list-members").contains(event.subcommandName) &&
+                listOf("reload", "start", "end", "buttons", "list-members", "schedule").contains(event.subcommandName) &&
                 event.member?.hasPermission(Permission.FEATURE_BE_REAL_MANAGE, bot) != true
             ) {
                 event.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
@@ -219,6 +225,39 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
             }
 
             when (event.subcommandName) {
+                "schedule" -> {
+                    val time = event.getOption("time", OptionMapping::getAsString) ?: ""
+                    val parts = time.split(":")
+
+                    val hours = if (parts.size == 3) parts.getOrNull(1)?.toIntOrNull()
+                                else parts.getOrNull(0)?.toIntOrNull()
+
+                    val mins = if (parts.size == 3) parts.getOrNull(2)?.toIntOrNull()
+                                else parts.getOrNull(1)?.toIntOrNull()
+
+                    if (
+                        hours == null || hours > 24 || hours < 0 ||
+                        mins == null || mins > 60 || mins < 0
+                    ) {
+                        event.replyEmbeds(
+                            Embeds.FAILURE(bot)
+                                .setDescription(bot.language.translate("feature.be-real.command.schedule.error.invalid_format"))
+                                .build()
+                        ).setEphemeral(true).queue()
+                        return@registerSlashCommand
+                    }
+
+                    // Schedule
+                    this.handler.schedule(hours, mins)
+                    
+                    // Reply
+                    event.replyEmbeds(
+                        Embeds.SUCCESS(bot)
+                            .setDescription(bot.language.translate("feature.be-real.command.schedule.success", "$hours:$mins"))
+                            .build()
+                    ).setEphemeral(true).queue()
+                }
+
                 "list-members" -> {
                     event.replyEmbeds(
                         EmbedBuilder()
