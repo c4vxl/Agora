@@ -1,4 +1,4 @@
-package de.c4vxl.bot.handler.static
+package bot.handler.global
 
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
