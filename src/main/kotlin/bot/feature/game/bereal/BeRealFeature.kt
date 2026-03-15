@@ -11,6 +11,8 @@ import de.c4vxl.utils.PermissionUtils.hasPermission
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.buttons.Button
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.commands.OptionMapping
@@ -93,6 +95,14 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
                                 ))
                             .build()
                     ).queue()
+                }
+            }
+
+            override fun onGuildMemberRemove(event: GuildMemberRemoveEvent) {
+                if (event.guild.id != bot.guild.id) return
+
+                handler.participants = handler.participants.apply {
+                    remove(event.user.id)
                 }
             }
         })
