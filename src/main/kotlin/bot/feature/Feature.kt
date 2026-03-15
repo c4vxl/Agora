@@ -13,7 +13,7 @@ abstract class Feature<T>(
     val bot: Bot,
     val clazz: Class<T>,
     val name: String = className(clazz),
-    val tasks: TaskGroup = TaskGroup()
+    val tasks: TaskGroup = TaskGroup(bot.guild)
 ) {
     val logger: Logger = createLogger(clazz)
 

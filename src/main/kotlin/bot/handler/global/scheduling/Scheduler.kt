@@ -7,6 +7,14 @@ import java.util.concurrent.ScheduledExecutorService
  * Holds a global thread pool scheduler
  */
 object Scheduler {
+    /**
+     * Holds a list of registered task groups
+     */
+    val registeredGroups = mutableMapOf<Long, MutableList<TaskGroup>>()
+
+    /**
+     * Holds a global executor service
+     */
     val executor: ScheduledExecutorService =
         Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors())
 }
