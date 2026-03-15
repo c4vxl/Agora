@@ -8,7 +8,7 @@ import java.util.concurrent.ScheduledExecutorService
  * Holds global thread pool schedulers
  */
 object Scheduler {
-    private val schedulers: MutableMap<Long, ScheduledExecutorService> = mutableMapOf()
+    val schedulers: MutableMap<Long, ScheduledExecutorService> = mutableMapOf()
 
     /**
      * Get the scheduler of a guild

@@ -391,6 +391,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
         val times = generateTimes()
 
         // Clear old schedule
+        Scheduler.schedulers.remove(this.bot.guild.idLong)
         scheduledTasks.forEach { it.cancel(false) }
         scheduledTasks.clear()
 
