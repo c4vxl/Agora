@@ -1,8 +1,8 @@
 package de.c4vxl.bot.feature.onboarding
 
 import de.c4vxl.bot.Bot
-import de.c4vxl.bot.feature.util.EmbedFeature
 import de.c4vxl.bot.feature.Feature
+import de.c4vxl.bot.feature.util.EmbedFeature
 import de.c4vxl.config.enums.Color
 import de.c4vxl.config.enums.Embeds
 import de.c4vxl.config.enums.Permission
@@ -181,7 +181,7 @@ class RulesFeature(bot: Bot) : Feature<RulesFeature>(bot, RulesFeature::class.ja
     /**
      * Applies channel permissions
      */
-    private fun updatePerms() {
+    fun updatePerms() {
         val channel = bot.guild.getTextChannelById(get<String>("channel") ?: return) ?: return
         val role = bot.guild.getRoleById(get<String>("role") ?: return) ?: return
 
