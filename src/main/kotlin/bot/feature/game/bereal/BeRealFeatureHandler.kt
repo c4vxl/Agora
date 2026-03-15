@@ -1,10 +1,12 @@
 package de.c4vxl.bot.feature.game.bereal
 
+import de.c4vxl.bot.feature.onboarding.RulesFeature
 import de.c4vxl.config.enums.Color
 import de.c4vxl.utils.BeRealUtils
 import de.c4vxl.utils.EmbedUtils.color
 import de.c4vxl.utils.EmbedUtils.withTimestamp
 import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.buttons.Button
 import net.dv8tion.jda.api.entities.MessageEmbed
@@ -13,6 +15,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 import java.time.Duration
 import java.time.LocalDateTime
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
 class BeRealFeatureHandler(val feature: BeRealFeature) {
@@ -30,7 +33,12 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
      */
     var participants: MutableList<String>
         get() = bot.dataHandler.get<MutableList<String>>(this.feature.name, "participants") ?: mutableListOf()
-        set(value) = bot.dataHandler.set(this.feature.name, "participants", value)
+        set(value) {
+            bot.dataHandler.set(this.feature.name, "participants", value)
+
+            // Recalculate channel view
+            reloadView()
+        }
 
     /**
      * Holds the channel where BeReals will be posted in to
@@ -61,6 +69,66 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
      * Holds a list of people who have uploaded a picture in the current BeReal
      */
     val successfullyUploaded = mutableListOf<String>()
+
+    /**
+     * Takes care of who is allowed to view the BeReal channel
+     */
+    fun reloadView() {
+        val allowed = bot.dataHandler.get<Boolean>(this.feature.name, "view_without_participating") == true
+
+        fun deleteOverrides(channel: TextChannel): CompletableFuture<Void> {
+            val futures = channel.permissionOverrides.filterNot { it.role?.isPublicRole == true }.map { override ->
+                val future = CompletableFuture<Void>()
+                override.delete().queue( { future.complete(null) }, { future.completeExceptionally(it) } )
+                future
+            }
+
+            return CompletableFuture.allOf(*futures.toTypedArray())
+        }
+
+        // Global view allowed
+        // Every user can view the channel
+        if (allowed) {
+            channel?.let {
+                deleteOverrides(it)
+                    .thenRun {
+                        it.upsertPermissionOverride(this.feature.bot.guild.publicRole)
+                            .grant(Permission.VIEW_CHANNEL)
+                            .queue {
+                                // Update permissions for rules
+                                bot.getFeature<RulesFeature>()?.updatePerms()
+                            }
+                    }
+            }
+        }
+
+        // Global view not allowed
+        // Only participants can view
+        else {
+            channel?.let { c ->
+                deleteOverrides(c)
+                    .thenRun {
+                        // Disallow everyone to view channel
+                        c.upsertPermissionOverride(this.feature.bot.guild.publicRole)
+                            .deny(Permission.VIEW_CHANNEL)
+                            .queue {
+                                // Update permissions for rules
+                                bot.getFeature<RulesFeature>()?.updatePerms()
+                            }
+
+                        // Allow participants to view channel
+                        participants.forEach {
+                            bot.guild.retrieveMemberById(it).queue { member ->
+                                channel
+                                    ?.upsertPermissionOverride(member)
+                                    ?.grant(Permission.VIEW_CHANNEL)
+                                    ?.queue()
+                            }
+                        }
+                    }
+            }
+        }
+    }
 
     /**
      * Ends the currently running BeReal
@@ -256,6 +324,9 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
             })
         }
 
+        // Recalculate channel view
+        reloadView()
+
         // Logging
         logger.info("Scheduled BeReal times for guild '${bot.guild.id}': ${times.joinToString(", ") { "${it.hour}:${it.minute}" }}")
 
@@ -273,7 +344,7 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
 
         this.feature.tasks.scheduleAtFixedRate(initialDelay, TimeUnit.DAYS.toMillis(1), {
             // Schedule new times
-
+            reload()
         }, TimeUnit.MILLISECONDS)
     }
 }

@@ -23,7 +23,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
  * A game feature prompting users to post a picture of what they're doing at the moment at random times a day
  */
 class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class.java) {
-    private val handler: BeRealFeatureHandler = BeRealFeatureHandler(this)
+    val handler: BeRealFeatureHandler = BeRealFeatureHandler(this)
 
     init {
         registerCommands()

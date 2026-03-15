@@ -60,6 +60,7 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                     // Feature: BeReal
                     SubcommandData("be-real", bot.language.translate("feature.settings.command.be-real.desc"))
                         .addOption(OptionType.BOOLEAN, "enabled", bot.language.translate("feature.settings.command.be-real.enabled.desc"))
+                        .addOption(OptionType.BOOLEAN, "view_without_participating", bot.language.translate("feature.settings.command.be-real.view_without_participating.desc"))
                         .addOption(OptionType.CHANNEL, "channel", bot.language.translate("feature.settings.command.be-real.channel.desc"))
                         .addOption(OptionType.STRING, "start_time", bot.language.translate("feature.settings.command.be-real.start.desc"))
                         .addOption(OptionType.STRING, "end_time", bot.language.translate("feature.settings.command.be-real.end.desc"))
@@ -94,6 +95,12 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                     val end = event.getOption("end_time", OptionMapping::getAsString)
                     val amount = event.getOption("amount", OptionMapping::getAsInt)
                     val time = event.getOption("time", OptionMapping::getAsInt)
+                    val view = event.getOption("view_without_participating", OptionMapping::getAsBoolean) ?: true
+
+                    bot.dataHandler.set<BeRealFeature>("view_without_participating", view)
+                    bot.getFeature<BeRealFeature>()
+                        ?.handler
+                        ?.reloadView()
 
                     val allDays = buildList {
                         add("all")
