@@ -30,6 +30,7 @@ class SelfRolesFeature(bot: Bot) : Feature<SelfRolesFeature>(bot, SelfRolesFeatu
 
         bot.jda.addEventListener(object : ListenerAdapter() {
             override fun onMessageDelete(event: MessageDeleteEvent) {
+                if (!event.isFromGuild) return
                 if (event.guild.id != bot.guild.id) return
 
                 val uuid = messages[event.messageId] ?: return
