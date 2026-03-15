@@ -1,9 +1,8 @@
 package de.c4vxl
 
+import bot.handler.global.StaticButtonHandler
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.handler.global.scheduling.Scheduler
-import bot.handler.global.StaticButtonHandler
-import de.c4vxl.bot.handler.global.scheduling.TaskGroup
 import de.c4vxl.config.Config
 import de.c4vxl.data.Database
 import de.c4vxl.language.Language
