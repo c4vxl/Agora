@@ -90,7 +90,7 @@ class RulesFeature(bot: Bot) : Feature<RulesFeature>(bot, RulesFeature::class.ja
 
                     SubcommandData("remove", bot.language.translate("feature.rules.command.remove.desc")),
 
-                    SubcommandData("reloadView", bot.language.translate("feature.rules.command.reloadView.desc"))
+                    SubcommandData("reload-view", bot.language.translate("feature.rules.command.reloadView.desc"))
                 )
         ) { event ->
             // Ensure user has permission
@@ -177,7 +177,7 @@ class RulesFeature(bot: Bot) : Feature<RulesFeature>(bot, RulesFeature::class.ja
                     ).setEphemeral(true).queue()
                 }
 
-                "reloadView" -> {
+                "reload-view" -> {
                     // Update
                     updatePerms()
 
