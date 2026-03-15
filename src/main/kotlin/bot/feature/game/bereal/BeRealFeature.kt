@@ -183,6 +183,8 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
                     // /be-real leaderboard
                     SubcommandData("leaderboard", bot.language.translate("feature.be-real.command.leaderboard.desc")),
 
+                    SubcommandData("list-members", bot.language.translate("feature.be-real.command.list.desc")),
+
                     // /be-real buttons
                     SubcommandData("buttons", bot.language.translate("feature.be-real.command.buttons.desc"))
                         .addOption(OptionType.STRING, "quit_label", bot.language.translate("feature.be-real.command.buttons.quit_label.desc"))
@@ -199,7 +201,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
             }
 
             if (
-                listOf("reload", "start", "end", "buttons").contains(event.subcommandName) &&
+                listOf("reload", "start", "end", "buttons", "list-members").contains(event.subcommandName) &&
                 event.member?.hasPermission(Permission.FEATURE_BE_REAL_MANAGE, bot) != true
             ) {
                 event.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
@@ -217,6 +219,18 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
             }
 
             when (event.subcommandName) {
+                "list-members" -> {
+                    event.replyEmbeds(
+                        EmbedBuilder()
+                            .setTitle(bot.language.translate("feature.be-real.msg.list.title"))
+                            .setDescription(bot.language.translate(
+                                "feature.be-real.msg.list.desc",
+                                handler.participants.takeIf { it.isNotEmpty() }?.joinToString("\n") { "- <@$it>" } ?: "`/`"
+                            ))
+                            .build()
+                    ).setEphemeral(true).queue()
+                }
+
                 "buttons" -> {
                     val quit = event.getOption("quit_label", OptionMapping::getAsString)
                         ?: bot.language.translate("feature.be-real.notification.public.btn.quit")
