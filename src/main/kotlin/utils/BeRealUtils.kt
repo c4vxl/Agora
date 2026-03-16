@@ -56,29 +56,27 @@ object BeRealUtils {
                 h = if (type == "start") defaultStartHour
                     else defaultEndHour
 
-                m = if (type == "min") defaultStartMinute
+                m = if (type == "start") defaultStartMinute
                     else defaultEndMinute
             }
 
             return LocalTime.of(h, m).toSecondOfDay()
         }
 
-        var start = time("start", currentDay())
+        val start = time("start", currentDay())
         var end = time("end", currentDay())
 
-        // Flip times if start is after end
-        if (start > end) {
-            val tmp = end
-            end = start
-            start = tmp
-        }
+        // Add one minute if both times are the same
+        if (start == end)
+            end += 60
 
         // Get amount of posts per day
         val num = feature.bot.dataHandler.get<Int>(feature.name, "amount") ?: defaultAmount
 
         // Create list
         return (1..num).map {
-            val randomSec = Random.nextInt(start, end)
+            val randomSec = if (start > end) Random.nextInt(end, start)
+                            else Random.nextInt(start, end)
             LocalDateTime.of(date, LocalTime.ofSecondOfDay(randomSec.toLong()))
         }.distinct().sorted()
     }
