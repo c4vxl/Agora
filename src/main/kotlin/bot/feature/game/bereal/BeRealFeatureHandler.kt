@@ -330,13 +330,20 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
     }
 
     /**
-     * Registers new BeReal times
+     * Clears all scheduled BeReals
      */
-    fun reload(): List<LocalDateTime> {
+    fun clearScheduled() {
         this.feature.tasks.cancelAll()
 
         // Need to do this here again because .clearAll also removed this task
         scheduleDailyReload()
+    }
+
+    /**
+     * Registers new BeReal times
+     */
+    fun reload(): List<LocalDateTime> {
+        clearScheduled()
 
         val times = BeRealUtils.generateTimes(this.feature)
         val now = LocalDateTime.now()

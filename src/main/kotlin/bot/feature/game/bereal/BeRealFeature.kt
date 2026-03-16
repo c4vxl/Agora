@@ -189,6 +189,8 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
                     SubcommandData("schedule", bot.language.translate("feature.be-real.command.schedule.desc"))
                         .addOption(OptionType.STRING, "time", bot.language.translate("feature.be-real.command.schedule.time.desc"), true),
 
+                    SubcommandData("clear-schedule", bot.language.translate("feature.be-real.command.clear-schedule.desc")),
+
                     // /be-real buttons
                     SubcommandData("buttons", bot.language.translate("feature.be-real.command.buttons.desc"))
                         .addOption(OptionType.STRING, "quit_label", bot.language.translate("feature.be-real.command.buttons.quit_label.desc"))
@@ -204,8 +206,9 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
                 return@registerSlashCommand
             }
 
+            // Check for management permission
             if (
-                listOf("reload", "start", "end", "buttons", "list-members", "schedule").contains(event.subcommandName) &&
+                listOf("reload", "start", "end", "buttons", "list-members", "schedule", "clear-schedule").contains(event.subcommandName) &&
                 event.member?.hasPermission(Permission.FEATURE_BE_REAL_MANAGE, bot) != true
             ) {
                 event.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
@@ -223,6 +226,18 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
             }
 
             when (event.subcommandName) {
+                "clear-schedule" -> {
+                    // Clear schedule
+                    this.handler.clearScheduled()
+
+                    // Reply
+                    event.replyEmbeds(
+                        Embeds.SUCCESS(bot)
+                            .setDescription(bot.language.translate("feature.be-real.command.clear-schedule.success"))
+                            .build()
+                    ).setEphemeral(true).queue()
+                }
+
                 "schedule" -> {
                     val time = event.getOption("time", OptionMapping::getAsString) ?: ""
                     val parts = time.split(":")

@@ -298,6 +298,8 @@
   "feature.be-real.command.schedule.time.desc": "The time the BeReal should happen. HH:mm",
   "feature.be-real.command.schedule.error.invalid_format": "The time format was invalid!\nMake sure to use this format: `HH:mm`",
   "feature.be-real.command.schedule.success": "Successfully scheduled BeReal for `$0`",
+  "feature.be-real.command.clear-schedule.desc": "Clears all scheduled BeReals",
+  "feature.be-real.command.clear-schedule.success": "Schedule has been cleared successfully!",
   "feature.be-real.msg.list.title": "Participants:",
   "feature.be-real.msg.list.desc": "The following users are currently participating in **BeReal**:\n$0",
   "feature.be-real.notification.title": "New BeReal notification:",
