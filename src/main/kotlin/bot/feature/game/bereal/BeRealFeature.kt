@@ -68,6 +68,9 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
                 // Mark as uploaded
                 handler.successfullyUploaded.add(event.member!!.user.id)
 
+                // Reset fail streak
+                handler.failStreaks = handler.failStreaks.apply { remove(event.author.id) }
+
                 // Confirmation
                 event.author.openPrivateChannel().queue { pc ->
                     pc.sendMessage(

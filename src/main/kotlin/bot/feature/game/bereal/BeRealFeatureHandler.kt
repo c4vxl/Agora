@@ -136,13 +136,18 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
         }
     }
 
+    var failStreaks: MutableMap<String, Int>
+        get() = bot.dataHandler.get<MutableMap<String, Int>>(this.feature.name, "failed_streak") ?: mutableMapOf()
+        set(value) = bot.dataHandler.set<BeRealFeature>("failed_streak", value)
+
     /**
      * Handler for when a member fails a BeReal
      * @param user The user that failed
      */
     private fun onFail(user: User) {
+        val fails = failStreaks
+
         // Keep track of amount of fails
-        val fails = bot.dataHandler.get<MutableMap<String, Int>>(this.feature.name, "failed_streak") ?: mutableMapOf()
         val numFails = fails.getOrDefault(user.id, 0) + 1
         fails[user.id] = numFails
 
@@ -167,7 +172,7 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
 
             // Reset lost streak
             fails.remove(user.id)
-            bot.dataHandler.set<BeRealFeature>("failed_streak", fails)
+            failStreaks = fails
 
             // Remove participant
             participants = participants.apply { remove(user.id) }
