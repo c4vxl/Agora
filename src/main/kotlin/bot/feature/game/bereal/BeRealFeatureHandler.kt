@@ -335,6 +335,9 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
     fun reload(): List<LocalDateTime> {
         this.feature.tasks.cancelAll()
 
+        // Need to do this here again because .clearAll also removed this task
+        scheduleDailyReload()
+
         val times = BeRealUtils.generateTimes(this.feature)
         val now = LocalDateTime.now()
 
