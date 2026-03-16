@@ -44,6 +44,8 @@ bin/
 ### Mac OS ###
 .DS_Store
 
+### Agora related ###
 /db/
 /config.json
 /langs/
+.agora_lock
