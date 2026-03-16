@@ -2,6 +2,7 @@ package de.c4vxl.bot.feature.onboarding
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.Feature
+import de.c4vxl.bot.feature.game.bereal.BeRealFeature
 import de.c4vxl.bot.feature.util.EmbedFeature
 import de.c4vxl.config.enums.Color
 import de.c4vxl.config.enums.Embeds
@@ -180,6 +181,10 @@ class RulesFeature(bot: Bot) : Feature<RulesFeature>(bot, RulesFeature::class.ja
                 "reload-view" -> {
                     // Update
                     updatePerms()
+
+                    bot.getFeature<BeRealFeature>()
+                        ?.handler
+                        ?.reloadView()
 
                     // Send confirmation
                     event.replyEmbeds(
