@@ -96,15 +96,17 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                     val end = event.getOption("end_time", OptionMapping::getAsString)
                     val amount = event.getOption("amount", OptionMapping::getAsInt)
                     val time = event.getOption("time", OptionMapping::getAsInt)
-                    val view = event.getOption("view_without_participating", OptionMapping::getAsBoolean) ?: true
+                    val view = event.getOption("view_without_participating", OptionMapping::getAsBoolean)
                     val fails = event.getOption("leave_after_fails", OptionMapping::getAsInt) ?: -1
 
                     bot.dataHandler.set<BeRealFeature>("leave_after_fails", fails)
 
-                    bot.dataHandler.set<BeRealFeature>("view_without_participating", view)
-                    bot.getFeature<BeRealFeature>()
-                        ?.handler
-                        ?.reloadView()
+                    view?.let {
+                        bot.dataHandler.set<BeRealFeature>("view_without_participating", it)
+                        bot.getFeature<BeRealFeature>()
+                            ?.handler
+                            ?.reloadView()
+                    }
 
                     val allDays = buildList {
                         add("all")
