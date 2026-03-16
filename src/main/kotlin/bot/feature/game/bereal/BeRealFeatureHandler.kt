@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.buttons.Button
+import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
@@ -135,6 +136,54 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
     }
 
     /**
+     * Handler for when a member fails a BeReal
+     * @param user The user that failed
+     */
+    private fun onFail(user: User) {
+        // Keep track of amount of fails
+        val fails = bot.dataHandler.get<MutableMap<String, Int>>(this.feature.name, "failed_streak") ?: mutableMapOf()
+        val numFails = fails.getOrDefault(user.id, 0) + 1
+        fails[user.id] = numFails
+
+        // If amount of fails exceeds threshold
+        val failsAllowed = bot.dataHandler.get<Int>(this.feature.name, "leave_after_fails") ?: -1
+        if (failsAllowed in 1..<numFails) {
+            user.openPrivateChannel().queue {
+                it.sendMessage(
+                    MessageCreateBuilder()
+                        .addEmbeds(
+                            EmbedBuilder()
+                                .withTimestamp()
+                                .color(Color.DANGER)
+                                .setTitle(bot.language.translate("feature.be-real.notification.quit_due_to_fail.title"))
+                                .setDescription(bot.language.translate("feature.be-real.notification.quit_due_to_fail.desc", numFails.toString(), bot.guild.name))
+                                .build()
+                        )
+                        .addComponents(
+                            ActionRow.of(
+                                Button.danger(
+                                    "agora_dm_delete_all",
+                                    bot.language.translate("global.button.dm_delete_all")
+                                ),
+                                Button.primary(
+                                    "agora_delete_message",
+                                    bot.language.translate("global.button.delete_msg")
+                                )
+                            ))
+                        .build()
+                ).queue()
+            }
+
+            // Reset lost streak
+            fails.remove(user.id)
+            bot.dataHandler.set<BeRealFeature>("failed_streak", fails)
+
+            // Remove participant
+            participants = participants.apply { remove(user.id) }
+        }
+    }
+
+    /**
      * Ends the currently running BeReal
      */
     fun end() {
@@ -148,7 +197,13 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
                 this[it] = this.getOrDefault(it, 0) + 1
             }
 
-            failed.forEach { this.remove(it) }
+            failed.forEach {
+                this.remove(it)
+
+                bot.jda.retrieveUserById(it).queue { user ->
+                    onFail(user)
+                }
+            }
         }
 
         // Send end message

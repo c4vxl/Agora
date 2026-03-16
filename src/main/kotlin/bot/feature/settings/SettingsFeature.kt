@@ -65,7 +65,8 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                         .addOption(OptionType.STRING, "start_time", bot.language.translate("feature.settings.command.be-real.start.desc"))
                         .addOption(OptionType.STRING, "end_time", bot.language.translate("feature.settings.command.be-real.end.desc"))
                         .addOption(OptionType.INTEGER, "amount", bot.language.translate("feature.settings.command.be-real.num.desc"))
-                        .addOption(OptionType.INTEGER, "time", bot.language.translate("feature.settings.command.be-real.time.desc")),
+                        .addOption(OptionType.INTEGER, "time", bot.language.translate("feature.settings.command.be-real.time.desc"))
+                        .addOption(OptionType.INTEGER, "leave_after_fails", bot.language.translate("feature.settings.command.be-real.leave-after-fails.desc")),
                 )
         ) { event ->
             when (event.subcommandName) {
@@ -96,6 +97,9 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                     val amount = event.getOption("amount", OptionMapping::getAsInt)
                     val time = event.getOption("time", OptionMapping::getAsInt)
                     val view = event.getOption("view_without_participating", OptionMapping::getAsBoolean) ?: true
+                    val fails = event.getOption("leave_after_fails", OptionMapping::getAsInt) ?: -1
+
+                    bot.dataHandler.set<BeRealFeature>("leave_after_fails", fails)
 
                     bot.dataHandler.set<BeRealFeature>("view_without_participating", view)
                     bot.getFeature<BeRealFeature>()
