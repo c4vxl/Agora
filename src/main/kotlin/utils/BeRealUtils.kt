@@ -12,7 +12,7 @@ object BeRealUtils {
     /**
      * Returns the short name of the current day of the week
      */
-    fun currentDay(): String =
+    private fun currentDay(): String =
         days[LocalDate.now().dayOfWeek.value - 1]
 
     /**
