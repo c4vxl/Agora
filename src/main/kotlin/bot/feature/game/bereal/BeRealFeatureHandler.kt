@@ -2,6 +2,7 @@ package de.c4vxl.bot.feature.game.bereal
 
 import de.c4vxl.bot.feature.onboarding.RulesFeature
 import de.c4vxl.config.enums.Color
+import de.c4vxl.config.enums.Embeds
 import de.c4vxl.utils.BeRealUtils
 import de.c4vxl.utils.EmbedUtils.color
 import de.c4vxl.utils.EmbedUtils.withTimestamp
@@ -159,17 +160,7 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
                                 .setDescription(bot.language.translate("feature.be-real.notification.quit_due_to_fail.desc", numFails.toString(), bot.guild.name))
                                 .build()
                         )
-                        .addComponents(
-                            ActionRow.of(
-                                Button.danger(
-                                    "agora_dm_delete_all",
-                                    bot.language.translate("global.button.dm_delete_all")
-                                ),
-                                Button.primary(
-                                    "agora_delete_message",
-                                    bot.language.translate("global.button.delete_msg")
-                                )
-                            ))
+                        .addComponents(Embeds.DM_ACTION_ROW(this.bot))
                         .build()
                 ).queue()
             }
@@ -290,17 +281,7 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
                                 .setFooter(get("footer", bot.guild.name))
                                 .build()
                         )
-                        .addComponents(
-                            ActionRow.of(
-                                Button.danger(
-                                    "agora_dm_delete_all",
-                                    bot.language.translate("global.button.dm_delete_all")
-                                ),
-                                Button.primary(
-                                    "agora_delete_message",
-                                    bot.language.translate("global.button.delete_msg")
-                                )
-                            ))
+                        .addComponents(Embeds.DM_ACTION_ROW(this.bot))
                         .build()
                 ).queue()
             }

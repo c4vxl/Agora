@@ -81,17 +81,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
                                     .setFooter(bot.language.translate("feature.be-real.notification.success.footer", bot.guild.name))
                                     .build()
                             )
-                            .addComponents(
-                                ActionRow.of(
-                                    Button.danger(
-                                        "agora_dm_delete_all",
-                                        bot.language.translate("global.button.dm_delete_all")
-                                    ),
-                                    Button.primary(
-                                        "agora_delete_message",
-                                        bot.language.translate("global.button.delete_msg")
-                                    )
-                                ))
+                            .addComponents(Embeds.DM_ACTION_ROW(bot))
                             .build()
                     ).queue()
                 }

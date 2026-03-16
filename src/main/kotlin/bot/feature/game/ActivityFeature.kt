@@ -410,16 +410,7 @@ class ActivityFeature(bot: Bot) : Feature<ActivityFeature>(bot, ActivityFeature:
                                 .addField(get("fields.message"), message ?: get("fields.message.empty"), false)
                                 .build()
                         )
-                        .addComponents(ActionRow.of(
-                            Button.danger(
-                                "agora_dm_delete_all",
-                                bot.language.translate("global.button.dm_delete_all")
-                            ),
-                            Button.primary(
-                                "agora_delete_message",
-                                bot.language.translate("global.button.delete_msg")
-                            )
-                        ))
+                        .addComponents(Embeds.DM_ACTION_ROW(this.bot))
                         .build()
                 ).queue()
             }
