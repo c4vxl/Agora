@@ -47,11 +47,17 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
     }
 
     override fun registerCommands() {
+        fun commandDesc(name: String) =
+            bot.language.translate(
+                "feature.picture.command.type.desc",
+                bot.language.translate("feature.picture.type.$name").lowercase()
+            )
+
         bot.commandHandler.registerSlashCommand(
             Commands.slash("picture", bot.language.translate("feature.picture.command.desc"))
                 .addSubcommands(
-                    SubcommandData("cat", bot.language.translate("feature.picture.command.cat.desc")),
-                    SubcommandData("dog", bot.language.translate("feature.picture.command.dog.desc")),
+                    SubcommandData("cat", commandDesc("cat")),
+                    SubcommandData("dog", commandDesc("dog")),
                 )
         ) { event ->
             when (event.subcommandName) {
@@ -85,8 +91,11 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
         event.reply(
             MessageCreateData.fromEmbeds(
                 EmbedBuilder()
-                    .setTitle(bot.language.translate("feature.picture.embed.reply.title.$type"))
-                    .setDescription(bot.language.translate("feature.picture.embed.reply.desc.$type"))
+                    .setTitle(bot.language.translate("feature.picture.type.$type"))
+                    .setDescription(bot.language.translate(
+                        "feature.picture.embed.reply.desc",
+                        bot.language.translate("feature.picture.type.$type").lowercase()
+                    ))
                     .setImage("attachment://${image.name}")
                     .color(Color.PRIMARY)
                     .build()
