@@ -51,11 +51,16 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
             Commands.slash("picture", bot.language.translate("feature.picture.command.desc"))
                 .addSubcommands(
                     SubcommandData("cat", bot.language.translate("feature.picture.command.cat.desc")),
+                    SubcommandData("dog", bot.language.translate("feature.picture.command.dog.desc")),
                 )
         ) { event ->
             when (event.subcommandName) {
                 "cat" -> {
                     sendReply("cat", PictureAPI.cat(), event)
+                }
+
+                "dog" -> {
+                    sendReply("dog", PictureAPI.dog(), event)
                 }
             }
         }
@@ -68,7 +73,15 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
      * @param event The command event to reply to
      * @param user The user that requested the image
      */
-    private fun sendReply(type: String, image: FileUpload, event: SlashCommandInteractionEvent, user: User? = null) {
+    private fun sendReply(type: String, image: FileUpload?, event: SlashCommandInteractionEvent, user: User? = null) {
+        if (image == null) {
+            event.replyEmbeds(Embeds.FAILURE(bot)
+                .setDescription(bot.language.translate("feature.picture.embed.reply.fetch_error"))
+                .build())
+                .setEphemeral(true).queue()
+            return
+        }
+
         event.reply(
             MessageCreateData.fromEmbeds(
                 EmbedBuilder()

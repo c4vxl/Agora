@@ -348,8 +348,12 @@
   "--- Feature: Picture ---": "",
   "feature.picture.command.desc": "Fetches a random picture and pastes it into this channel",
   "feature.picture.command.cat.desc": "Fetches a random cat picture and pastes it into this channel.",
+  "feature.picture.command.dog.desc": "Fetches a random dog picture and pastes it into this channel.",
+  "feature.picture.embed.reply.fetch_error": "Failed to fetch a picture!",
   "feature.picture.embed.reply.title.cat": "Cat",
   "feature.picture.embed.reply.desc.cat": "Here's a picture of a cat:",
+  "feature.picture.embed.reply.title.dog": "Dog",
+  "feature.picture.embed.reply.desc.dog": "Here's a picture of a dog:",
   "feature.picture.embed.reply.delete_btn.label": "\uD83D\uDDD1\uFE0F Delete",
   "feature.picture.embed.reply.delete_btn.error": "You can only delete pictures you requested yourself!"
 }
