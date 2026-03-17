@@ -25,6 +25,7 @@
   "perms.feature_be_real_manage.desc": "Allows users to manage the BeReal feature",
   "perms.feature_self_roles.desc": "Allows users to use the self roles feature",
   "perms.feature_self_roles_manage.desc": "Allows users to create self-roles modals",
+  "perms.feature_picture_use.desc": "Allows users to fetch random pictures using the /picture command.",
 
   "--- Feature: Settings ---": "",
   "feature.settings.command.desc": "Modify the settings of the different features of this bot",
@@ -342,5 +343,13 @@
   "feature.self-roles.grant.success": "Successfully granted you the role $0",
   "feature.self-roles.remove.success": "Successfully removed the role $0 from you",
   "feature.self-roles.label.command.desc": "The label of the button",
-  "feature.self-roles.button.default.label": "Choose Roles"
+  "feature.self-roles.button.default.label": "Choose Roles",
+
+  "--- Feature: Picture ---": "",
+  "feature.picture.command.desc": "Fetches a random picture and pastes it into this channel",
+  "feature.picture.command.cat.desc": "Fetches a random cat picture and pastes it into this channel.",
+  "feature.picture.embed.reply.title.cat": "Cat",
+  "feature.picture.embed.reply.desc.cat": "Here's a picture of a cat:",
+  "feature.picture.embed.reply.delete_btn.label": "\uD83D\uDDD1\uFE0F Delete",
+  "feature.picture.embed.reply.delete_btn.error": "You can only delete pictures you requested yourself!"
 }
