@@ -2,8 +2,6 @@ package de.c4vxl.bot.feature.game.picture
 
 import de.c4vxl.bot.feature.game.picture.api.PublicPictureAPIs
 import de.c4vxl.bot.feature.game.picture.api.UnsplashAPI
-import java.time.Duration
-import java.time.LocalTime
 import java.util.concurrent.TimeUnit
 
 /**
@@ -11,16 +9,10 @@ import java.util.concurrent.TimeUnit
  */
 class PictureFeatureHandler(val feature: PictureFeature) {
     init {
-        val now = LocalTime.now()
-        val nextHour = now.withMinute(0).withSecond(0)
-            .plusHours(1)
-
+        // Reload uses
         feature.tasks.scheduleAtFixedRate(
-            Duration.between(now, nextHour).toMinutes(),
-            60,
-            {
-                unsplashUses.clear()
-            },
+            0, 60,
+            { unsplashUses.clear() },
             TimeUnit.MINUTES
         )
     }
