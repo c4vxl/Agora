@@ -385,6 +385,9 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
     fun reload(): List<LocalDateTime> {
         clearScheduled()
 
+        if (!isEnabled)
+            return listOf()
+
         val times = BeRealUtils.generateTimes(this.feature)
         val now = LocalDateTime.now()
 
