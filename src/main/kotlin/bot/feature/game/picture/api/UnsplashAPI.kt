@@ -8,19 +8,12 @@ import de.c4vxl.config.enums.Embeds
 import de.c4vxl.utils.EmbedUtils.color
 import de.c4vxl.utils.PictureUtils
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.entities.MessageEmbed
-import net.dv8tion.jda.api.utils.FileUpload
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
 class UnsplashAPI(val feature: PictureFeature) {
-    data class Response(
-        val embed: MessageEmbed,
-        val file: FileUpload? = null
-    )
-
     private val API_KEY: String?
         get() {
             // Fetch API key
@@ -80,11 +73,11 @@ class UnsplashAPI(val feature: PictureFeature) {
      * Fetches a random image from unsplash
      * @param queries Optional queries to narrow down search
      */
-    fun random(feature: PictureFeature, vararg queries: String): Response {
+    fun random(feature: PictureFeature, vararg queries: String): PictureFeatureAPIResponse {
         val response = fetch(appendQueries("photos/random", *queries))
-            ?: return Response(Embeds.FAILURE(feature.bot)
+            ?: return PictureFeatureAPIResponse(Embeds.FAILURE(feature.bot)
                 .setDescription(feature.bot.language.translate("feature.picture.embed.unsplash.failure.invalid_key"))
-                .build())
+                .build(), ephemeral = true)
 
         val picURL = response.getAsJsonObject("urls")
             .get("regular").asString
@@ -94,7 +87,7 @@ class UnsplashAPI(val feature: PictureFeature) {
         val queriesString = queries.joinToString(",")
 
 
-        return Response(
+        return PictureFeatureAPIResponse(
             EmbedBuilder()
                 .setTitle(feature.bot.language.translate("feature.picture.embed.unsplash.title.$type", queriesString.replace(",", " ")))
                 .setDescription(feature.bot.language.translate("feature.picture.embed.unsplash.desc.$type", queriesString))

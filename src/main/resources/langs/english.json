@@ -360,7 +360,6 @@
   "feature.picture.embed.reply.desc": "Here's a picture of a $0:",
   "feature.picture.embed.reply.delete_btn.label": "\uD83D\uDDD1\uFE0F Delete",
   "feature.picture.embed.reply.delete_btn.error": "You can only delete pictures you requested yourself!",
-
   "feature.picture.embed.unsplash.failure.invalid_key": "You seem to be using an invalid API key! Please contact a server owner.",
   "feature.picture.embed.unsplash.title.random": "Here's a random picture:",
   "feature.picture.embed.unsplash.title.specific": "$0",

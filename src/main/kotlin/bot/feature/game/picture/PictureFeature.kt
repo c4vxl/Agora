@@ -2,16 +2,14 @@ package de.c4vxl.bot.feature.game.picture
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.Feature
+import de.c4vxl.bot.feature.game.picture.api.PictureFeatureAPIResponse
+import de.c4vxl.bot.feature.game.picture.api.PublicPictureAPIs
 import de.c4vxl.bot.feature.game.picture.api.UnsplashAPI
-import de.c4vxl.config.enums.Color
 import de.c4vxl.config.enums.Embeds
 import de.c4vxl.config.enums.Permission
-import de.c4vxl.utils.EmbedUtils.color
 import de.c4vxl.utils.PermissionUtils.hasPermission
-import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.buttons.Button
-import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
@@ -20,14 +18,12 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
-import net.dv8tion.jda.api.utils.FileUpload
-import net.dv8tion.jda.api.utils.messages.MessageCreateData
 
 /**
  * Feature for fetching random pictures
  */
 class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::class.java) {
-    val api = PictureAPI(this)
+    val apis = PublicPictureAPIs(this)
     val unsplash = UnsplashAPI(this)
 
     init {
@@ -70,7 +66,7 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
 
                     SubcommandData("dog", commandDesc("dog")),
 
-                    SubcommandData("unsplash", bot.language.translate("feature.picture.command.unsplash.desc"))
+                    SubcommandData("search", bot.language.translate("feature.picture.command.unsplash.desc"))
                         .addOption(OptionType.STRING, "query", bot.language.translate("feature.picture.command.type.query.desc")),
                 )
         ) { event ->
@@ -89,31 +85,29 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
             when (event.subcommandName) {
                 "cat" -> {
                     sendReply(
-                        "cat",
-                        api.cat(*queries),
-                        event
+                        apis.cat(),
+                        event, event.user
                     )
                 }
 
                 "dog" -> {
-                    sendReply("dog", api.dog(), event)
+                    sendReply(
+                        apis.dog(),
+                        event, event.user
+                    )
                 }
 
-                "unsplash" -> {
+                "search" -> {
                     // Check for permission
                     if (event.member?.hasPermission(Permission.FEATURE_PICTURE_UNSPLASH, bot) != true) {
                         event.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
                         return@registerSlashCommand
                     }
 
-                    unsplash.random(this, *queries).let {
-                        sendReply(
-                            it.embed,
-                            it.file,
-                            event,
-                            event.user
-                        )
-                    }
+                    sendReply(
+                        unsplash.random(this, *queries),
+                        event, event.user
+                    )
                 }
             }
         }
@@ -121,53 +115,17 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
 
     /**
      * Sends an embed with the image
-     * @param embed The embed to send
-     * @param image The actual image
+     * @param response The response of the API
      * @param event The command event to reply to
      * @param user The user that requested the image
      */
-    private fun sendReply(embed: MessageEmbed, image: FileUpload?, event: SlashCommandInteractionEvent, user: User? = null) {
-        event.replyEmbeds(embed)
+    private fun sendReply(response: PictureFeatureAPIResponse, event: SlashCommandInteractionEvent, user: User? = null) {
+        event.replyEmbeds(response.embed)
             .addComponents(ActionRow.of(
                 Button.danger("${name}_delete_${user?.id}", bot.language.translate("feature.picture.embed.reply.delete_btn.label"))
             ))
-            .addFiles(image)
-            .queue()
-    }
-
-    /**
-     * Sends an embed with the image
-     * @param type The type/feature of image
-     * @param image The actual image
-     * @param event The command event to reply to
-     * @param user The user that requested the image
-     */
-    private fun sendReply(type: String, image: FileUpload?, event: SlashCommandInteractionEvent, user: User? = null) {
-        if (image == null) {
-            event.replyEmbeds(Embeds.FAILURE(bot)
-                .setDescription(bot.language.translate("feature.picture.embed.reply.fetch_error"))
-                .build())
-                .setEphemeral(true).queue()
-            return
-        }
-
-        event.reply(
-            MessageCreateData.fromEmbeds(
-                EmbedBuilder()
-                    .setTitle(bot.language.translate("feature.picture.type.$type"))
-                    .setDescription(bot.language.translate(
-                        "feature.picture.embed.reply.desc",
-                        bot.language.translate("feature.picture.type.$type").lowercase()
-                    ))
-                    .setImage("attachment://${image.name}")
-                    .color(Color.PRIMARY)
-                    .build()
-            )
-        )
-            .addComponents(ActionRow.of(
-                Button.danger("${name}_delete_${user?.id}", bot.language.translate("feature.picture.embed.reply.delete_btn.label"))
-            ))
-            .addFiles(image)
+            .addFiles(response.file)
+            .setEphemeral(response.ephemeral)
             .queue()
     }
 }

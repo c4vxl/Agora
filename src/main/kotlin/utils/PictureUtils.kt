@@ -11,8 +11,12 @@ object PictureUtils {
      * Fetches an image and returns it as a FileUpload
      * @param url The url of the image
      */
-    fun fetchImage(url: String) =
-        URL(url).openStream().use {
-            FileUpload.fromData(it.readAllBytes(), "picture.jpg")
+    fun fetchImage(url: String): FileUpload? =
+        try {
+            URL(url).openStream().use {
+                FileUpload.fromData(it.readAllBytes(), "picture.jpg")
+            }
+        } catch (_: Exception) {
+            null
         }
 }
