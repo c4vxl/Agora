@@ -26,6 +26,7 @@
   "perms.feature_self_roles.desc": "Allows users to use the self roles feature",
   "perms.feature_self_roles_manage.desc": "Allows users to create self-roles modals",
   "perms.feature_picture_use.desc": "Allows users to fetch random pictures using the /picture command.",
+  "perms.feature_picture_unsplash.desc": "Allows users to fetch random pictures from unsplash.",
 
   "--- Feature: Settings ---": "",
   "feature.settings.command.desc": "Modify the settings of the different features of this bot",
