@@ -87,15 +87,17 @@ class UnsplashAPI(val feature: PictureFeature) {
         val queriesString = queries.joinToString(",")
 
 
+        val credits = feature.bot.language.translate("feature.picture.embed.unsplash.credits", author)
         return PictureFeatureAPIResponse(
             EmbedBuilder()
                 .setTitle(feature.bot.language.translate("feature.picture.embed.unsplash.title.$type", queriesString.replace(",", " ")))
                 .setDescription(feature.bot.language.translate("feature.picture.embed.unsplash.desc.$type", queriesString))
                 .setImage("attachment://picture.jpg")
-                .setFooter(feature.bot.language.translate("feature.picture.embed.unsplash.credits", author))
+                .setFooter(credits)
                 .color(Color.PRIMARY)
                 .build(),
-            PictureUtils.fetchImage(picURL)
+            PictureUtils.fetchImage(picURL),
+            creditsString = credits
         )
     }
 }

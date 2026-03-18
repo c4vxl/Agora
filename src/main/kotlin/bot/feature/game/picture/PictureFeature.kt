@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
 import net.dv8tion.jda.api.interactions.commands.OptionMapping
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
@@ -101,6 +102,33 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
                 "search" -> handleUnsplashRequest(event, *queries)
             }
         }
+
+        bot.commandHandler.registerSlashCommand(
+            Commands.slash("picture-of-the-day", bot.language.translate("feature.picture_of_the_day.command.desc"))
+                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(net.dv8tion.jda.api.Permission.ADMINISTRATOR))
+                .addSubcommands(
+                    SubcommandData("trigger", bot.language.translate("feature.picture_of_the_day.command.trigger.desc"))
+                )
+        ) { event ->
+            when (event.subcommandName) {
+                "trigger" -> {
+                    // Trigger
+                    val success = handler.sendPicOfTheDay()
+
+                    if (!success) event.replyEmbeds(
+                        Embeds.FAILURE(bot)
+                            .setDescription(bot.language.translate("feature.picture_of_the_day.command.trigger.failure"))
+                            .build()
+                    ).setEphemeral(true).queue()
+                    else
+                        event.replyEmbeds(
+                            Embeds.SUCCESS(bot)
+                                .setDescription(bot.language.translate("feature.picture_of_the_day.command.trigger.success"))
+                                .build()
+                        ).setEphemeral(true).queue()
+                }
+            }
+        }
     }
 
     /**
@@ -129,7 +157,7 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
         }
 
         sendReply(
-            handler.unsplashAPI.random(this, *queries),
+            handler.unsplashAPI.random(*queries),
             event, event.user
         )
     }

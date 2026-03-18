@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
+import kotlin.reflect.KFunction1
 
 class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature::class.java) {
     init {
@@ -74,6 +75,10 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                     SubcommandData("picture", bot.language.translate("feature.settings.command.picture.desc"))
                         .addOption(OptionType.STRING, "unsplash-api-key", bot.language.translate("feature.settings.command.picture.unsplash_key.desc"))
                         .addOption(OptionType.INTEGER, "unsplash-max-per-user", bot.language.translate("feature.settings.command.picture.unsplash_max.desc"))
+                        .addOption(OptionType.BOOLEAN, "use-pic-of-the-day", bot.language.translate("feature.settings.command.picture.use_pic_of_the_day.desc"))
+                        .addOption(OptionType.STRING, "pic-of-the-day-time", bot.language.translate("feature.settings.command.picture.pic_of_the_day_time.desc"))
+                        .addOption(OptionType.CHANNEL, "pic-of-the-day-channel", bot.language.translate("feature.settings.command.picture.pic_of_the_day_channel.desc"))
+                        .addOption(OptionType.STRING, "pic-of-the-day-category", bot.language.translate("feature.settings.command.picture.pic_of_the_day_category.desc"))
                 )
         ) { event ->
             when (event.subcommandName) {
@@ -100,11 +105,42 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
 
                 // Feature: Picture
                 "picture" -> {
-                    val unsplashAPIKey = event.getOption("unsplash-api-key", OptionMapping::getAsString)
-                    val unsplashMaxPics = event.getOption("unsplash-max-per-user", OptionMapping::getAsInt)
+                    fun set(key: String, mapping: KFunction1<OptionMapping, Any>, dbKey: String) =
+                        event.getOption(key, mapping)?.let {
+                            bot.dataHandler.set<PictureFeature>(dbKey, it)
+                        }
 
-                    unsplashAPIKey?.let { bot.dataHandler.set<PictureFeature>("unsplash_key", it) }
-                    unsplashMaxPics?.let { bot.dataHandler.set<PictureFeature>("unsplash_max_pics", it) }
+                    set("unsplash-api-key", OptionMapping::getAsString, "unsplash_key")
+                    set("unsplash-max-per-user", OptionMapping::getAsString, "unsplash_max_pics")
+                    set("use-pic-of-the-day", OptionMapping::getAsBoolean, "potd.enabled")
+                    set("pic-of-the-day-category", OptionMapping::getAsString, "potd.category")
+
+                    event.getOption("pic-of-the-day-channel", OptionMapping::getAsChannel)?.id?.let {
+                        bot.dataHandler.set<PictureFeature>("potd.channel", it)
+                    }
+
+                    event.getOption("pic-of-the-day-time", OptionMapping::getAsString)?.let { time ->
+                        time.split(";")
+                            .map { it.split(":") }
+                            .forEach { parts ->
+                                // Get time
+                                val hours = if (parts.size == 3) parts.getOrNull(1)?.toIntOrNull()
+                                            else parts.getOrNull(0)?.toIntOrNull()
+                                val mins = if (parts.size == 3) parts.getOrNull(2)?.toIntOrNull()
+                                            else parts.getOrNull(1)?.toIntOrNull()
+
+                                if (hours != null && hours <= 24 && hours >= 0)
+                                    bot.dataHandler.set<BeRealFeature>("potd.h", hours)
+
+                                if (mins != null && mins <= 60 && mins >= 0)
+                                    bot.dataHandler.set<BeRealFeature>("potd.m", mins)
+                            }
+                    }
+
+                    // Reload pic of the day timer
+                    bot.getFeature<PictureFeature>()
+                        ?.handler
+                        ?.reloadPicOfTheDay()
                 }
 
                 // Feature: BeReal

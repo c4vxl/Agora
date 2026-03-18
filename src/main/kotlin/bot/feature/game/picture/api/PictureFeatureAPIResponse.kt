@@ -6,5 +6,6 @@ import net.dv8tion.jda.api.utils.FileUpload
 data class PictureFeatureAPIResponse(
     val embed: MessageEmbed,
     val file: FileUpload? = null,
-    val ephemeral: Boolean = false
+    val ephemeral: Boolean = false,
+    val creditsString: String? = null
 )

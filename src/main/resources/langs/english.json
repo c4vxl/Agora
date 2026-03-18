@@ -68,6 +68,10 @@
   "feature.settings.command.picture.desc": "Modify the settings of the 'Picture' module.",
   "feature.settings.command.picture.unsplash_key.desc": "Your API Key for unsplash.com. (Only this server will be using this API key)",
   "feature.settings.command.picture.unsplash_max.desc": "The maximum amount of pictures a user can fetch from unsplash each hour.",
+  "feature.settings.command.picture.use_pic_of_the_day.desc": "If set to 'true', the 'Picture of the day'-event will be enabled.",
+  "feature.settings.command.picture.pic_of_the_day_channel.desc": "Set the channel where the picture of the day will be posted in to.",
+  "feature.settings.command.picture.pic_of_the_day_category.desc": "Set the category of the picture of the day. (Use 'none' to choose a random one)",
+  "feature.settings.command.picture.pic_of_the_day_time.desc": "Set the time the picture of the day gets posted. (Format: HH:mm)",
 
   "--- Feature: Permissions ---": "",
   "feature.perms.command.desc": "Manage the permission system",
@@ -370,4 +374,9 @@
   "feature.picture.embed.unsplash.desc.random": "Here's a random picture:",
   "feature.picture.embed.unsplash.desc.specific": "Here's a picture about **'$0'**:",
   "feature.picture.embed.unsplash.credits": "This picture was taken/uploaded onto Unsplash by '$0'",
+  "feature.picture_of_the_day.command.trigger.desc": "Starts the picture of the day.",
+  "feature.picture_of_the_day.command.trigger.success": "Attempting to start pic of the day!",
+  "feature.picture_of_the_day.command.trigger.failure": "Something has gone wrong. Check the settings using `/settings picture`",
+  "feature.picture_of_the_day.embed.title": "The picture of the day is here!",
+  "feature.picture_of_the_day.embed.desc": "Category: `$0`"
 }
