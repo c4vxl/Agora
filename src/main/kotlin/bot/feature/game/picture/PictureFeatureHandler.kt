@@ -77,7 +77,9 @@ class PictureFeatureHandler(val feature: PictureFeature) {
             .color(Color.PRIMARY)
             .apply { response.creditsString?.let { this.setFooter(it) } }
             .build())
-            .addFiles(response.file)
+            .apply {
+                response.file?.let { addFiles(it) }
+            }
             .queue()
 
         return true

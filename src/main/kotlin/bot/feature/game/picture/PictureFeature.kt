@@ -171,7 +171,9 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
             .addComponents(ActionRow.of(
                 Button.danger("${name}_delete_${user?.id}", bot.language.translate("feature.picture.embed.reply.delete_btn.label"))
             ))
-            .addFiles(response.file)
+            .apply {
+                response.file?.let { addFiles(it) }
+            }
             .setEphemeral(response.ephemeral)
             .queue()
     }
