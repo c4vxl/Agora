@@ -23,8 +23,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
  * Feature for fetching random pictures
  */
 class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::class.java) {
-    val apis = PublicPictureAPIs(this)
-    val unsplash = UnsplashAPI(this)
+    val handler = PictureFeatureHandler(this)
 
     init {
         registerCommands()
@@ -86,14 +85,14 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
             when (event.subcommandName) {
                 "cat" -> {
                     sendReply(
-                        apis.cat(),
+                        handler.publicAPIs.cat(),
                         event, event.user
                     )
                 }
 
                 "dog" -> {
                     sendReply(
-                        apis.dog(),
+                        handler.publicAPIs.dog(),
                         event, event.user
                     )
                 }
@@ -116,8 +115,21 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
             return
         }
 
+        // Track uses
+        val uses = handler.unsplashUses[event.user.id] ?: 0
+        handler.unsplashUses[event.user.id] = uses + 1
+
+        // Too many uses
+        if (uses > handler.unsplashMaxUsesPerHour && event.member?.hasPermission() != true) {
+            event.replyEmbeds(Embeds.FAILURE(bot)
+                .setDescription(bot.language.translate("feature.picture.embed.unsplash.failure.uses_exceeded", handler.unsplashMaxUsesPerHour.toString()))
+                .build()
+            ).setEphemeral(true).queue()
+            return
+        }
+
         sendReply(
-            unsplash.random(this, *queries),
+            handler.unsplashAPI.random(this, *queries),
             event, event.user
         )
     }

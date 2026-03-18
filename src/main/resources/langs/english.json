@@ -27,6 +27,7 @@
   "perms.feature_self_roles_manage.desc": "Allows users to create self-roles modals",
   "perms.feature_picture_use.desc": "Allows users to fetch random pictures using the /picture command.",
   "perms.feature_picture_unsplash.desc": "Allows users to fetch random pictures from unsplash.",
+  "perms.unsplash_unlimited.desc": "Allows users bypass the hourly limit.",
 
   "--- Feature: Settings ---": "",
   "feature.settings.command.desc": "Modify the settings of the different features of this bot",
@@ -66,6 +67,7 @@
   "feature.settings.command.be-real.leave-after-fails.desc": "The amount of BeReals a participant can miss before being force-quit. (Use -1 to disable)",
   "feature.settings.command.picture.desc": "Modify the settings of the 'Picture' module.",
   "feature.settings.command.picture.unsplash_key.desc": "Your API Key for unsplash.com. (Only this server will be using this API key)",
+  "feature.settings.command.picture.unsplash_max.desc": "The maximum amount of pictures a user can fetch from unsplash each hour.",
 
   "--- Feature: Permissions ---": "",
   "feature.perms.command.desc": "Manage the permission system",
@@ -358,6 +360,7 @@
   "feature.picture.command.type.query.desc": "Allows you to narrow down your search by providing optional queries. (Separate by \";\")",
   "feature.picture.command.unsplash.desc": "Fetches a random picture from unsplash and pastes it into this channel.",
   "feature.picture.embed.reply.fetch_error": "Failed to fetch a picture!",
+  "feature.picture.embed.unsplash.failure.uses_exceeded": "I am sorry, but you can only use this command **$0** time(s) per hour!",
   "feature.picture.embed.reply.desc": "Here's a picture of a $0:",
   "feature.picture.embed.reply.delete_btn.label": "\uD83D\uDDD1\uFE0F Delete",
   "feature.picture.embed.reply.delete_btn.error": "You can only delete pictures you requested yourself!",
@@ -366,5 +369,5 @@
   "feature.picture.embed.unsplash.title.specific": "$0",
   "feature.picture.embed.unsplash.desc.random": "Here's a random picture:",
   "feature.picture.embed.unsplash.desc.specific": "Here's a picture about **'$0'**:",
-  "feature.picture.embed.unsplash.credits": "This picture was taken/uploaded onto Unsplash by '$0'"
+  "feature.picture.embed.unsplash.credits": "This picture was taken/uploaded onto Unsplash by '$0'",
 }

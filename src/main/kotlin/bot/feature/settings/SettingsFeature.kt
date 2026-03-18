@@ -73,6 +73,7 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                     // Feature: Picture
                     SubcommandData("picture", bot.language.translate("feature.settings.command.picture.desc"))
                         .addOption(OptionType.STRING, "unsplash-api-key", bot.language.translate("feature.settings.command.picture.unsplash_key.desc"))
+                        .addOption(OptionType.INTEGER, "unsplash-max-per-user", bot.language.translate("feature.settings.command.picture.unsplash_max.desc"))
                 )
         ) { event ->
             when (event.subcommandName) {
@@ -100,8 +101,10 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                 // Feature: Picture
                 "picture" -> {
                     val unsplashAPIKey = event.getOption("unsplash-api-key", OptionMapping::getAsString)
+                    val unsplashMaxPics = event.getOption("unsplash-max-per-user", OptionMapping::getAsInt)
 
                     unsplashAPIKey?.let { bot.dataHandler.set<PictureFeature>("unsplash_key", it) }
+                    unsplashMaxPics?.let { bot.dataHandler.set<PictureFeature>("unsplash_max_pics", it) }
                 }
 
                 // Feature: BeReal
