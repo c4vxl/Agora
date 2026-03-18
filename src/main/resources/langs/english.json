@@ -353,6 +353,7 @@
   "feature.picture.command.desc": "Fetches a random picture and pastes it into this channel",
   "feature.picture.type.cat": "Cat",
   "feature.picture.type.dog": "Dog",
+  "feature.picture.type.fish": "Fish",
   "feature.picture.command.type.desc": "Fetches a random $0 picture and pastes it into this channel.",
   "feature.picture.command.type.query.desc": "Allows you to narrow down your search by providing optional queries. (Separate by \";\")",
   "feature.picture.command.unsplash.desc": "Fetches a random picture from unsplash and pastes it into this channel.",

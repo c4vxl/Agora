@@ -66,6 +66,7 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
                 .addSubcommands(
                     queryOption(SubcommandData("cat", commandDesc("cat"))),
                     SubcommandData("dog", commandDesc("dog")),
+                    SubcommandData("fish", commandDesc("fish")),
 
                     queryOption(SubcommandData("search", bot.language.translate("feature.picture.command.unsplash.desc")))
                 )
@@ -97,20 +98,28 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
                     )
                 }
 
-                "search" -> {
-                    // Check for permission
-                    if (event.member?.hasPermission(Permission.FEATURE_PICTURE_UNSPLASH, bot) != true) {
-                        event.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
-                        return@registerSlashCommand
-                    }
-
-                    sendReply(
-                        unsplash.random(this, *queries),
-                        event, event.user
-                    )
-                }
+                "fish" -> handleUnsplashRequest(event, "fish")
+                "search" -> handleUnsplashRequest(event, *queries)
             }
         }
+    }
+
+    /**
+     * Handles a command using unsplash
+     * @param event The command event
+     * @param queries The queries to unsplash
+     */
+    private fun handleUnsplashRequest(event: SlashCommandInteractionEvent, vararg queries: String) {
+        // Check for permission
+        if (event.member?.hasPermission(Permission.FEATURE_PICTURE_UNSPLASH, bot) != true) {
+            event.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
+            return
+        }
+
+        sendReply(
+            unsplash.random(this, *queries),
+            event, event.user
+        )
     }
 
     /**
