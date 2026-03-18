@@ -73,7 +73,7 @@ class UnsplashAPI(val feature: PictureFeature) {
      * Fetches a random image from unsplash
      * @param queries Optional queries to narrow down search
      */
-    fun random(feature: PictureFeature, vararg queries: String): PictureFeatureAPIResponse {
+    fun random(vararg queries: String): PictureFeatureAPIResponse {
         val response = fetch(appendQueries("photos/random", *queries))
             ?: return PictureFeatureAPIResponse(Embeds.FAILURE(feature.bot)
                 .setDescription(feature.bot.language.translate("feature.picture.embed.unsplash.failure.invalid_key"))
