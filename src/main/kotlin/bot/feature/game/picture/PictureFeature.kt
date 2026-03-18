@@ -58,16 +58,16 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
                 bot.language.translate("feature.picture.type.$name").lowercase()
             )
 
+        fun queryOption(subcommandData: SubcommandData): SubcommandData =
+            subcommandData.apply { addOption(OptionType.STRING, "query", bot.language.translate("feature.picture.command.type.query.desc")) }
+
         bot.commandHandler.registerSlashCommand(
             Commands.slash("picture", bot.language.translate("feature.picture.command.desc"))
                 .addSubcommands(
-                    SubcommandData("cat", commandDesc("cat"))
-                        .addOption(OptionType.STRING, "query", bot.language.translate("feature.picture.command.type.query.desc")),
-
+                    queryOption(SubcommandData("cat", commandDesc("cat"))),
                     SubcommandData("dog", commandDesc("dog")),
 
-                    SubcommandData("search", bot.language.translate("feature.picture.command.unsplash.desc"))
-                        .addOption(OptionType.STRING, "query", bot.language.translate("feature.picture.command.type.query.desc")),
+                    queryOption(SubcommandData("search", bot.language.translate("feature.picture.command.unsplash.desc")))
                 )
         ) { event ->
             val queries = event.getOption("query", OptionMapping::getAsString)
