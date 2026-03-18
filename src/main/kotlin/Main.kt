@@ -76,7 +76,7 @@ fun main() {
             Database.delete(event.guild.idLong)
 
             // Delete scheduler
-            Scheduler.registeredGroups[event.guild.idLong]?.forEach {
+            Scheduler.registeredGroups[event.guild.idLong]?.toList()?.forEach {
                 it.destroy()
             }
         }
