@@ -17,9 +17,18 @@ object PictureAPI {
 
     /**
      * Fetches a random cat picture
+     * @param queries Optional queries to narrow down search
      */
-    fun cat(): FileUpload =
-        fetchImage("https://cataas.com/cat")
+    fun cat(vararg queries: String): FileUpload {
+        val baseURL = "https://cataas.com/cat"
+        return fetchImage(buildString {
+            append(baseURL)
+            
+            // Add queries
+            if (queries.isNotEmpty())
+                append("/${queries.joinToString(",")}")
+        })
+    }
 
     /**
      * Fetches a random dog picture

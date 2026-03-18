@@ -12,6 +12,8 @@ import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.interactions.commands.OptionMapping
+import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
 import net.dv8tion.jda.api.utils.FileUpload
@@ -56,13 +58,24 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
         bot.commandHandler.registerSlashCommand(
             Commands.slash("picture", bot.language.translate("feature.picture.command.desc"))
                 .addSubcommands(
-                    SubcommandData("cat", commandDesc("cat")),
+                    SubcommandData("cat", commandDesc("cat"))
+                        .addOption(OptionType.STRING, "query", bot.language.translate("feature.picture.command.type.query.desc")),
                     SubcommandData("dog", commandDesc("dog")),
                 )
         ) { event ->
+            val queries = event.getOption("query", OptionMapping::getAsString)
+                ?.replace("; ", ";")
+                ?.split(";")
+                ?.toTypedArray()
+                ?: arrayOf()
+
             when (event.subcommandName) {
                 "cat" -> {
-                    sendReply("cat", PictureAPI.cat(), event)
+                    sendReply(
+                        "cat",
+                        PictureAPI.cat(*queries),
+                        event
+                    )
                 }
 
                 "dog" -> {

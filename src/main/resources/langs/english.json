@@ -350,6 +350,7 @@
   "feature.picture.type.cat": "Cat",
   "feature.picture.type.dog": "Dog",
   "feature.picture.command.type.desc": "Fetches a random $0 picture and pastes it into this channel.",
+  "feature.picture.command.type.query.desc": "Allows you to narrow down your search by providing optional queries. (Separate by \";\")",
   "feature.picture.embed.reply.fetch_error": "Failed to fetch a picture!",
   "feature.picture.embed.reply.desc": "Here's a picture of a $0:",
   "feature.picture.embed.reply.delete_btn.label": "\uD83D\uDDD1\uFE0F Delete",
