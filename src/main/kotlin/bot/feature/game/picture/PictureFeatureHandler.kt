@@ -5,8 +5,6 @@ import de.c4vxl.bot.feature.game.picture.api.UnsplashAPI
 import de.c4vxl.config.enums.Color
 import de.c4vxl.utils.EmbedUtils.color
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.components.actionrow.ActionRow
-import net.dv8tion.jda.api.components.buttons.Button
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime

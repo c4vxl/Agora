@@ -3,8 +3,6 @@ package de.c4vxl.bot.feature.game.picture
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.Feature
 import de.c4vxl.bot.feature.game.picture.api.PictureFeatureAPIResponse
-import de.c4vxl.bot.feature.game.picture.api.PublicPictureAPIs
-import de.c4vxl.bot.feature.game.picture.api.UnsplashAPI
 import de.c4vxl.config.enums.Embeds
 import de.c4vxl.config.enums.Permission
 import de.c4vxl.utils.PermissionUtils.hasPermission
