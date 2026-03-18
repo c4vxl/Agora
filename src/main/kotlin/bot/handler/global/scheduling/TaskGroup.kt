@@ -20,9 +20,8 @@ class TaskGroup(val guild: Guild) {
      * Registers a scheduled future to cache
      * @param handler The function creating the future
      */
-    fun register(handler: () -> ScheduledFuture<*>) {
-        tasks += handler.invoke()
-    }
+    fun register(handler: () -> ScheduledFuture<*>) =
+        handler.invoke().also { tasks += it }
 
     /**
      * Schedules a task
@@ -30,9 +29,8 @@ class TaskGroup(val guild: Guild) {
      * @param task The task to run
      * @param unit The time unit the delay is in
      */
-    fun schedule(delay: Long, task: () -> Unit, unit: TimeUnit = TimeUnit.SECONDS) {
+    fun schedule(delay: Long, task: () -> Unit, unit: TimeUnit = TimeUnit.SECONDS) =
         register { Scheduler.executor.schedule(task, delay, unit) }
-    }
 
     /**
      * Schedules a task at a fixed rate
@@ -41,8 +39,16 @@ class TaskGroup(val guild: Guild) {
      * @param task The task to run
      * @param unit The time unit the delay is in
      */
-    fun scheduleAtFixedRate(initialDelay: Long, period: Long, task: () -> Unit, unit: TimeUnit = TimeUnit.SECONDS) {
+    fun scheduleAtFixedRate(initialDelay: Long, period: Long, task: () -> Unit, unit: TimeUnit = TimeUnit.SECONDS) =
         register { Scheduler.executor.scheduleAtFixedRate(task, initialDelay, period, unit) }
+
+    /**
+     * Unregisters and cancels a specific task
+     * @param task The task to stop
+     */
+    fun cancelSpecific(task: ScheduledFuture<*>?) {
+        tasks.remove(task)
+        task?.cancel(false)
     }
 
     /**
