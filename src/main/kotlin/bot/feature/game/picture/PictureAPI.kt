@@ -1,20 +1,14 @@
 package de.c4vxl.bot.feature.game.picture
 
 import com.google.gson.Gson
+import de.c4vxl.utils.PictureUtils.fetchImage
 import net.dv8tion.jda.api.utils.FileUpload
 import java.net.URL
-import java.util.*
 
-object PictureAPI {
-    /**
-     * Fetches an image and returns it as a FileUpload
-     * @param url The url of the image
-     */
-    private fun fetchImage(url: String) =
-        URL(url).openStream().use {
-            FileUpload.fromData(it.readAllBytes(), "${UUID.randomUUID()}.jpg")
-        }
-
+/**
+ * Implementations for various picture APIs
+ */
+class PictureAPI(val feature: PictureFeature) {
     /**
      * Fetches a random cat picture
      * @param queries Optional queries to narrow down search

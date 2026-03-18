@@ -34,6 +34,7 @@
   "feature.settings.command.reset.desc": "Reset the settings of a given module",
   "feature.settings.command.reset.welcome.desc": "If set to true, the settings of the Welcome module will be reset!",
   "feature.settings.command.reset.be-real.desc": "If set to true, the settings of the BeReal module will be reset!",
+  "feature.settings.command.reset.picture.desc": "If set to true, the settings of the Picture module will be reset!",
   "feature.settings.command.reset.success": "Successfully reset configuration!",
   "feature.settings.command.channel.desc": "Modify the settings of the 'Channel' module",
   "feature.settings.command.channel.max_voice.desc": "The maximum amount of voice channels a user can create",
@@ -62,6 +63,8 @@
   "feature.settings.command.be-real.time.desc": "The amount minutes users have time to post a BeReal",
   "feature.settings.command.be-real.view_without_participating.desc": "If set to false, members that aren't participating in the game cannot view posts.",
   "feature.settings.command.be-real.leave-after-fails.desc": "The amount of BeReals a participant can miss before being force-quit. (Use -1 to disable)",
+  "feature.settings.command.picture.desc": "Modify the settings of the 'Picture' module.",
+  "feature.settings.command.picture.unsplash_key.desc": "Your API Key for unsplash.com. (Only this server will be using this API key)",
 
   "--- Feature: Permissions ---": "",
   "feature.perms.command.desc": "Manage the permission system",
@@ -351,8 +354,16 @@
   "feature.picture.type.dog": "Dog",
   "feature.picture.command.type.desc": "Fetches a random $0 picture and pastes it into this channel.",
   "feature.picture.command.type.query.desc": "Allows you to narrow down your search by providing optional queries. (Separate by \";\")",
+  "feature.picture.command.unsplash.desc": "Fetches a random picture from unsplash and pastes it into this channel.",
   "feature.picture.embed.reply.fetch_error": "Failed to fetch a picture!",
   "feature.picture.embed.reply.desc": "Here's a picture of a $0:",
   "feature.picture.embed.reply.delete_btn.label": "\uD83D\uDDD1\uFE0F Delete",
-  "feature.picture.embed.reply.delete_btn.error": "You can only delete pictures you requested yourself!"
+  "feature.picture.embed.reply.delete_btn.error": "You can only delete pictures you requested yourself!",
+
+  "feature.picture.embed.unsplash.failure.invalid_key": "You seem to be using an invalid API key! Please contact a server owner.",
+  "feature.picture.embed.unsplash.title.random": "Here's a random picture:",
+  "feature.picture.embed.unsplash.title.specific": "$0",
+  "feature.picture.embed.unsplash.desc.random": "Here's a random picture:",
+  "feature.picture.embed.unsplash.desc.specific": "Here's a picture about **'$0'**:",
+  "feature.picture.embed.unsplash.credits": "This picture was taken/uploaded onto Unsplash by '$0'"
 }

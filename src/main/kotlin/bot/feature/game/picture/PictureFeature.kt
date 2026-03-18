@@ -2,12 +2,15 @@ package de.c4vxl.bot.feature.game.picture
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.Feature
+import de.c4vxl.bot.feature.game.picture.api.UnsplashAPI
 import de.c4vxl.config.enums.Color
 import de.c4vxl.config.enums.Embeds
 import de.c4vxl.utils.EmbedUtils.color
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.buttons.Button
+import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
@@ -17,12 +20,17 @@ import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
 import net.dv8tion.jda.api.utils.FileUpload
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 import net.dv8tion.jda.api.utils.messages.MessageCreateData
 
 /**
  * Feature for fetching random pictures
  */
 class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::class.java) {
+    val api = PictureAPI(this)
+
+    val unsplash = UnsplashAPI(this)
+
     init {
         registerCommands()
 
@@ -60,7 +68,11 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
                 .addSubcommands(
                     SubcommandData("cat", commandDesc("cat"))
                         .addOption(OptionType.STRING, "query", bot.language.translate("feature.picture.command.type.query.desc")),
+
                     SubcommandData("dog", commandDesc("dog")),
+
+                    SubcommandData("unsplash", bot.language.translate("feature.picture.command.unsplash.desc"))
+                        .addOption(OptionType.STRING, "query", bot.language.translate("feature.picture.command.type.query.desc")),
                 )
         ) { event ->
             val queries = event.getOption("query", OptionMapping::getAsString)
@@ -73,16 +85,43 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
                 "cat" -> {
                     sendReply(
                         "cat",
-                        PictureAPI.cat(*queries),
+                        api.cat(*queries),
                         event
                     )
                 }
 
                 "dog" -> {
-                    sendReply("dog", PictureAPI.dog(), event)
+                    sendReply("dog", api.dog(), event)
+                }
+
+                "unsplash" -> {
+                    unsplash.random(this, *queries).let {
+                        sendReply(
+                            it.embed,
+                            it.file,
+                            event,
+                            event.user
+                        )
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Sends an embed with the image
+     * @param embed The embed to send
+     * @param image The actual image
+     * @param event The command event to reply to
+     * @param user The user that requested the image
+     */
+    private fun sendReply(embed: MessageEmbed, image: FileUpload?, event: SlashCommandInteractionEvent, user: User? = null) {
+        event.replyEmbeds(embed)
+            .addComponents(ActionRow.of(
+                Button.danger("${name}_delete_${user?.id}", bot.language.translate("feature.picture.embed.reply.delete_btn.label"))
+            ))
+            .addFiles(image)
+            .queue()
     }
 
     /**

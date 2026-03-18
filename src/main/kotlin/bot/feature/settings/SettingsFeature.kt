@@ -3,6 +3,7 @@ package de.c4vxl.bot.feature.settings
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.Feature
 import de.c4vxl.bot.feature.game.bereal.BeRealFeature
+import de.c4vxl.bot.feature.game.picture.PictureFeature
 import de.c4vxl.bot.feature.onboarding.WelcomeFeature
 import de.c4vxl.bot.feature.util.channel.ChannelFeature
 import de.c4vxl.bot.feature.util.tickets.TicketFeature
@@ -30,7 +31,8 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                     // Reset
                     SubcommandData("reset", bot.language.translate("feature.settings.command.reset.desc"))
                         .addOption(OptionType.BOOLEAN, "welcome", bot.language.translate("feature.settings.command.reset.welcome.desc"))
-                        .addOption(OptionType.BOOLEAN, "be-real", bot.language.translate("feature.settings.command.reset.be-real.desc")),
+                        .addOption(OptionType.BOOLEAN, "be-real", bot.language.translate("feature.settings.command.reset.be-real.desc"))
+                        .addOption(OptionType.BOOLEAN, "picture", bot.language.translate("feature.settings.command.reset.picture.desc")),
 
                     // Feature: Channel
                     SubcommandData("channel", bot.language.translate("feature.settings.command.channel.desc"))
@@ -67,6 +69,10 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                         .addOption(OptionType.INTEGER, "amount", bot.language.translate("feature.settings.command.be-real.num.desc"))
                         .addOption(OptionType.INTEGER, "time", bot.language.translate("feature.settings.command.be-real.time.desc"))
                         .addOption(OptionType.INTEGER, "leave_after_fails", bot.language.translate("feature.settings.command.be-real.leave-after-fails.desc")),
+
+                    // Feature: Picture
+                    SubcommandData("picture", bot.language.translate("feature.settings.command.picture.desc"))
+                        .addOption(OptionType.STRING, "unsplash-api-key", bot.language.translate("feature.settings.command.picture.unsplash_key.desc"))
                 )
         ) { event ->
             when (event.subcommandName) {
@@ -81,11 +87,21 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                     if (get("be-real"))
                         bot.dataHandler.delete<BeRealFeature>()
 
+                    if (get("picture"))
+                        bot.dataHandler.delete<PictureFeature>()
+
 
                     event.replyEmbeds(
                         Embeds.SUCCESS(bot)
                             .setDescription(bot.language.translate("feature.settings.command.reset.success")).build()
                     ).setEphemeral(true).queue()
+                }
+
+                // Feature: Picture
+                "picture" -> {
+                    val unsplashAPIKey = event.getOption("unsplash-api-key", OptionMapping::getAsString)
+
+                    unsplashAPIKey?.let { bot.dataHandler.set<PictureFeature>("unsplash_key", it) }
                 }
 
                 // Feature: BeReal
