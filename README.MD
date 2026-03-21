@@ -42,37 +42,6 @@ Agora takes care of standard community features. It is built around the concept 
 server experience (activities, tickets, channels, rules, etc.).  
 <br>
 
-## Example Features
-
-#### Activities & Interests
-Users can subscribe to activities they are interested in and receive notifications when someone else starts them.
-
-- Interest management via commands or components
-- Start activities with optional messages
-- Ignore activities you’re not interested in
-
-<br>
-
-### Custom Channels
-Enables users to create their own voice or text channels dynamically.
-
-- Button or command-based channel creation
-- Automatic channel handling and cleanup
-- Fully configurable behavior
-
-<br>
-
-### Ticket System
-A structured ticket system for support, feedback, or general requests.
-
-- Create tickets via button interaction or command
-- Requires a title and detailed description
-
-<br>
-
-And much more...
-<br>
-
 ## Architecture & Design
 The bot follows a **clean, modular architecture**:
 
