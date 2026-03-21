@@ -10,19 +10,26 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.buttons.Button
+import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.MessageReaction
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
 class BeRealFeatureHandler(val feature: BeRealFeature) {
     val bot = feature.bot
     val logger = feature.logger
+
+    val thumbsUp = Emoji.fromUnicode("\uD83D\uDC4D")
+    val thumbsDown = Emoji.fromUnicode("\uD83D\uDC4E")
 
     /**
      * Returns {@code true} if the game is enabled
@@ -71,9 +78,61 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
     var hasActiveBeReal: Boolean = false
 
     /**
-     * Holds a list of people who have uploaded a picture in the current BeReal
+     * Holds a list of people and their BeReal messages they posted.
+     * This list gets cleared all 24 hours at midnight
      */
-    val successfullyUploaded = mutableListOf<String>()
+    val posts = mutableMapOf<String, Message>()
+
+    /**
+     * Returns {@code true} if 'BeReal of the day' is enabled
+     */
+    val useOfTheDay
+        get() = bot.dataHandler.get<Boolean>(this.feature.name, "use_otd") ?: false
+
+    private var ofTheDayTask: ScheduledFuture<*>? = null
+
+    /**
+     * Creates the schedule for posting the BeReal of the day
+     */
+    fun scheduleOfTheDay() {
+        if (!useOfTheDay)
+            return
+
+        // Cancel old schedule
+        feature.tasks.cancelSpecific(ofTheDayTask)
+
+        // Get time
+        val time = LocalTime.of(
+            bot.dataHandler.get<Int>(this.feature.name, "otd.h") ?: 22,
+            bot.dataHandler.get<Int>(this.feature.name, "otd.m") ?: 0
+        )
+        val initial = Duration.between(LocalTime.now(), time).toSeconds()
+
+        ofTheDayTask = feature.tasks.scheduleAtFixedRate(initial, 24 * 60 * 60, {
+            val posts = posts.values.map {
+                Pair(it, it.reactions.filter { r -> r.emoji.name == thumbsUp.name }.size)
+            }.sortedByDescending { it.second }
+
+            val highest = posts[0]
+
+            // Send
+            channel?.sendMessageEmbeds(
+                EmbedBuilder()
+                    .setTitle(bot.language.translate("feature.be-real.of_the_day.embed.title"))
+                    .setDescription(bot.language.translate(
+                        "feature.be-real.of_the_day.embed.desc",
+                        highest.first.author.asMention,
+                        highest.second.toString(),
+                        highest.first.jumpUrl
+                    ))
+                    .color(Color.PRIMARY)
+                    .withTimestamp()
+                    .build()
+            )?.queue() ?: run {
+                feature.logger.warn("Tried to send BeReal of the day, but channel was not set!")
+            }
+        })
+    }
 
     /**
      * Takes care of who is allowed to view the BeReal channel
@@ -185,10 +244,10 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
         if (!hasActiveBeReal) return
 
         // Update streaks
-        val failed = participants.filter { !successfullyUploaded.contains(it) }
+        val failed = participants.filter { !posts.keys.contains(it) }
         val numLost = failed.filter { (streaks[it] ?: 0) != 0 }.size
         streaks = streaks.apply {
-            successfullyUploaded.forEach {
+            posts.keys.forEach {
                 this[it] = this.getOrDefault(it, 0) + 1
             }
 
@@ -209,7 +268,7 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
                         .withTimestamp()
                         .color(Color.PRIMARY)
                         .setTitle(bot.language.translate("feature.be-real.notification.end.title"))
-                        .setDescription(bot.language.translate("feature.be-real.notification.end.desc", numLost.toString(), successfullyUploaded.size.toString()))
+                        .setDescription(bot.language.translate("feature.be-real.notification.end.desc", numLost.toString(), posts.size.toString()))
                         .setFooter(bot.language.translate("feature.be-real.notification.end.footer"))
                         .build()
                 )
@@ -225,7 +284,7 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
 
         // Reset
         hasActiveBeReal = false
-        successfullyUploaded.clear()
+        posts.clear()
 
         // Logging
         logger.info("BeReal has stopped for guild '${bot.guild.id}'")
@@ -377,6 +436,7 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
 
         // Need to do this here again because .clearAll also removed this task
         scheduleDailyReload()
+        scheduleOfTheDay()
     }
 
     /**
@@ -417,6 +477,9 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
         this.feature.tasks.scheduleAtFixedRate(initialDelay, TimeUnit.DAYS.toMillis(1), {
             // Schedule new times
             reload()
+
+            // Clear posts list
+            posts.clear()
 
             // Recalculate channel view
             reloadView()

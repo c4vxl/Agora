@@ -38,9 +38,6 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
         handler.reload()
 
         bot.jda.addEventListener(object : ListenerAdapter() {
-            val thumbsUp = Emoji.fromUnicode("\uD83D\uDC4D")
-            val thumbsDown = Emoji.fromUnicode("\uD83D\uDC4E")
-
             override fun onMessageReceived(event: MessageReceivedEvent) {
                 // Wrong guild
                 if (!event.isFromGuild || event.guild.id != bot.guild.id) return
@@ -61,7 +58,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
                 if (!handler.participants.contains(event.author.id)) return
 
                 // Has already uploaded
-                if (handler.successfullyUploaded.contains(event.author.id)) return
+                if (handler.posts.keys.contains(event.author.id)) return
 
                 // Get attachment
                 val image =
@@ -71,14 +68,14 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
                         ?: return                                                        // No image: exit
 
                 // Mark as uploaded
-                handler.successfullyUploaded.add(event.member!!.user.id)
+                handler.posts[event.member!!.user.id] = event.message
 
                 // Reset fail streak
                 handler.failStreaks = handler.failStreaks.apply { remove(event.author.id) }
 
                 // Add reactions
-                event.message.addReaction(thumbsUp).queue()
-                event.message.addReaction(thumbsDown).queue()
+                event.message.addReaction(handler.thumbsUp).queue()
+                event.message.addReaction(handler.thumbsDown).queue()
 
                 // Confirmation
                 event.author.openPrivateChannel().queue { pc ->
@@ -106,14 +103,19 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
                 // Not BeReal channel
                 if (event.channel.id != handler.channel?.id) return
 
-                val isThumbsUp = event.reaction.emoji.formatted == thumbsUp.formatted
+                // Not BeReal message
+                if (!handler.posts.containsKey(event.messageAuthorId)) return
+
+                val isThumbsUp = event.reaction.emoji.formatted == handler.thumbsUp.formatted
 
                 event.retrieveMessage().queue { message ->
                     message.removeReaction(
-                        if (isThumbsUp) thumbsDown
-                        else thumbsUp,
+                        if (isThumbsUp) handler.thumbsDown
+                        else handler.thumbsUp,
                         event.user ?: return@queue
-                    ).queue()
+                    ).queue {
+                        handler.posts[event.messageAuthorId] = message
+                    }
                 }
             }
 

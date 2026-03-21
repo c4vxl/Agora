@@ -65,6 +65,8 @@
   "feature.settings.command.be-real.time.desc": "The amount minutes users have time to post a BeReal",
   "feature.settings.command.be-real.view_without_participating.desc": "If set to false, members that aren't participating in the game cannot view posts.",
   "feature.settings.command.be-real.leave-after-fails.desc": "The amount of BeReals a participant can miss before being force-quit. (Use -1 to disable)",
+  "feature.settings.command.be-real.use_of_the_day.desc": "If enabled, the BeReal with the most likes will be announced as the 'BeReal of the day'",
+  "feature.settings.command.be-real.of_the_day_time.desc": "Set the time to post the BeReal of the day.",
   "feature.settings.command.picture.desc": "Modify the settings of the 'Picture' module.",
   "feature.settings.command.picture.unsplash_key.desc": "Your API Key for unsplash.com. (Only this server will be using this API key)",
   "feature.settings.command.picture.unsplash_max.desc": "The maximum amount of pictures a user can fetch from unsplash each hour.",
@@ -343,6 +345,8 @@
   "feature.be-real.command.reload.success": "Successfully scheduled BeReal for these times:\n\n$0",
   "feature.be-real.command.leaderboard.error": "Failed to generate leaderboard!",
   "feature.be-real.command.buttons.success": "Created buttons successfully!",
+  "feature.be-real.of_the_day.embed.title": "BeReal of the day",
+  "feature.be-real.of_the_day.embed.desc": "Today's picture of the day was won by $0 with **$1** like(s). Congratulations \uD83D\uDC4F!\n\n$2",
 
   "--- Feature: Self Roles ---": "",
   "feature.self-roles.command.desc": "Allows users to choose about what roles they want to assign to themself",

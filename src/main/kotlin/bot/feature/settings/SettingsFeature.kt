@@ -63,6 +63,8 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                     // Feature: BeReal
                     SubcommandData("be-real", bot.language.translate("feature.settings.command.be-real.desc"))
                         .addOption(OptionType.BOOLEAN, "enabled", bot.language.translate("feature.settings.command.be-real.enabled.desc"))
+                        .addOption(OptionType.BOOLEAN, "use_of_the_day", bot.language.translate("feature.settings.command.be-real.use_of_the_day.desc"))
+                        .addOption(OptionType.STRING, "of_the_day_time", bot.language.translate("feature.settings.command.be-real.of_the_day_time.desc"))
                         .addOption(OptionType.BOOLEAN, "view_without_participating", bot.language.translate("feature.settings.command.be-real.view_without_participating.desc"))
                         .addOption(OptionType.CHANNEL, "channel", bot.language.translate("feature.settings.command.be-real.channel.desc"))
                         .addOption(OptionType.STRING, "start_time", bot.language.translate("feature.settings.command.be-real.start.desc"))
@@ -125,9 +127,9 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                             .forEach { parts ->
                                 // Get time
                                 val hours = if (parts.size == 3) parts.getOrNull(1)?.toIntOrNull()
-                                            else parts.getOrNull(0)?.toIntOrNull()
+                                else parts.getOrNull(0)?.toIntOrNull()
                                 val mins = if (parts.size == 3) parts.getOrNull(2)?.toIntOrNull()
-                                            else parts.getOrNull(1)?.toIntOrNull()
+                                else parts.getOrNull(1)?.toIntOrNull()
 
                                 if (hours != null && hours <= 24 && hours >= 0)
                                     bot.dataHandler.set<PictureFeature>("potd.h", hours)
@@ -156,78 +158,77 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
 
                     bot.dataHandler.set<BeRealFeature>("leave_after_fails", fails)
 
-                    view?.let {
-                        bot.dataHandler.set<BeRealFeature>("view_without_participating", it)
-                        bot.getFeature<BeRealFeature>()
-                            ?.handler
-                            ?.reloadView()
-                    }
+                    view?.let { bot.dataHandler.set<BeRealFeature>("view_without_participating", it) }
 
                     val allDays = buildList {
                         add("all")
                         addAll(BeRealUtils.days)
                     }
 
-                    start?.split(";")
-                        ?.map { it.split(":") }
-                        ?.forEach { parts ->
-                            // Get day
-                            var day = if (parts.size == 3) parts[0]
-                            else "all"
+                    fun timeWithDays(key: String, timeString: String) {
+                        timeString.split(";")
+                            .map { it.split(":") }
+                            .forEach { parts ->
+                                // Get day
+                                var day = if (parts.size == 3) parts[0]
+                                else "all"
 
-                            // Default to all if day format is invalid
-                            if (!allDays.contains(day))
-                                day = "all"
+                                // Default to all if day format is invalid
+                                if (!allDays.contains(day))
+                                    day = "all"
 
-                            // Get time
-                            val hours = if (parts.size == 3) parts.getOrNull(1)?.toIntOrNull()
-                                        else parts.getOrNull(0)?.toIntOrNull()
-                            val mins = if (parts.size == 3) parts.getOrNull(2)?.toIntOrNull()
-                                        else parts.getOrNull(1)?.toIntOrNull()
+                                // Get time
+                                val hours = if (parts.size == 3) parts.getOrNull(1)?.toIntOrNull()
+                                else parts.getOrNull(0)?.toIntOrNull()
+                                val mins = if (parts.size == 3) parts.getOrNull(2)?.toIntOrNull()
+                                else parts.getOrNull(1)?.toIntOrNull()
 
-                            if (hours != null && hours <= 24 && hours >= 0) {
-                                bot.dataHandler.set<BeRealFeature>("start.$day.h", hours)
-                                bot.dataHandler.set<BeRealFeature>("start.all.h", hours)
+                                if (hours != null && hours <= 24 && hours >= 0) {
+                                    bot.dataHandler.set<BeRealFeature>("$key.$day.h", hours)
+                                    bot.dataHandler.set<BeRealFeature>("$key.all.h", hours)
+                                }
+
+                                if (mins != null && mins <= 60 && mins >= 0) {
+                                    bot.dataHandler.set<BeRealFeature>("$key.$day.m", mins)
+                                    bot.dataHandler.set<BeRealFeature>("$key.all.m", mins)
+                                }
                             }
+                    }
 
-                            if (mins != null && mins <= 60 && mins >= 0) {
-                                bot.dataHandler.set<BeRealFeature>("start.$day.m", mins)
-                                bot.dataHandler.set<BeRealFeature>("start.all.m", mins)
+                    start?.let { timeWithDays("start", it) }
+                    end?.let { timeWithDays("end", it) }
+
+                    event.getOption("of_the_day_time", OptionMapping::getAsString)?.let { time ->
+                        time.split(";")
+                            .map { it.split(":") }
+                            .forEach { parts ->
+                                // Get time
+                                val hours = if (parts.size == 3) parts.getOrNull(1)?.toIntOrNull()
+                                else parts.getOrNull(0)?.toIntOrNull()
+                                val mins = if (parts.size == 3) parts.getOrNull(2)?.toIntOrNull()
+                                else parts.getOrNull(1)?.toIntOrNull()
+
+                                if (hours != null && hours <= 24 && hours >= 0)
+                                    bot.dataHandler.set<BeRealFeature>("otd.h", hours)
+
+                                if (mins != null && mins <= 60 && mins >= 0)
+                                    bot.dataHandler.set<BeRealFeature>("otd.m", mins)
                             }
-                        }
+                    }
 
-                    end?.split(";")
-                        ?.map { it.split(":") }
-                        ?.forEach { parts ->
-                            // Get day
-                            var day = if (parts.size == 3) parts[0]
-                            else "all"
-
-                            // Default to all if day format is invalid
-                            if (!allDays.contains(day))
-                                day = "all"
-
-                            // Get time
-                            val hours = if (parts.size == 3) parts.getOrNull(1)?.toIntOrNull()
-                                        else parts.getOrNull(0)?.toIntOrNull()
-                            val mins = if (parts.size == 3) parts.getOrNull(2)?.toIntOrNull()
-                                        else parts.getOrNull(1)?.toIntOrNull()
-
-                            if (hours != null && hours <= 24 && hours >= 0) {
-                                bot.dataHandler.set<BeRealFeature>("end.$day.h", hours)
-                                bot.dataHandler.set<BeRealFeature>("end.all.h", hours)
-                            }
-
-                            if (mins != null && mins <= 60 && mins >= 0) {
-                                bot.dataHandler.set<BeRealFeature>("end.$day.m", mins)
-                                bot.dataHandler.set<BeRealFeature>("end.all.m", mins)
-                            }
-                        }
+                    event.getOption("use_of_the_day", OptionMapping::getAsBoolean)?.let { bot.dataHandler.set<BeRealFeature>("use_otd", it) }
 
                     bot.dataHandler.set<BeRealFeature>("enabled", enabled)
                     channel?.let { bot.dataHandler.set<BeRealFeature>("channel", it.id) }
                     amount?.let { bot.dataHandler.set<BeRealFeature>("amount", it.toDouble()) }
                     time?.let { bot.dataHandler.set<BeRealFeature>("time", it.toDouble()) }
+
+                    bot.getFeature<BeRealFeature>()
+                        ?.handler
+                        ?.let {
+                            it.reloadView()
+                            it.scheduleOfTheDay()
+                        }
                 }
 
                 // Feature: Welcome
