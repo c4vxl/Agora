@@ -130,10 +130,10 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                                             else parts.getOrNull(1)?.toIntOrNull()
 
                                 if (hours != null && hours <= 24 && hours >= 0)
-                                    bot.dataHandler.set<BeRealFeature>("potd.h", hours)
+                                    bot.dataHandler.set<PictureFeature>("potd.h", hours)
 
                                 if (mins != null && mins <= 60 && mins >= 0)
-                                    bot.dataHandler.set<BeRealFeature>("potd.m", mins)
+                                    bot.dataHandler.set<PictureFeature>("potd.m", mins)
                             }
                     }
 
