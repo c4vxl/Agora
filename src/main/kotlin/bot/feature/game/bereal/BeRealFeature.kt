@@ -11,8 +11,10 @@ import de.c4vxl.utils.PermissionUtils.hasPermission
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.buttons.Button
+import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.commands.OptionMapping
 import net.dv8tion.jda.api.interactions.commands.OptionType
@@ -36,6 +38,9 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
         handler.reload()
 
         bot.jda.addEventListener(object : ListenerAdapter() {
+            val thumbsUp = Emoji.fromUnicode("\uD83D\uDC4D")
+            val thumbsDown = Emoji.fromUnicode("\uD83D\uDC4E")
+
             override fun onMessageReceived(event: MessageReceivedEvent) {
                 // Wrong guild
                 if (!event.isFromGuild || event.guild.id != bot.guild.id) return
@@ -71,6 +76,10 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
                 // Reset fail streak
                 handler.failStreaks = handler.failStreaks.apply { remove(event.author.id) }
 
+                // Add reactions
+                event.message.addReaction(thumbsUp).queue()
+                event.message.addReaction(thumbsDown).queue()
+
                 // Confirmation
                 event.author.openPrivateChannel().queue { pc ->
                     pc.sendMessage(
@@ -86,6 +95,24 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
                             )
                             .addComponents(Embeds.DM_ACTION_ROW(bot))
                             .build()
+                    ).queue()
+                }
+            }
+
+            override fun onMessageReactionAdd(event: MessageReactionAddEvent) {
+                if (!event.isFromGuild || event.user?.isBot ?: return) return
+                if (event.guild.id != bot.guild.id) return
+
+                // Not BeReal channel
+                if (event.channel.id != handler.channel?.id) return
+
+                val isThumbsUp = event.reaction.emoji.formatted == thumbsUp.formatted
+
+                event.retrieveMessage().queue { message ->
+                    message.removeReaction(
+                        if (isThumbsUp) thumbsDown
+                        else thumbsUp,
+                        event.user ?: return@queue
                     ).queue()
                 }
             }
