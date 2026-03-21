@@ -34,6 +34,9 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
         // Generate new random times every midnight
         handler.scheduleDailyReload()
 
+        // Handler for posting pic of the day
+        handler.scheduleOfTheDay()
+
         // Initial reload to get new times as soon as the feature gets registered
         handler.reload()
 
