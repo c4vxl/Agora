@@ -115,6 +115,10 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
 
             val highest = posts[0]
 
+            // Get channel
+            val channelId = bot.dataHandler.get<String>(feature.name, "otd.channel")
+            val channel = channelId?.let { bot.guild.getTextChannelById(it) } ?: channel
+
             // Send
             channel?.sendMessageEmbeds(
                 EmbedBuilder()
@@ -125,10 +129,12 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
                         highest.second.toString(),
                         highest.first.jumpUrl
                     ))
+                    .setImage(highest.first.attachments.firstOrNull()?.url)
                     .color(Color.PRIMARY)
                     .withTimestamp()
                     .build()
-            )?.queue() ?: run {
+            )
+                ?.queue() ?: run {
                 feature.logger.warn("Tried to send BeReal of the day, but channel was not set!")
             }
         })

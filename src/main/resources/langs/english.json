@@ -67,6 +67,7 @@
   "feature.settings.command.be-real.leave-after-fails.desc": "The amount of BeReals a participant can miss before being force-quit. (Use -1 to disable)",
   "feature.settings.command.be-real.use_of_the_day.desc": "If enabled, the BeReal with the most likes will be announced as the 'BeReal of the day'",
   "feature.settings.command.be-real.of_the_day_time.desc": "Set the time to post the BeReal of the day.",
+  "feature.settings.command.be-real.of_the_day_channel.desc": "Set the channel the BeReal of the day will get posted into. (Default: BeReal channel)",
   "feature.settings.command.picture.desc": "Modify the settings of the 'Picture' module.",
   "feature.settings.command.picture.unsplash_key.desc": "Your API Key for unsplash.com. (Only this server will be using this API key)",
   "feature.settings.command.picture.unsplash_max.desc": "The maximum amount of pictures a user can fetch from unsplash each hour.",
