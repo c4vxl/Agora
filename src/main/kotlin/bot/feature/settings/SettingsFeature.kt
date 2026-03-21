@@ -72,7 +72,8 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                         .addOption(OptionType.STRING, "end_time", bot.language.translate("feature.settings.command.be-real.end.desc"))
                         .addOption(OptionType.INTEGER, "amount", bot.language.translate("feature.settings.command.be-real.num.desc"))
                         .addOption(OptionType.INTEGER, "time", bot.language.translate("feature.settings.command.be-real.time.desc"))
-                        .addOption(OptionType.INTEGER, "leave_after_fails", bot.language.translate("feature.settings.command.be-real.leave-after-fails.desc")),
+                        .addOption(OptionType.INTEGER, "leave_after_fails", bot.language.translate("feature.settings.command.be-real.leave-after-fails.desc"))
+                        .addOption(OptionType.ROLE, "view_role", bot.language.translate("feature.settings.command.be-real.view_role.desc")),
 
                     // Feature: Picture
                     SubcommandData("picture", bot.language.translate("feature.settings.command.picture.desc"))
@@ -224,6 +225,8 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                     channel?.let { bot.dataHandler.set<BeRealFeature>("channel", it.id) }
                     amount?.let { bot.dataHandler.set<BeRealFeature>("amount", it.toDouble()) }
                     time?.let { bot.dataHandler.set<BeRealFeature>("time", it.toDouble()) }
+
+                    event.getOption("view_role", OptionMapping::getAsRole)?.let { bot.dataHandler.set<BeRealFeature>("view_role", it.id) }
 
                     bot.getFeature<BeRealFeature>()
                         ?.handler

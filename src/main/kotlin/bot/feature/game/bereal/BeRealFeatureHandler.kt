@@ -156,6 +156,8 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
             return CompletableFuture.allOf(*futures.toTypedArray())
         }
 
+        val viewRole = bot.dataHandler.get<String>(feature.name, "view_role")?.let { bot.guild.getRoleById(it) }
+
         // Global view allowed
         // Every user can view the channel
         if (allowed) {
@@ -180,18 +182,26 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
                     .thenRun {
                         // Disallow everyone to view channel
                         c.upsertPermissionOverride(this.feature.bot.guild.publicRole)
-                            .deny(Permission.VIEW_CHANNEL)
+                            .deny(Permission.VIEW_CHANNEL, Permission.MESSAGE_ADD_REACTION)
                             .queue {
                                 // Update permissions for rules
                                 bot.getFeature<RulesFeature>()?.updatePerms()
                             }
+
+                        // Allow view role to view BeReals
+                        viewRole?.let {
+                            c.upsertPermissionOverride(it)
+                                .grant(Permission.VIEW_CHANNEL)
+                                .deny(Permission.MESSAGE_SEND)
+                                .queue()
+                        }
 
                         // Allow participants to view channel
                         participants.forEach {
                             bot.guild.retrieveMemberById(it).queue { member ->
                                 channel
                                     ?.upsertPermissionOverride(member)
-                                    ?.grant(Permission.VIEW_CHANNEL)
+                                    ?.grant(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND)
                                     ?.queue()
                             }
                         }
