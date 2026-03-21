@@ -146,7 +146,7 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
         handler.unsplashUses[event.user.id] = uses + 1
 
         // Too many uses
-        if (uses > handler.unsplashMaxUsesPerHour && event.member?.hasPermission() != true) {
+        if (uses > handler.unsplashMaxUsesPerHour && event.member?.hasPermission(Permission.UNSPLASH_UNLIMITED, bot) != true) {
             event.replyEmbeds(Embeds.FAILURE(bot)
                 .setDescription(bot.language.translate("feature.picture.embed.unsplash.failure.uses_exceeded", handler.unsplashMaxUsesPerHour.toString()))
                 .build()
