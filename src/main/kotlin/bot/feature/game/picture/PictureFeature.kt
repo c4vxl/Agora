@@ -81,7 +81,7 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
                 return@registerSlashCommand
             }
 
-            event.deferReply(true).queue()
+            event.deferReply().queue()
 
             when (event.subcommandName) {
                 "cat" -> {
