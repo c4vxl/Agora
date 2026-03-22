@@ -81,6 +81,8 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
                 return@registerSlashCommand
             }
 
+            event.deferReply(true).queue()
+
             when (event.subcommandName) {
                 "cat" -> {
                     sendReply(
@@ -167,7 +169,7 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
      * @param user The user that requested the image
      */
     private fun sendReply(response: PictureFeatureAPIResponse, event: SlashCommandInteractionEvent, user: User? = null) {
-        event.replyEmbeds(response.embed)
+        event.hook.sendMessageEmbeds(response.embed)
             .addComponents(ActionRow.of(
                 Button.danger("${name}_delete_${user?.id}", bot.language.translate("feature.picture.embed.reply.delete_btn.label"))
             ))
