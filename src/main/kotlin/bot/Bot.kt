@@ -4,6 +4,7 @@ import de.c4vxl.bot.feature.Feature
 import de.c4vxl.bot.feature.game.ActivityFeature
 import de.c4vxl.bot.feature.game.PingPongFeature
 import de.c4vxl.bot.feature.game.bereal.BeRealFeature
+import de.c4vxl.bot.feature.game.joke.JokeFeature
 import de.c4vxl.bot.feature.game.picture.PictureFeature
 import de.c4vxl.bot.feature.onboarding.DefaultRoleFeature
 import de.c4vxl.bot.feature.onboarding.RulesFeature
@@ -68,6 +69,7 @@ class Bot(
         registerFeature<BeRealFeature>(this)
         registerFeature<SelfRolesFeature>(this)
         registerFeature<PictureFeature>(this)
+        registerFeature<JokeFeature>(this)
 
         // Initialize command handler
         commandHandler.initHandlers()

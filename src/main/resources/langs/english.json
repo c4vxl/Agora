@@ -28,6 +28,7 @@
   "perms.feature_picture_use.desc": "Allows users to fetch random pictures using the /picture command.",
   "perms.feature_picture_unsplash.desc": "Allows users to fetch random pictures from unsplash.",
   "perms.unsplash_unlimited.desc": "Allows users bypass the hourly limit.",
+  "perms.feature_joke.desc": "Allows users to use the joke feature.",
 
   "--- Feature: Settings ---": "",
   "feature.settings.command.desc": "Modify the settings of the different features of this bot",
@@ -384,5 +385,15 @@
   "feature.picture_of_the_day.command.trigger.success": "Attempting to start pic of the day!",
   "feature.picture_of_the_day.command.trigger.failure": "Something has gone wrong. Check the settings using `/settings picture`",
   "feature.picture_of_the_day.embed.title": "The picture of the day is here!",
-  "feature.picture_of_the_day.embed.desc": "Category: `$0`"
+  "feature.picture_of_the_day.embed.desc": "Category: `$0`",
+
+  "--- Feature: Joke ---": "",
+  "feature.joke.command.desc": "Tells you a random joke.",
+  "feature.joke.command.category.desc": "The category the joke is from.",
+  "feature.joke.command.ephemeral.desc": "If 'true', only you will be able to see the joke generated!",
+  "feature.joke.reply.embed.failure.desc": "Failed to fetch joke!",
+  "feature.joke.reply.embed.title": "Here's a joke for you:",
+  "feature.joke.reply.embed.desc": "$0",
+  "feature.joke.reply.embed.delete_btn.error": "You can only delete messages that you have requested!",
+  "feature.joke.reply.embed.delete_btn.label": "\uD83D\uDDD1\uFE0F Delete"
 }
