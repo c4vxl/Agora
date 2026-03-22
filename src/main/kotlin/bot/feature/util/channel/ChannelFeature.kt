@@ -116,6 +116,7 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
                         ?: bot.language.translate("feature.channel.default_name.${type}", event.user.name)
 
                 // Create channel
+                event.deferReply().setEphemeral(true).queue()
                 val channel = handler.createChannel(type, event.member ?: return, name, false)
 
                 // Handle limit
@@ -127,7 +128,7 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
                 }
 
                 // Send feedback
-                event.replyEmbeds(
+                event.hook.sendMessageEmbeds(
                     successEmbed(type, channel, false)
                 ).setEphemeral(true).queue()
             }
@@ -191,9 +192,11 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
 
                     val preset = this.handler.getPreset(event.user)
 
+                    event.deferReply(true).queue()
+
                     // Show preset list
                     if (grant == null && deny == null && unset == null) {
-                        event.replyEmbeds(
+                        event.hook.sendMessageEmbeds(
                             EmbedBuilder()
                                 .setTitle(bot.language.translate("feature.channel.command.preset.list.embed.title"))
                                 .setDescription(
@@ -241,7 +244,7 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
                     this.handler.setPreset(event.user, preset)
 
                     // Send feedback
-                    event.replyEmbeds(
+                    event.hook.sendMessageEmbeds(
                         Embeds.SUCCESS(bot)
                             .setDescription(bot.language.translate("feature.channel.command.preset.success"))
                             .build()
@@ -370,6 +373,8 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
     }
 
     private fun handleCreate(event: SlashCommandInteractionEvent) {
+        event.deferReply(true).queue()
+
         // Get channel configuration
         val type: String = event.subcommandName ?: return
         val name: String =
@@ -381,7 +386,7 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
 
         // Check for permission
         if (!user.hasPermission(Permission.valueOf("FEATURE_CHANNELS_${type.uppercase(Locale.getDefault())}"), bot)) {
-            event.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
+            event.hook.sendMessageEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
             return
         }
 
@@ -390,14 +395,14 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
 
         // Handle limit
         if (channel == null) {
-            event.replyEmbeds(
+            event.hook.sendMessageEmbeds(
                 limitEmbed(type)
             ).setEphemeral(true).queue()
             return
         }
 
         // Handle success
-        event.replyEmbeds(successEmbed(type, channel, private)).setEphemeral(true).queue()
+        event.hook.sendMessageEmbeds(successEmbed(type, channel, private)).setEphemeral(true).queue()
     }
 
     private fun limitEmbed(type: String) =
