@@ -219,29 +219,31 @@ class ChannelFeature(bot: Bot) : Feature<ChannelFeature>(bot, ChannelFeature::cl
                         return@registerSlashCommand
                     }
 
-                    // Grant member
-                    grant?.let { g ->
-                        preset["a"] = preset["a"]!!.apply {
-                            this.add(bot.guild.retrieveMember(g).complete())
+                    Thread {
+                        // Grant member
+                        grant?.let { g ->
+                            preset["a"] = preset["a"]!!.apply {
+                                this.add(bot.guild.retrieveMember(g).complete())
+                            }
                         }
-                    }
 
-                    // Deny member
-                    deny?.let { d ->
-                        preset["d"] = preset["d"]!!.apply {
-                            this.add(bot.guild.retrieveMember(d).complete())
+                        // Deny member
+                        deny?.let { d ->
+                            preset["d"] = preset["d"]!!.apply {
+                                this.add(bot.guild.retrieveMember(d).complete())
+                            }
                         }
-                    }
 
-                    // Unset member
-                    unset?.let { u ->
-                        bot.guild.retrieveMember(u).complete().let {
-                            preset["a"] = preset["a"]!!.apply { this.remove(it) }
-                            preset["d"] = preset["d"]!!.apply { this.remove(it) }
+                        // Unset member
+                        unset?.let { u ->
+                            bot.guild.retrieveMember(u).complete().let {
+                                preset["a"] = preset["a"]!!.apply { this.remove(it) }
+                                preset["d"] = preset["d"]!!.apply { this.remove(it) }
+                            }
                         }
-                    }
 
-                    this.handler.setPreset(event.user, preset)
+                        this.handler.setPreset(event.user, preset)
+                    }.start()
 
                     // Send feedback
                     event.hook.sendMessageEmbeds(
