@@ -70,15 +70,17 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
                         ?: event.message.embeds.find { it.thumbnail != null }?.thumbnail // Get thumbnail from embeds (as fallback)
                         ?: return                                                        // No image: exit
 
-                // Mark as uploaded
-                handler.posts[event.member!!.user.id] = event.message
-
                 // Reset fail streak
                 handler.failStreaks = handler.failStreaks.apply { remove(event.author.id) }
 
-                // Add reactions
-                event.message.addReaction(handler.thumbsUp).queue()
-                event.message.addReaction(handler.thumbsDown).queue()
+                event.message.let {
+                    // Add reactions
+                    it.addReaction(handler.thumbsUp).queue()
+                    it.addReaction(handler.thumbsDown).queue()
+
+                    // Mark as uploaded
+                    handler.posts[event.member!!.user.id] = it.id
+                }
 
                 // Confirmation
                 event.author.openPrivateChannel().queue { pc ->
@@ -109,6 +111,9 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
                 // Not BeReal message
                 if (!handler.posts.containsKey(event.messageAuthorId)) return
 
+                // Older message
+                if (handler.posts[event.messageAuthorId] != event.messageId) return
+
                 val isThumbsUp = event.reaction.emoji.formatted == handler.thumbsUp.formatted
 
                 event.retrieveMessage().queue { message ->
@@ -116,9 +121,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
                         if (isThumbsUp) handler.thumbsDown
                         else handler.thumbsUp,
                         event.user ?: return@queue
-                    ).queue {
-                        handler.posts[event.messageAuthorId] = message
-                    }
+                    ).queue()
                 }
             }
 

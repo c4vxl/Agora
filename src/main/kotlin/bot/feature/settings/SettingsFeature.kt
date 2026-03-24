@@ -66,6 +66,7 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
                         .addOption(OptionType.BOOLEAN, "use_of_the_day", bot.language.translate("feature.settings.command.be-real.use_of_the_day.desc"))
                         .addOption(OptionType.STRING, "of_the_day_time", bot.language.translate("feature.settings.command.be-real.of_the_day_time.desc"))
                         .addOption(OptionType.CHANNEL, "of_the_day_channel", bot.language.translate("feature.settings.command.be-real.of_the_day_channel.desc"))
+                        .addOption(OptionType.STRING, "of_the_day_dislike_weight", bot.language.translate("feature.settings.command.be-real.of_the_day_dislike_weight.desc"))
                         .addOption(OptionType.BOOLEAN, "view_without_participating", bot.language.translate("feature.settings.command.be-real.view_without_participating.desc"))
                         .addOption(OptionType.CHANNEL, "channel", bot.language.translate("feature.settings.command.be-real.channel.desc"))
                         .addOption(OptionType.STRING, "start_time", bot.language.translate("feature.settings.command.be-real.start.desc"))
@@ -220,6 +221,10 @@ class SettingsFeature(bot: Bot) : Feature<SettingsFeature>(bot, SettingsFeature:
 
                     event.getOption("use_of_the_day", OptionMapping::getAsBoolean)?.let { bot.dataHandler.set<BeRealFeature>("use_otd", it) }
                     event.getOption("of_the_day_channel", OptionMapping::getAsChannel)?.let { bot.dataHandler.set<BeRealFeature>("otd.channel", it.id) }
+
+                    event.getOption("of_the_day_dislike_weight", OptionMapping::getAsString)?.toDoubleOrNull()?.let {
+                        bot.dataHandler.set<BeRealFeature>("otd.dislike_weight", it)
+                    }
 
                     bot.dataHandler.set<BeRealFeature>("enabled", enabled)
                     channel?.let { bot.dataHandler.set<BeRealFeature>("channel", it.id) }

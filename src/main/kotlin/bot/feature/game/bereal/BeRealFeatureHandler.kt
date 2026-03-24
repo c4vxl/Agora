@@ -23,6 +23,7 @@ import java.time.LocalTime
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
 
 class BeRealFeatureHandler(val feature: BeRealFeature) {
     val bot = feature.bot
@@ -81,7 +82,7 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
      * Holds a list of people and their BeReal messages they posted.
      * This list gets cleared all 24 hours at midnight
      */
-    val posts = mutableMapOf<String, Message>()
+    val posts = mutableMapOf<String, String>()
 
     /**
      * Returns {@code true} if 'BeReal of the day' is enabled
@@ -95,40 +96,72 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
      * Sends the BeReal of the day
      */
     fun sendOfTheDay(): Boolean {
-        // Find posts
-        val posts = posts.values.map {
-            Pair(it, it.reactions.filter { r -> r.emoji.name == thumbsUp.name }.size)
-        }.sortedByDescending { it.second }
+        // Feature not enabled
+        if (!useOfTheDay)
+            return false
 
-        // Get the highest post
-        val highest = posts.firstOrNull() ?: run {
+        // Rank posts
+        val dislikeWeight = bot.dataHandler.get<Double>(feature.name, "otd.dislike_weight") ?: 0.0
+
+        // Fetch messages
+        val futures = posts.values
+            .mapNotNull { channel?.retrieveMessageById(it)?.submit() }
+
+        // No messages
+        if (futures.isEmpty()) {
             logger.warn("Tried to post BeReal of the day for guild ${bot.guild.id} but no posts were found!")
             return false
         }
 
-        // Get channel
-        val channelId = bot.dataHandler.get<String>(feature.name, "otd.channel")
-        val channel = channelId?.let { bot.guild.getTextChannelById(it) } ?: channel
+        CompletableFuture.allOf(*futures.toTypedArray()).thenAccept {
+            val messages = futures.map { it.getNow(null) }
 
-        // Send embed
-        channel?.sendMessageEmbeds(
-            EmbedBuilder()
-                .setTitle(bot.language.translate("feature.be-real.of_the_day.embed.title"))
-                .setDescription(bot.language.translate(
-                    "feature.be-real.of_the_day.embed.desc",
-                    highest.first.author.asMention,
-                    highest.second.toString(),
-                    highest.first.jumpUrl
-                ))
-                .setImage(highest.first.attachments.firstOrNull()?.url)
-                .color(Color.PRIMARY)
-                .withTimestamp()
-                .build()
-        )?.queue()
+            // Compute ranks
+            val ranked = messages.map { msg ->
+                val (up, down) = msg.reactions.fold(0 to 0) { (u, d), r ->
+                    when (r.emoji.name) {
+                        thumbsUp.name -> (u + r.count) to d
+                        thumbsDown.name -> u to (d + r.count)
+                        else -> u to d
+                    }
+                }
 
-            ?: run {
-                feature.logger.warn("Tried to send BeReal of the day, but channel was not set!")
+                Triple(msg, up, down)
+            }.sortedByDescending { it.second - dislikeWeight * it.third }
+
+            // Get highest ranked
+            val highest = ranked.firstOrNull() ?: run {
+                logger.warn("No valid posts after fetching reactions for guild '${bot.guild.id}'!")
+                return@thenAccept
             }
+
+            // Get channel
+            val targetChannel =
+                bot.dataHandler.get<String>(feature.name, "otd.channel")
+                    ?.let { bot.guild.getTextChannelById(it) }
+                    ?: channel
+                    ?: run {
+                        logger.warn("Tried to send BeReal of the day, but channel was not set!")
+                        return@thenAccept
+                    }
+
+            // Send embed
+            targetChannel.sendMessageEmbeds(
+                EmbedBuilder()
+                    .setTitle(bot.language.translate("feature.be-real.of_the_day.embed.title"))
+                    .setDescription(bot.language.translate(
+                        "feature.be-real.of_the_day.embed.desc",
+                        highest.first.author.asMention,
+                        max(highest.second - 1, 0).toString(),
+                        max(highest.third - 1, 0).toString(),
+                        highest.first.jumpUrl
+                    ))
+                    .setImage(highest.first.attachments.firstOrNull()?.url)
+                    .color(Color.PRIMARY)
+                    .withTimestamp()
+                    .build()
+            ).queue()
+        }
 
         return true
     }
