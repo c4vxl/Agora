@@ -256,7 +256,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
 
             when (event.subcommandName) {
                 "send-of-the-day" -> {
-                    if (handler.sendOfTheDay())
+                    if (!handler.sendOfTheDay())
                         event.replyEmbeds(
                             Embeds.FAILURE(bot)
                                 .setDescription(bot.language.translate("feature.be-real.send_of_the_day.command.error"))
