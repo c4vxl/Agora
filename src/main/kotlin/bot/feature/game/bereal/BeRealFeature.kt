@@ -214,7 +214,11 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
                     SubcommandData("schedule", bot.language.translate("feature.be-real.command.schedule.desc"))
                         .addOption(OptionType.STRING, "time", bot.language.translate("feature.be-real.command.schedule.time.desc"), true),
 
+                    // /be-real clear-schedule
                     SubcommandData("clear-schedule", bot.language.translate("feature.be-real.command.clear-schedule.desc")),
+
+                    // /be-real send-of-the-day
+                    SubcommandData("send-of-the-day", bot.language.translate("feature.be-real.command.send_of_the_day.desc")),
 
                     // /be-real buttons
                     SubcommandData("buttons", bot.language.translate("feature.be-real.command.buttons.desc"))
@@ -233,7 +237,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
 
             // Check for management permission
             if (
-                listOf("reload", "start", "end", "buttons", "list-members", "schedule", "clear-schedule").contains(event.subcommandName) &&
+                listOf("reload", "start", "end", "buttons", "list-members", "schedule", "clear-schedule", "send-of-the-day").contains(event.subcommandName) &&
                 event.member?.hasPermission(Permission.FEATURE_BE_REAL_MANAGE, bot) != true
             ) {
                 event.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
@@ -251,6 +255,21 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
             }
 
             when (event.subcommandName) {
+                "send-of-the-day" -> {
+                    if (handler.sendOfTheDay())
+                        event.replyEmbeds(
+                            Embeds.FAILURE(bot)
+                                .setDescription(bot.language.translate("feature.be-real.send_of_the_day.command.error"))
+                                .build()
+                        ).setEphemeral(true).queue()
+                    else
+                        event.replyEmbeds(
+                            Embeds.SUCCESS(bot)
+                                .setDescription(bot.language.translate("feature.be-real.send_of_the_day.command.success"))
+                                .build()
+                        ).setEphemeral(true).queue()
+                }
+
                 "clear-schedule" -> {
                     // Clear schedule
                     this.handler.clearScheduled()

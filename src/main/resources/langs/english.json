@@ -350,6 +350,9 @@
   "feature.be-real.command.buttons.success": "Created buttons successfully!",
   "feature.be-real.of_the_day.embed.title": "BeReal of the day",
   "feature.be-real.of_the_day.embed.desc": "Today's BeReal of the day was won by $0 with **$1** like(s). Congratulations \uD83D\uDC4F!\n\n$2",
+  "feature.be-real.command.send_of_the_day.desc": "Sends the BeReal of the day",
+  "feature.be-real.send_of_the_day.command.error": "Failed to send the BeReal of the day. \nThings to check: \n- Is the feature enabled?\n- Was there a BeReal in the last 24 hours?",
+  "feature.be-real.send_of_the_day.command.success": "Successfully sent the BeReal of the day!",
 
   "--- Feature: Self Roles ---": "",
   "feature.self-roles.command.desc": "Allows users to choose about what roles they want to assign to themself",

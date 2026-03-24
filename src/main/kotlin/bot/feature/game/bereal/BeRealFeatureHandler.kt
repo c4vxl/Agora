@@ -92,6 +92,48 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
     private var ofTheDayTask: ScheduledFuture<*>? = null
 
     /**
+     * Sends the BeReal of the day
+     */
+    fun sendOfTheDay(): Boolean {
+        // Find posts
+        val posts = posts.values.map {
+            Pair(it, it.reactions.filter { r -> r.emoji.name == thumbsUp.name }.size)
+        }.sortedByDescending { it.second }
+
+        // Get the highest post
+        val highest = posts.firstOrNull() ?: run {
+            logger.warn("Tried to post BeReal of the day for guild ${bot.guild.id} but no posts were found!")
+            return false
+        }
+
+        // Get channel
+        val channelId = bot.dataHandler.get<String>(feature.name, "otd.channel")
+        val channel = channelId?.let { bot.guild.getTextChannelById(it) } ?: channel
+
+        // Send embed
+        channel?.sendMessageEmbeds(
+            EmbedBuilder()
+                .setTitle(bot.language.translate("feature.be-real.of_the_day.embed.title"))
+                .setDescription(bot.language.translate(
+                    "feature.be-real.of_the_day.embed.desc",
+                    highest.first.author.asMention,
+                    highest.second.toString(),
+                    highest.first.jumpUrl
+                ))
+                .setImage(highest.first.attachments.firstOrNull()?.url)
+                .color(Color.PRIMARY)
+                .withTimestamp()
+                .build()
+        )?.queue()
+
+            ?: run {
+                feature.logger.warn("Tried to send BeReal of the day, but channel was not set!")
+            }
+
+        return true
+    }
+
+    /**
      * Creates the schedule for posting the BeReal of the day
      */
     fun scheduleOfTheDay() {
@@ -109,34 +151,7 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
         val initial = Duration.between(LocalTime.now(), time).toSeconds()
 
         ofTheDayTask = feature.tasks.scheduleAtFixedRate(initial, 24 * 60 * 60, {
-            val posts = posts.values.map {
-                Pair(it, it.reactions.filter { r -> r.emoji.name == thumbsUp.name }.size)
-            }.sortedByDescending { it.second }
-
-            val highest = posts[0]
-
-            // Get channel
-            val channelId = bot.dataHandler.get<String>(feature.name, "otd.channel")
-            val channel = channelId?.let { bot.guild.getTextChannelById(it) } ?: channel
-
-            // Send
-            channel?.sendMessageEmbeds(
-                EmbedBuilder()
-                    .setTitle(bot.language.translate("feature.be-real.of_the_day.embed.title"))
-                    .setDescription(bot.language.translate(
-                        "feature.be-real.of_the_day.embed.desc",
-                        highest.first.author.asMention,
-                        highest.second.toString(),
-                        highest.first.jumpUrl
-                    ))
-                    .setImage(highest.first.attachments.firstOrNull()?.url)
-                    .color(Color.PRIMARY)
-                    .withTimestamp()
-                    .build()
-            )
-                ?.queue() ?: run {
-                feature.logger.warn("Tried to send BeReal of the day, but channel was not set!")
-            }
+            sendOfTheDay()
         })
     }
 
@@ -300,7 +315,6 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
 
         // Reset
         hasActiveBeReal = false
-        posts.clear()
 
         // Logging
         logger.info("BeReal has stopped for guild '${bot.guild.id}'")
@@ -495,7 +509,7 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
             reload()
 
             // Clear posts list
-            posts.clear()
+            // posts.clear()
 
             // Recalculate channel view
             reloadView()
