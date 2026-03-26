@@ -23,10 +23,10 @@ object StaticButtonHandler {
 
                     "agora_dm_delete_all" -> {
                         event.user.openPrivateChannel().queue {
-                            it.history.retrievePast(150).queue { msgs ->
+                            it.history.retrievePast(100).queue { msgs ->
                                 msgs
                                     .filter { m -> m.author.id == jda.selfUser.id }
-                                    .forEach { m -> m.delete() }
+                                    .forEach { m -> m.delete().queue() }
                             }
                         }
                     }
