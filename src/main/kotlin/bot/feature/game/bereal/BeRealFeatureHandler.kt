@@ -126,14 +126,17 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
                     }
                 }
 
-                Triple(msg, up, down)
-            }.sortedByDescending { it.second - dislikeWeight * it.third }
+                val score = up - dislikeWeight * down
+                Triple(msg, up, down) to score
+            }.sortedByDescending { it.second }
 
             // Get highest ranked
-            val highest = ranked.firstOrNull() ?: run {
+            val topScore = ranked.firstOrNull()?.second ?: run {
                 logger.warn("No valid posts after fetching reactions for guild '${bot.guild.id}'!")
                 return@thenAccept
             }
+            val topEntries = ranked.filter { it.second == topScore }
+            val highest = topEntries.random().first
 
             // Get channel
             val targetChannel =
@@ -145,22 +148,35 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
                         return@thenAccept
                     }
 
+            // Base embed
+            var embed = EmbedBuilder()
+                .setTitle(bot.language.translate("feature.be-real.of_the_day.embed.title"))
+                .setImage(if (topEntries.size == 1) highest.first.attachments.firstOrNull()?.url else null)
+                .color(Color.PRIMARY)
+                .withTimestamp()
+
+            // One winner embed
+            if (topEntries.size == 1)
+                embed = embed.setDescription(bot.language.translate(
+                    "feature.be-real.of_the_day.embed.desc",
+                    highest.first.author.asMention,
+                    max(highest.second - 1, 0).toString(),
+                    max(highest.third - 1, 0).toString(),
+                    highest.first.jumpUrl
+                ))
+
+            // Tie embed
+            else
+                embed = embed.setDescription(bot.language.translate(
+                    "feature.be-real.of_the_day.embed.tie.desc",
+                    topEntries.size.toString(),
+                    max(highest.second - 1, 0).toString(),
+                    max(highest.third - 1, 0).toString(),
+                    topEntries.joinToString("\n") { "- ${it.first.first.jumpUrl} (${it.first.first.author.asMention})" }
+                ))
+
             // Send embed
-            targetChannel.sendMessageEmbeds(
-                EmbedBuilder()
-                    .setTitle(bot.language.translate("feature.be-real.of_the_day.embed.title"))
-                    .setDescription(bot.language.translate(
-                        "feature.be-real.of_the_day.embed.desc",
-                        highest.first.author.asMention,
-                        max(highest.second - 1, 0).toString(),
-                        max(highest.third - 1, 0).toString(),
-                        highest.first.jumpUrl
-                    ))
-                    .setImage(highest.first.attachments.firstOrNull()?.url)
-                    .color(Color.PRIMARY)
-                    .withTimestamp()
-                    .build()
-            ).queue()
+            targetChannel.sendMessageEmbeds(embed.build()).queue()
         }
 
         return true
