@@ -139,7 +139,7 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
     private fun handleUnsplashRequest(event: SlashCommandInteractionEvent, vararg queries: String) {
         // Check for permission
         if (event.member?.hasPermission(Permission.FEATURE_PICTURE_UNSPLASH, bot) != true) {
-            event.replyEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
+            event.hook.sendMessageEmbeds(Embeds.INSUFFICIENT_PERMS(bot)).setEphemeral(true).queue()
             return
         }
 
@@ -149,7 +149,7 @@ class PictureFeature(bot: Bot) : Feature<PictureFeature>(bot, PictureFeature::cl
 
         // Too many uses
         if (uses > handler.unsplashMaxUsesPerHour && event.member?.hasPermission(Permission.UNSPLASH_UNLIMITED, bot) != true) {
-            event.replyEmbeds(Embeds.FAILURE(bot)
+            event.hook.sendMessageEmbeds(Embeds.FAILURE(bot)
                 .setDescription(bot.language.translate("feature.picture.embed.unsplash.failure.uses_exceeded", handler.unsplashMaxUsesPerHour.toString()))
                 .build()
             ).setEphemeral(true).queue()
