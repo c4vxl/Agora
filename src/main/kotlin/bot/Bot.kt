@@ -1,5 +1,6 @@
 package de.c4vxl.bot
 
+import bot.feature.management.inactivity.InactivityKickFeature
 import de.c4vxl.bot.feature.Feature
 import de.c4vxl.bot.feature.game.ActivityFeature
 import de.c4vxl.bot.feature.game.PingPongFeature
@@ -70,6 +71,7 @@ class Bot(
         registerFeature<SelfRolesFeature>(this)
         registerFeature<PictureFeature>(this)
         registerFeature<JokeFeature>(this)
+        registerFeature<InactivityKickFeature>(this)
 
         // Initialize command handler
         commandHandler.initHandlers()
