@@ -64,9 +64,14 @@ class DataHandler(
      * @param key The key to the data element
      * @param value The new value
      */
-    fun set(module: String, key: String, value: Any) {
-        data(module)[key] = if (value is Int) value.toDouble()
-                            else value
+    fun set(module: String, key: String, value: Any?) {
+        if (value == null) {
+            data(module).remove(key)
+        }
+        else {
+            data(module)[key] = if (value is Int) value.toDouble()
+            else value
+        }
 
         Database.makeDirty(bot.guild.idLong)
     }
