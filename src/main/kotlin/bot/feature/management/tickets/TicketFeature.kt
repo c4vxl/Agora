@@ -1,4 +1,4 @@
-package de.c4vxl.bot.feature.util.tickets
+package de.c4vxl.bot.feature.management.tickets
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.Feature

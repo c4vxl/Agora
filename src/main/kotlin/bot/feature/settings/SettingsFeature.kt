@@ -6,7 +6,7 @@ import de.c4vxl.bot.feature.game.bereal.BeRealFeature
 import de.c4vxl.bot.feature.game.picture.PictureFeature
 import de.c4vxl.bot.feature.onboarding.WelcomeFeature
 import de.c4vxl.bot.feature.util.channel.ChannelFeature
-import de.c4vxl.bot.feature.util.tickets.TicketFeature
+import de.c4vxl.bot.feature.management.tickets.TicketFeature
 import de.c4vxl.config.enums.Color
 import de.c4vxl.config.enums.Embeds
 import de.c4vxl.utils.BeRealUtils

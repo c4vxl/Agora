@@ -16,7 +16,7 @@ import de.c4vxl.bot.feature.settings.PermissionFeature
 import de.c4vxl.bot.feature.settings.SettingsFeature
 import de.c4vxl.bot.feature.util.EmbedFeature
 import de.c4vxl.bot.feature.util.channel.ChannelFeature
-import de.c4vxl.bot.feature.util.tickets.TicketFeature
+import de.c4vxl.bot.feature.management.tickets.TicketFeature
 import de.c4vxl.bot.handler.CommandHandler
 import de.c4vxl.bot.handler.ComponentHandler
 import de.c4vxl.bot.handler.DataHandler
