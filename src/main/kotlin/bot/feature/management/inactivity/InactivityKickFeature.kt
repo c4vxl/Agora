@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
@@ -46,6 +47,13 @@ class InactivityKickFeature(bot: Bot) : Feature<InactivityKickFeature>(bot, Inac
 
                 // Reset inactivity
                 handler.setInactivity(event.member.user, null)
+            }
+
+            override fun onGenericCommandInteraction(event: GenericCommandInteractionEvent) {
+                if (!event.isFromGuild || event.guild?.id != bot.guild.id) return
+
+                // Reset inactivity
+                handler.setInactivity(event.user, null)
             }
 
             override fun onGuildMemberRemove(event: GuildMemberRemoveEvent) {
