@@ -68,16 +68,19 @@ class InactivityKickFeature(bot: Bot) : Feature<InactivityKickFeature>(bot, Inac
 
                     SubcommandData("settings", bot.language.translate("feature.inactivity.command.settings.desc"))
                         .addOption(OptionType.BOOLEAN, "enabled", bot.language.translate("feature.inactivity.command.settings.enabled.desc"))
+                        .addOption(OptionType.BOOLEAN, "add-rejoin-link", bot.language.translate("feature.inactivity.command.settings.rejoin.desc"))
                         .addOption(OptionType.INTEGER, "kick-after", bot.language.translate("feature.inactivity.command.settings.kick_after.desc"))
                 )
         ) { event ->
             when (event.subcommandName) {
                 "settings" -> {
                     val enabled = event.getOption("enabled", OptionMapping::getAsBoolean)
+                    val addRejoinLink = event.getOption("add-rejoin-link", OptionMapping::getAsBoolean)
                     val kickAfter = event.getOption("kick-after", OptionMapping::getAsInt)
 
                     enabled?.let { handler.isEnabled = it }
                     kickAfter?.let { handler.kickAfter = it }
+                    addRejoinLink?.let { handler.rejoinLink = it }
 
                     event.replyEmbeds(Embeds.SUCCESS(bot)
                         .setDescription(bot.language.translate("feature.inactivity.command.settings.success"))

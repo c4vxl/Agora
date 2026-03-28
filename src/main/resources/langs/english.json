@@ -406,18 +406,18 @@
   "feature.inactivity.command.desc": "Tracks inactive users and automatically kicks them after being inactive for too long.",
   "feature.inactivity.command.settings.desc": "Customize general settings of this feature.",
   "feature.inactivity.command.settings.enabled.desc": "If set to true, inactivity will be tracked.",
+  "feature.inactivity.command.settings.rejoin.desc": "If set to true, members that were kicked due to inactivity will be sent a link to rejoin the server.",
   "feature.inactivity.command.settings.kick_after.desc": "Automatically kicks members from the guild after being inactive for n days. (Set to -1 to disable)",
   "feature.inactivity.command.settings.success": "Successfully updated settings!",
   "feature.inactivity.command.show.desc": "Shows inactivity time of all members.",
   "feature.inactivity.command.show.member.desc": "Shows the time a specific member was inactive.",
-
   "feature.inactivity.notification.kick.title": "You have been kicked due to inactivity.",
   "feature.inactivity.notification.kick.desc": "Since you haven't been active on **$0** for the past **$1** days, you have been kicked from the server.",
   "feature.inactivity.notification.kick.footer": "Keep in mind that you can still rejoin!",
-
   "feature.inactivity.embed.overview.title": "Inactivity Overview:",
   "feature.inactivity.embed.overview.desc": "Here's an overview of the inactivity of different members:\n$0",
   "feature.inactivity.embed.overview.desc.table": "- $0: **$1 Days**",
   "feature.inactivity.embed.specific.title": "Inactivity report:",
-  "feature.inactivity.embed.specific.desc": "The user $0 has been inactive for **$1** days!"
+  "feature.inactivity.embed.specific.desc": "The user $0 has been inactive for **$1** days!",
+  "feature.inactivity.notification.kick.rejoin_btn": "Click here to rejoin"
 }

@@ -5,6 +5,8 @@ import de.c4vxl.config.enums.Embeds
 import de.c4vxl.utils.EmbedUtils.color
 import de.c4vxl.utils.EmbedUtils.withTimestamp
 import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.components.actionrow.ActionRow
+import net.dv8tion.jda.api.components.buttons.Button
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
@@ -12,7 +14,6 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
-import kotlin.math.roundToInt
 
 class InactivityKickFeatureHandler(val feature: InactivityKickFeature) {
     val bot = feature.bot
@@ -25,6 +26,13 @@ class InactivityKickFeatureHandler(val feature: InactivityKickFeature) {
     var isEnabled: Boolean
         get() = bot.dataHandler.get<Boolean>(feature.name, "enabled") ?: false
         set(value) = bot.dataHandler.set(feature.name, "enabled", value)
+
+    /**
+     * If true, a rejoin link will be provided
+     */
+    var rejoinLink: Boolean
+        get() = bot.dataHandler.get<Boolean>(feature.name, "rejoinLink") ?: false
+        set(value) = bot.dataHandler.set(feature.name, "rejoinLink", value)
 
     /**
      * The amount of days to wait until a member is kicked
@@ -77,7 +85,20 @@ class InactivityKickFeatureHandler(val feature: InactivityKickFeature) {
      * @param member The member to kick
      */
     fun kick(member: Member) {
+        val invite = if (rejoinLink) {
+            bot.guild.defaultChannel
+                ?.createInvite()
+                ?.setMaxAge(0)?.setMaxUses(1)
+                ?.complete()
+        }
+        else null
+
         // Send dm
+        fun combineActionRows(existingRow: ActionRow, button: Button?) =
+            ActionRow.of(
+                existingRow.buttons.toMutableList().apply { button?.let { add(it) } }
+            )
+
         member.user.openPrivateChannel().queue { pc ->
             pc.sendMessage(
                 MessageCreateBuilder()
@@ -86,42 +107,40 @@ class InactivityKickFeatureHandler(val feature: InactivityKickFeature) {
                             .withTimestamp()
                             .color(Color.DANGER)
                             .setTitle(bot.language.translate("feature.inactivity.notification.kick.title"))
-                            .setDescription(bot.language.translate("feature.inactivity.notification.kick.desc", bot.guild.name, kickAfter.toString()))
+                            .setDescription(bot.language.translate("feature.inactivity.notification.kick.desc", bot.guild.name, getInactivity(member.user).toString()))
                             .setFooter(bot.language.translate("feature.inactivity.notification.kick.footer"))
                             .build()
                     )
-                    .addComponents(Embeds.DM_ACTION_ROW(bot))
+                    .addComponents(
+                        combineActionRows(
+                            Embeds.DM_ACTION_ROW(bot),
+                            invite?.let { Button.link(invite.url,
+                                bot.language.translate("feature.inactivity.notification.kick.rejoin_btn", bot.guild.name)
+                            ) }
+                        )
+                    )
                     .build()
             ).queue()
         }
 
         // Kick
-        member.kick().queue()
+        if (!member.isOwner)
+            member.kick().queue()
     }
+
 
     /**
      * Schedules a daily increment of inactivity count
      */
     fun scheduleIncrements() {
-        // Cancel task
-        feature.tasks.cancelSpecific(incrementTask)
-
-        // Exit if feature is not enabled
-        if (!isEnabled) return
-
-        // Calculate time until next midnight
-        val now = LocalDateTime.now()
-        val midnight = now.toLocalDate().plusDays(1).atStartOfDay()
-        val initialDelay = Duration.between(now, midnight).toMinutes()
-
-        incrementTask = this.feature.tasks.scheduleAtFixedRate(initialDelay, TimeUnit.DAYS.toMinutes(1), {
+        fun handleIncrement() {
             val inactivityClone = inactivity
 
-            // Increment for each user
             bot.guild.loadMembers().onSuccess { members ->
                 members
                     .filterNot { it.user.isBot || it.user.isSystem }
                     .forEach { member ->
+                        // Increment
                         incrementInactivity(member.user)
 
                         // Kick members that have been inactive for too long
@@ -129,6 +148,25 @@ class InactivityKickFeatureHandler(val feature: InactivityKickFeature) {
                             kick(member)
                     }
             }
+        }
+
+        // Cancel task
+        feature.tasks.cancelSpecific(incrementTask)
+
+        // Exit if feature is not enabled
+        if (!isEnabled) return
+
+        // Increment once
+        handleIncrement()
+
+        // Calculate time until next midnight
+        val now = LocalDateTime.now()
+        val midnight = now.toLocalDate().plusDays(1).atStartOfDay()
+        val initialDelay = Duration.between(now, midnight).toMinutes()
+
+        incrementTask = this.feature.tasks.scheduleAtFixedRate(initialDelay, TimeUnit.DAYS.toMinutes(1), {
+            // Increment for each user
+            handleIncrement()
         }, TimeUnit.MINUTES)
     }
 }
