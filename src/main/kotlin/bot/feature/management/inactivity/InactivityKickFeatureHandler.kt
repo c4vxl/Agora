@@ -2,8 +2,10 @@ package bot.feature.management.inactivity
 
 import de.c4vxl.config.enums.Color
 import de.c4vxl.config.enums.Embeds
+import de.c4vxl.config.enums.Permission
 import de.c4vxl.utils.EmbedUtils.color
 import de.c4vxl.utils.EmbedUtils.withTimestamp
+import de.c4vxl.utils.PermissionUtils.hasPermission
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.buttons.Button
@@ -133,7 +135,7 @@ class InactivityKickFeatureHandler(val feature: InactivityKickFeature) {
      * Schedules a daily increment of inactivity count
      */
     fun scheduleIncrements() {
-        fun handleIncrement() {
+        fun handleIncrement(increment: Boolean = true) {
             val inactivityClone = inactivity
 
             bot.guild.loadMembers().onSuccess { members ->
@@ -141,10 +143,14 @@ class InactivityKickFeatureHandler(val feature: InactivityKickFeature) {
                     .filterNot { it.user.isBot || it.user.isSystem }
                     .forEach { member ->
                         // Increment
-                        incrementInactivity(member.user)
+                        if (increment)
+                            incrementInactivity(member.user)
 
                         // Kick members that have been inactive for too long
-                        if (kickAfter >= 1 && (inactivityClone[member.user.id] ?: 0) > kickAfter)
+                        if (
+                            kickAfter >= 1 && (inactivityClone[member.user.id] ?: 0) > kickAfter &&
+                            !member.hasPermission(Permission.FEATURE_INACTIVITY_NO_KICK, bot)
+                        )
                             kick(member)
                     }
             }
@@ -157,7 +163,7 @@ class InactivityKickFeatureHandler(val feature: InactivityKickFeature) {
         if (!isEnabled) return
 
         // Increment once
-        handleIncrement()
+        handleIncrement(false)
 
         // Calculate time until next midnight
         val now = LocalDateTime.now()

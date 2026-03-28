@@ -29,6 +29,7 @@
   "perms.feature_picture_unsplash.desc": "Allows users to fetch random pictures from unsplash.",
   "perms.unsplash_unlimited.desc": "Allows users bypass the hourly limit.",
   "perms.feature_joke.desc": "Allows users to use the joke feature.",
+  "perms.feature_inactivity_no_kick": "Members with this permission won't be kicked automatically for inactivity.",
 
   "--- Feature: Settings ---": "",
   "feature.settings.command.desc": "Modify the settings of the different features of this bot",
