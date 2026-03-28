@@ -419,5 +419,9 @@
   "feature.inactivity.embed.overview.desc.table": "- $0: **$1 Days**",
   "feature.inactivity.embed.specific.title": "Inactivity report:",
   "feature.inactivity.embed.specific.desc": "The user $0 has been inactive for **$1** days!",
-  "feature.inactivity.notification.kick.rejoin_btn": "Click here to rejoin"
+  "feature.inactivity.notification.kick.rejoin_btn": "Click here to rejoin",
+  "feature.inactivity.command.kick.desc": "Kick a specific member for inactivity.",
+  "feature.inactivity.command.kick.member.desc": "Kick a specific member for inactivity.",
+  "feature.inactivity.command.kick.success": "Successfully kicked $0 for inactivity!",
+  "feature.inactivity.command.kick.days.desc": "Set the amount of days the member was supposedly inactive for."
 }

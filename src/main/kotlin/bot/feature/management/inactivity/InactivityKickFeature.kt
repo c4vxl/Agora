@@ -74,6 +74,10 @@ class InactivityKickFeature(bot: Bot) : Feature<InactivityKickFeature>(bot, Inac
                     SubcommandData("list", bot.language.translate("feature.inactivity.command.show.desc"))
                         .addOption(OptionType.USER, "member", bot.language.translate("feature.inactivity.command.show.member.desc")),
 
+                    SubcommandData("kick", bot.language.translate("feature.inactivity.command.kick.desc"))
+                        .addOption(OptionType.USER, "member", bot.language.translate("feature.inactivity.command.kick.member.desc"), true)
+                        .addOption(OptionType.INTEGER, "days", bot.language.translate("feature.inactivity.command.kick.days.desc")),
+
                     SubcommandData("settings", bot.language.translate("feature.inactivity.command.settings.desc"))
                         .addOption(OptionType.BOOLEAN, "enabled", bot.language.translate("feature.inactivity.command.settings.enabled.desc"))
                         .addOption(OptionType.BOOLEAN, "add-rejoin-link", bot.language.translate("feature.inactivity.command.settings.rejoin.desc"))
@@ -93,6 +97,9 @@ class InactivityKickFeature(bot: Bot) : Feature<InactivityKickFeature>(bot, Inac
                     event.replyEmbeds(Embeds.SUCCESS(bot)
                         .setDescription(bot.language.translate("feature.inactivity.command.settings.success"))
                         .build()).setEphemeral(true).queue()
+
+                    // Reload schedule
+                    handler.scheduleIncrements()
                 }
 
                 "list" -> {
@@ -105,10 +112,23 @@ class InactivityKickFeature(bot: Bot) : Feature<InactivityKickFeature>(bot, Inac
                     else
                         sendSpecific(member, event)
                 }
-            }
 
-            // Reload schedule
-            handler.scheduleIncrements()
+                "kick" -> {
+                    val member = event.getOption("member", OptionMapping::getAsMember) ?: return@registerSlashCommand
+                    val days = event.getOption("days", OptionMapping::getAsInt)
+
+                    // Set inactivity days
+                    days?.let { handler.setInactivity(member.user, days) }
+
+                    // Kick member
+                    handler.kick(member)
+
+                    // Send success message
+                    event.replyEmbeds(Embeds.SUCCESS(bot)
+                        .setDescription(bot.language.translate("feature.inactivity.command.kick.success", member.asMention))
+                        .build()).setEphemeral(true).queue()
+                }
+            }
         }
     }
 
