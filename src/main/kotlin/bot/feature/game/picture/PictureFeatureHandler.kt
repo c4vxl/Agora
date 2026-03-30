@@ -23,6 +23,9 @@ class PictureFeatureHandler(val feature: PictureFeature) {
             { unsplashUses.clear() },
             TimeUnit.MINUTES
         )
+
+        // Pic of the day
+        reloadPicOfTheDay()
     }
 
     val publicAPIs = PublicPictureAPIs(feature)
@@ -112,6 +115,8 @@ class PictureFeatureHandler(val feature: PictureFeature) {
             // Time in future
             // Use distance
             else Duration.between(now, time).toSeconds()
+
+        feature.logger.info("Starting PicOfTheDay task for '${feature.bot.guild.id}' (Initial: $initial)")
 
         picOfTheDayTask = feature.tasks.scheduleAtFixedRate(initial, 60 * 60 * 24, {
             // Send pic of the day
