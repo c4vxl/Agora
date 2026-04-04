@@ -497,6 +497,8 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
      * @param min The minute the BeReal starts
      */
     fun schedule(hour: Int, min: Int) {
+        if (!isEnabled) return
+
         val time = LocalTime.of(hour, min)
         val now = LocalTime.now()
 
@@ -550,6 +552,8 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
      * Reschedules BeReal times daily
      */
     fun scheduleDailyReload() {
+        if (!isEnabled) return
+
         val now = LocalDateTime.now()
         val midnight = now.toLocalDate().plusDays(1).atStartOfDay()
 
