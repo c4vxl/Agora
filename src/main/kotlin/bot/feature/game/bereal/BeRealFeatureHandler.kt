@@ -449,7 +449,10 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
             .asSequence()
             .sortedByDescending { it.value }
             .mapNotNull { (id, streak) ->
-                val member = bot.guild.retrieveMemberById(id).complete() ?: return@mapNotNull null
+                val member = try {
+                    bot.guild.retrieveMemberById(id).complete()
+                } catch (_: Exception) { null } ?: return@mapNotNull null
+                
                 member to streak
             }
             .toList()
