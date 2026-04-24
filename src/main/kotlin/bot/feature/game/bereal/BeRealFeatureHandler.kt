@@ -44,6 +44,11 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
     init {
         // Create participant role beforehand
         participantRole
+
+        // Load participant cache
+        bot.guild.findMembersWithRoles(participantRole).onSuccess {
+            participantCache = it.map { u -> u.user.id }.toMutableSet()
+        }.onError { logger.warn("Failed to build participant cache: $it") }
     }
 
     /**
@@ -53,10 +58,15 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
         get() = bot.dataHandler.get<Boolean>(this.feature.name, "enabled") ?: false
 
     /**
-     * Returns a list of participants
+     * Holds a cache of participants
      */
-    val participants: MutableList<String>
-        get() = bot.guild.getMembersWithRoles(participantRole).map { it.user.id }.toMutableList()
+    private var participantCache: MutableSet<String> = mutableSetOf()
+
+    /**
+     * Returns a list of all participants
+     */
+    val participants: List<String>
+        get() = participantCache.toList()
 
     /**
      * Adds a member as a participant of the game
@@ -68,6 +78,9 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
 
         try { bot.guild.addRoleToMember(member, participantRole).queue() }
         catch (_: Exception) { return false }
+
+        // Add member to cache
+        participantCache.add(member.id)
 
         return true
     }
@@ -82,6 +95,9 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
 
         try { bot.guild.removeRoleFromMember(member, participantRole).queue() }
         catch (_: Exception) { return false }
+
+        // Remove member from cache
+        participantCache.remove(member.id)
 
         return true
     }
