@@ -15,6 +15,8 @@ import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.emoji.Emoji
+import net.dv8tion.jda.api.events.guild.GuildReadyEvent
+import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 import java.time.Duration
 import java.time.LocalDateTime
@@ -46,9 +48,23 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
         participantRole
 
         // Load participant cache
-        bot.guild.findMembersWithRoles(participantRole).onSuccess {
-            participantCache = it.map { u -> u.user.id }.toMutableSet()
-        }.onError { logger.warn("Failed to build participant cache: $it") }
+        bot.jda.addEventListener(object : ListenerAdapter() {
+            fun loadMemberCache() {
+                bot.guild.findMembersWithRoles(participantRole)
+                    .onSuccess {
+                        participantCache = it.map { u -> u.user.id }.toMutableSet()
+                    }
+                    .onError {
+                        logger.warn("Failed to build participant cache: $it")
+                    }
+            }
+
+            override fun onGuildReady(event: GuildReadyEvent) {
+                if (event.guild.id != bot.guild.id) return
+
+                loadMemberCache()
+            }
+        })
     }
 
     /**
