@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.events.guild.GuildLeaveEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.ChunkingFilter
+import net.dv8tion.jda.api.utils.MemberCachePolicy
 import org.slf4j.Logger
 import java.io.File
 import kotlin.concurrent.fixedRateTimer
@@ -38,7 +39,6 @@ fun main() {
     logger.info("Creating JDA instance")
     val jda: JDA = JDABuilder.createDefault(Config.get<String>("token"))
         .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT)
-        .setChunkingFilter(ChunkingFilter.ALL)
         .setActivity(Activity.customStatus(Config.get<String>("activity")))
         .setStatus(OnlineStatus.fromKey(Config.get<String>("status")))
         .build().awaitReady()

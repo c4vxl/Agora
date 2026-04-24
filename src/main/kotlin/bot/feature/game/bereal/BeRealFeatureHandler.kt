@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.emoji.Emoji
-import net.dv8tion.jda.api.events.guild.GuildReadyEvent
+import net.dv8tion.jda.api.events.guild.member.GuildMemberUpdateEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 import java.time.Duration
@@ -47,23 +47,21 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
         // Create participant role beforehand
         participantRole
 
-        // Load participant cache
         bot.jda.addEventListener(object : ListenerAdapter() {
-            fun loadMemberCache() {
-                bot.guild.findMembersWithRoles(participantRole)
-                    .setTimeout(5L, TimeUnit.MINUTES)
-                    .onSuccess {
-                        participantCache = it.map { u -> u.user.id }.toMutableSet()
-                    }
-                    .onError {
-                        logger.warn("Failed to build participant cache: $it")
-                    }
-            }
+            override fun onGuildMemberUpdate(event: GuildMemberUpdateEvent) {
+                if (bot.guild.id != event.guild.id) return
 
-            override fun onGuildReady(event: GuildReadyEvent) {
-                if (event.guild.id != bot.guild.id) return
+                // Member doesn't have BeReal role
+                val isMember = event.member.roles.find { it.name == "BeReal" } != null
 
-                loadMemberCache()
+                // Update cache
+                if (isMember)
+                    participantCache.add(event.member.id)
+                else
+                    participantCache.remove(event.member.id)
+
+                // Save cache
+                bot.dataHandler.set<BeRealFeature>("participantCache", participantCache.toList())
             }
         })
     }
@@ -77,7 +75,10 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
     /**
      * Holds a cache of participants
      */
-    private var participantCache: MutableSet<String> = mutableSetOf()
+    private var participantCache: MutableSet<String> =
+        bot.dataHandler.get<List<String>>(
+            this.feature.name, "participantCache"
+        )?.toMutableSet() ?: mutableSetOf()
 
     /**
      * Returns a list of all participants
@@ -90,14 +91,9 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
      * @param member The guild member to add
      */
     fun addMember(member: User): Boolean {
-        if (participants.contains(member.id))
-            return false
-
+        // Add actual role
         try { bot.guild.addRoleToMember(member, participantRole).queue() }
         catch (_: Exception) { return false }
-
-        // Add member to cache
-        participantCache.add(member.id)
 
         return true
     }
@@ -107,14 +103,9 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
      * @param member The guild member to remove
      */
     fun removeMember(member: User): Boolean {
-        if (!participants.contains(member.id))
-            return false
-
+        // Unset actual role
         try { bot.guild.removeRoleFromMember(member, participantRole).queue() }
         catch (_: Exception) { return false }
-
-        // Remove member from cache
-        participantCache.remove(member.id)
 
         // Remove streaks
         streaks = streaks.apply { this.remove(member.id) }
