@@ -128,9 +128,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
             override fun onGuildMemberRemove(event: GuildMemberRemoveEvent) {
                 if (event.guild.id != bot.guild.id) return
 
-                handler.participants = handler.participants.apply {
-                    remove(event.user.id)
-                }
+                handler.removeMember(event.user)
             }
         })
 
@@ -144,7 +142,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
             }
 
             // Remove user
-            handler.participants = handler.participants.apply { remove(event.user.id) }
+            handler.removeMember(event.user)
 
             // Send confirmation
             event.replyEmbeds(
@@ -172,7 +170,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
             }
 
             // Add user
-            handler.participants = handler.participants.apply { add(event.user.id) }
+            handler.removeMember(event.user)
 
             // Send confirmation
             event.replyEmbeds(
@@ -390,7 +388,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
                     }
 
                     // Add user
-                    handler.participants = handler.participants.apply { add(event.user.id) }
+                    handler.addMember(event.user)
 
                     // Send confirmation
                     event.replyEmbeds(
@@ -402,7 +400,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
 
                 "quit" -> {
                     // Remove user
-                    handler.participants = handler.participants.apply { remove(event.user.id) }
+                    handler.removeMember(event.user)
 
                     // Send confirmation
                     event.replyEmbeds(

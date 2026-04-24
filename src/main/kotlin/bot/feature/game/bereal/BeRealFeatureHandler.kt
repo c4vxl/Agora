@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.buttons.Button
 import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.entities.emoji.Emoji
@@ -31,22 +32,59 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
     val thumbsDown = Emoji.fromUnicode("\uD83D\uDC4E")
 
     /**
+     * Returns a role used for participants
+     */
+    private val participantRole: Role
+        get() = bot.guild.getRolesByName("BeReal", false).firstOrNull()
+            ?: bot.guild.createRole()
+                .setName("BeReal")
+                .setMentionable(true)
+                .complete()
+
+    init {
+        // Create participant role beforehand
+        participantRole
+    }
+
+    /**
      * Returns {@code true} if the game is enabled
      */
     val isEnabled: Boolean
         get() = bot.dataHandler.get<Boolean>(this.feature.name, "enabled") ?: false
 
     /**
-     * Holds a list of participants
+     * Returns a list of participants
      */
-    var participants: MutableList<String>
-        get() = bot.dataHandler.get<MutableList<String>>(this.feature.name, "participants") ?: mutableListOf()
-        set(value) {
-            bot.dataHandler.set(this.feature.name, "participants", value)
+    val participants: MutableList<String>
+        get() = bot.guild.getMembersWithRoles(participantRole).map { it.user.id }.toMutableList()
 
-            // Recalculate channel view
-            reloadView()
-        }
+    /**
+     * Adds a member as a participant of the game
+     * @param member The guild member to add
+     */
+    fun addMember(member: User): Boolean {
+        if (participants.contains(member.id))
+            return false
+
+        try { bot.guild.addRoleToMember(member, participantRole).queue() }
+        catch (_: Exception) { return false }
+
+        return true
+    }
+
+    /**
+     * Removes a member as a participant from the game
+     * @param member The guild member to remove
+     */
+    fun removeMember(member: User): Boolean {
+        if (!participants.contains(member.id))
+            return false
+
+        try { bot.guild.removeRoleFromMember(member, participantRole).queue() }
+        catch (_: Exception) { return false }
+
+        return true
+    }
 
     /**
      * Holds the channel where BeReals will be posted in to
@@ -207,69 +245,43 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
      */
     fun reloadView() {
         val allowed = bot.dataHandler.get<Boolean>(this.feature.name, "view_without_participating") == true
-
-        fun deleteOverrides(channel: TextChannel): CompletableFuture<Void> {
-            val futures = channel.permissionOverrides.filterNot { it.role?.isPublicRole == true }.map { override ->
-                val future = CompletableFuture<Void>()
-                override.delete().queue( { future.complete(null) }, { future.completeExceptionally(it) } )
-                future
-            }
-
-            return CompletableFuture.allOf(*futures.toTypedArray())
-        }
-
         val viewRole = bot.dataHandler.get<String>(feature.name, "view_role")?.let { bot.guild.getRoleById(it) }
 
         // Global view allowed
         // Every user can view the channel
         if (allowed) {
-            channel?.let {
-                deleteOverrides(it)
-                    .thenRun {
-                        it.upsertPermissionOverride(this.feature.bot.guild.publicRole)
-                            .grant(Permission.VIEW_CHANNEL)
-                            .queue {
-                                // Update permissions for rules
-                                bot.getFeature<RulesFeature>()?.updatePerms()
-                            }
-                    }
-            }
+            channel?.upsertPermissionOverride(bot.guild.publicRole)
+                ?.grant(Permission.VIEW_CHANNEL)
+                ?.queue {
+                    // Update permissions for rules
+                    bot.getFeature<RulesFeature>()?.updatePerms()
+                }
         }
 
         // Global view not allowed
         // Only participants can view
         else {
-            channel?.let { c ->
-                deleteOverrides(c)
-                    .thenRun {
-                        // Disallow everyone to view channel
-                        c.upsertPermissionOverride(this.feature.bot.guild.publicRole)
-                            .deny(Permission.VIEW_CHANNEL, Permission.MESSAGE_ADD_REACTION)
-                            .queue {
-                                // Update permissions for rules
-                                bot.getFeature<RulesFeature>()?.updatePerms()
-                            }
-
-                        // Allow view role to view BeReals
-                        viewRole?.let {
-                            c.upsertPermissionOverride(it)
-                                .grant(Permission.VIEW_CHANNEL)
-                                .deny(Permission.MESSAGE_SEND)
-                                .queue()
-                        }
-
-                        // Allow participants to view channel
-                        participants.forEach {
-                            bot.guild.retrieveMemberById(it).queue { member ->
-                                channel
-                                    ?.upsertPermissionOverride(member)
-                                    ?.grant(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND)
-                                    ?.queue()
-                            }
-                        }
-                    }
-            }
+            // Deny for everyone
+            channel?.upsertPermissionOverride(bot.guild.publicRole)
+                ?.deny(Permission.VIEW_CHANNEL)
+                ?.queue {
+                    // Update permissions for rules
+                    bot.getFeature<RulesFeature>()?.updatePerms()
+                }
         }
+
+        // Let viewers view, but not post
+        viewRole?.let {
+            channel?.upsertPermissionOverride(it)
+                ?.grant(Permission.VIEW_CHANNEL, Permission.MESSAGE_ADD_REACTION)
+                ?.deny(Permission.MESSAGE_SEND)
+                ?.queue()
+        }
+
+        // Give participants full access
+        channel?.upsertPermissionOverride(participantRole)
+            ?.grant(Permission.VIEW_CHANNEL, Permission.MESSAGE_SEND, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_ADD_REACTION)
+            ?.queue()
     }
 
     var failStreaks: MutableMap<String, Int>
@@ -311,7 +323,7 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
             failStreaks = fails
 
             // Remove participant
-            participants = participants.apply { remove(user.id) }
+            removeMember(user)
         }
     }
 
