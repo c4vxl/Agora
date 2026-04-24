@@ -170,7 +170,7 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
             }
 
             // Add user
-            handler.removeMember(event.user)
+            handler.addMember(event.user)
 
             // Send confirmation
             event.replyEmbeds(
