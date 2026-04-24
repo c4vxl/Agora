@@ -99,6 +99,10 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
         // Remove member from cache
         participantCache.remove(member.id)
 
+        // Remove streaks
+        streaks = streaks.apply { this.remove(member.id) }
+        failStreaks = failStreaks.apply { this.remove(member.id) }
+
         return true
     }
 
