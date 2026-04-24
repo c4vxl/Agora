@@ -51,6 +51,7 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
         bot.jda.addEventListener(object : ListenerAdapter() {
             fun loadMemberCache() {
                 bot.guild.findMembersWithRoles(participantRole)
+                    .setTimeout(5L, TimeUnit.MINUTES)
                     .onSuccess {
                         participantCache = it.map { u -> u.user.id }.toMutableSet()
                     }
