@@ -5,10 +5,6 @@ import de.c4vxl.bot.feature.game.picture.api.UnsplashAPI
 import de.c4vxl.config.enums.Color
 import de.c4vxl.utils.EmbedUtils.color
 import net.dv8tion.jda.api.EmbedBuilder
-import java.time.Duration
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
@@ -64,12 +60,12 @@ class PictureFeatureHandler(val feature: PictureFeature) {
             return false
         }
 
-        val first = categories.firstOrNull()
+        val first = categories.firstOrNull() ?: return false
         val queries = categories.drop(1).toTypedArray()
         val response = when (first) {
             "cat" -> publicAPIs.cat(*queries)
             "dog" -> publicAPIs.dog()
-            else -> unsplashAPI.random(*queries)
+            else -> unsplashAPI.random(first, *queries)
         }
 
         // Send
@@ -93,34 +89,19 @@ class PictureFeatureHandler(val feature: PictureFeature) {
      */
     fun reloadPicOfTheDay() {
         // Cancel task
-        feature.tasks.cancelSpecific(picOfTheDayTask)
+        feature.tasks.cancel(picOfTheDayTask)
 
         // Return if not enabled
         if (feature.bot.dataHandler.get<Boolean>(feature.name, "potd.enabled") != true)
             return
 
-        val now = LocalDateTime.now()
-        val time = LocalDateTime.of(
-            LocalDate.now(),
-            LocalTime.of(
+        picOfTheDayTask = feature.tasks.scheduleDaily(
             feature.bot.dataHandler.get<Int>(feature.name, "potd.h") ?: 12,
             feature.bot.dataHandler.get<Int>(feature.name, "potd.m") ?: 0
-        ))
-
-        val initial =
-            // Time already over
-            // Use time the next day
-            if (now.isAfter(time)) Duration.between(now, time.plusDays(1)).toSeconds()
-
-            // Time in future
-            // Use distance
-            else Duration.between(now, time).toSeconds()
-
-        feature.logger.info("Starting PicOfTheDay task for '${feature.bot.guild.id}' (Initial: $initial)")
-
-        picOfTheDayTask = feature.tasks.scheduleAtFixedRate(initial, 60 * 60 * 24, {
-            // Send pic of the day
+        ) {
             sendPicOfTheDay()
-        })
+        }
+
+        feature.logger.info("Starting PicOfTheDay task for '${feature.bot.guild.id}'")
     }
 }

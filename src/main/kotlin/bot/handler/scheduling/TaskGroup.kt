@@ -105,11 +105,13 @@ class TaskGroup(val guild: Guild) {
 
     /**
      * Unregisters and cancels a specific task
-     * @param task The task to stop
+     * @param task The tasks to stop
      */
-    fun cancelSpecific(task: ScheduledFuture<*>?) {
-        tasks.remove(task)
-        task?.cancel(false)
+    fun cancel(vararg task: ScheduledFuture<*>?) {
+        task.forEach {
+            tasks.remove(it)
+            it?.cancel(false)
+        }
     }
 
     /**

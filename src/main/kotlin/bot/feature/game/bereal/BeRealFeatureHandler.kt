@@ -20,7 +20,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 import java.time.Duration
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
@@ -43,6 +42,9 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
                 .setMentionable(true)
                 .complete()
 
+    val scheduled = mutableSetOf<ScheduledFuture<*>>()
+    var ofTheDayTask: ScheduledFuture<*>? = null
+
     init {
         // Create participant role beforehand
         participantRole
@@ -64,6 +66,17 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
                 bot.dataHandler.set<BeRealFeature>("participantCache", participantCache.toList())
             }
         })
+
+
+        // Schedule daily reloads
+        feature.tasks.scheduleDaily(0) {
+            // Exit if feature is disabled
+            if (!isEnabled)
+                return@scheduleDaily
+
+            reload()
+            reloadView()
+        }
     }
 
     /**
@@ -153,8 +166,6 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
      */
     val useOfTheDay
         get() = bot.dataHandler.get<Boolean>(this.feature.name, "use_otd") ?: false
-
-    private var ofTheDayTask: ScheduledFuture<*>? = null
 
     /**
      * Sends the BeReal of the day
@@ -254,18 +265,13 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
             return
 
         // Cancel old schedule
-        feature.tasks.cancelSpecific(ofTheDayTask)
+        feature.tasks.cancel(ofTheDayTask)
 
-        // Get time
-        val time = LocalTime.of(
+        // Create task
+        ofTheDayTask = feature.tasks.scheduleDaily(
             bot.dataHandler.get<Int>(this.feature.name, "otd.h") ?: 22,
             bot.dataHandler.get<Int>(this.feature.name, "otd.m") ?: 0
-        )
-        val initial = Duration.between(LocalTime.now(), time).toSeconds()
-
-        ofTheDayTask = feature.tasks.scheduleAtFixedRate(initial, 24 * 60 * 60, {
-            sendOfTheDay()
-        })
+        ) { sendOfTheDay() }
     }
 
     /**
@@ -539,27 +545,19 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
     fun schedule(hour: Int, min: Int) {
         if (!isEnabled) return
 
-        val time = LocalTime.of(hour, min)
-        val now = LocalTime.now()
-
-        // Already over
-        if (now.isAfter(time)) return
-
-        // Schedule
-        this.feature.tasks.schedule(Duration.between(now, time).toSeconds(), {
+        val task = feature.tasks.runAt(hour, min) {
             start()
-        })
+        } ?: return
+
+        // Track task
+        scheduled.add(task)
     }
 
     /**
      * Clears all scheduled BeReals
      */
     fun clearScheduled() {
-        this.feature.tasks.cancelAll()
-
-        // Need to do this here again because .clearAll also removed this task
-        scheduleDailyReload()
-        scheduleOfTheDay()
+        this.feature.tasks.cancel(*scheduled.toTypedArray())
     }
 
     /**
@@ -572,42 +570,13 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
             return listOf()
 
         val times = BeRealUtils.generateTimes(this.feature)
-        val now = LocalDateTime.now()
-
-        times.filter { it.isAfter(now) }.forEach { time ->
-            val delay = Duration.between(now, time).toSeconds()
-
-            this.feature.tasks.schedule(delay, {
-                start()
-            })
+        times.forEach { time ->
+            schedule(time.hour, time.minute)
         }
 
         // Logging
         logger.info("Scheduled BeReal times for guild '${bot.guild.id}': ${times.joinToString(", ") { "${it.hour}:${it.minute}" }}")
 
         return times
-    }
-
-    /**
-     * Reschedules BeReal times daily
-     */
-    fun scheduleDailyReload() {
-        if (!isEnabled) return
-
-        val now = LocalDateTime.now()
-        val midnight = now.toLocalDate().plusDays(1).atStartOfDay()
-
-        val initialDelay = Duration.between(now, midnight).toMillis()
-
-        this.feature.tasks.scheduleAtFixedRate(initialDelay, TimeUnit.DAYS.toMillis(1), {
-            // Schedule new times
-            reload()
-
-            // Clear posts list
-            // posts.clear()
-
-            // Recalculate channel view
-            reloadView()
-        }, TimeUnit.MILLISECONDS)
     }
 }

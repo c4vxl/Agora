@@ -33,9 +33,6 @@ class BeRealFeature(bot: Bot) : Feature<BeRealFeature>(bot, BeRealFeature::class
     init {
         registerCommands()
 
-        // Generate new random times every midnight
-        handler.scheduleDailyReload()
-
         // Handler for posting pic of the day
         handler.scheduleOfTheDay()
 

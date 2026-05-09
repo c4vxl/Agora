@@ -12,10 +12,7 @@ import net.dv8tion.jda.api.components.buttons.Button
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
-import java.time.Duration
-import java.time.LocalDateTime
 import java.util.concurrent.ScheduledFuture
-import java.util.concurrent.TimeUnit
 
 class InactivityKickFeatureHandler(val feature: InactivityKickFeature) {
     val bot = feature.bot
@@ -157,7 +154,7 @@ class InactivityKickFeatureHandler(val feature: InactivityKickFeature) {
         }
 
         // Cancel task
-        feature.tasks.cancelSpecific(incrementTask)
+        feature.tasks.cancel(incrementTask)
 
         // Exit if feature is not enabled
         if (!isEnabled) return
@@ -165,14 +162,6 @@ class InactivityKickFeatureHandler(val feature: InactivityKickFeature) {
         // Increment once
         handleIncrement(false)
 
-        // Calculate time until next midnight
-        val now = LocalDateTime.now()
-        val midnight = now.toLocalDate().plusDays(1).atStartOfDay()
-        val initialDelay = Duration.between(now, midnight).toMinutes()
-
-        incrementTask = this.feature.tasks.scheduleAtFixedRate(initialDelay, TimeUnit.DAYS.toMinutes(1), {
-            // Increment for each user
-            handleIncrement()
-        }, TimeUnit.MINUTES)
+        feature.tasks.scheduleDaily(0) { handleIncrement() }
     }
 }
