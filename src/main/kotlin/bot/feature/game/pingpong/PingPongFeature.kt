@@ -1,4 +1,4 @@
-package de.c4vxl.bot.feature.game
+package de.c4vxl.bot.feature.game.pingpong
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.Feature

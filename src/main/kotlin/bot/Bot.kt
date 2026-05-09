@@ -2,8 +2,8 @@ package de.c4vxl.bot
 
 import bot.feature.management.inactivity.InactivityKickFeature
 import de.c4vxl.bot.feature.Feature
-import de.c4vxl.bot.feature.game.ActivityFeature
-import de.c4vxl.bot.feature.game.PingPongFeature
+import de.c4vxl.bot.feature.game.activity.ActivityFeature
+import de.c4vxl.bot.feature.game.pingpong.PingPongFeature
 import de.c4vxl.bot.feature.game.bereal.BeRealFeature
 import de.c4vxl.bot.feature.game.joke.JokeFeature
 import de.c4vxl.bot.feature.game.picture.PictureFeature
@@ -15,7 +15,7 @@ import de.c4vxl.bot.feature.settings.ConfigFeature
 import de.c4vxl.bot.feature.settings.LanguageFeature
 import de.c4vxl.bot.feature.settings.PermissionFeature
 import de.c4vxl.bot.feature.settings.SettingsFeature
-import de.c4vxl.bot.feature.util.EmbedFeature
+import de.c4vxl.bot.feature.util.embeds.EmbedFeature
 import de.c4vxl.bot.feature.util.channel.ChannelFeature
 import de.c4vxl.bot.feature.management.tickets.TicketFeature
 import de.c4vxl.bot.handler.CommandHandler

@@ -1,4 +1,4 @@
-package de.c4vxl.bot.feature.util
+package de.c4vxl.bot.feature.util.embeds
 
 import de.c4vxl.bot.Bot
 import de.c4vxl.bot.feature.Feature
