@@ -22,15 +22,11 @@
 
 ## Table of Contents
 - [What is Agora?](#what-is-agora)
-- [Example Features](#example-features)
-    - [Activities & Interests](#activities--interests)
-    - [Custom Channels](#custom-channels)
-    - [Ticket System](#ticket-system)
-- [Architecture & Design](#architecture--design)
-    - [Where to find what](#where-to-find-what)
+- [Where to find what](#where-to-find-what)
 - [Configuration](#configuration)
 - [Installation](#installation)
 - [Build yourself](#build-yourself)
+- [Resources](#resources)
 - [License](#license)
 
 <br>
@@ -86,6 +82,8 @@ Here's a step-by-step guide to installing **Agora**:
 1. Download the `Agora-{version}.jar` from the [[latest release]](https://github.com/c4vxl/Agora/releases/latest) in this repository.
 2. Execute it using Java 21: `java -jar Agora-*.jar`.
 
+You can read more about installing and configuring Agora in the [documentation](#resources)
+
 <br>
 
 ## Build yourself
@@ -95,6 +93,9 @@ To compile **Agora** yourself, simply follow these steps:
 3. The compiled `.jar` file can be found at /build/libs/
 
 <br>
+
+## Resources
+- [Docs](https://docs.c4vxl.de/agora/)
 
 # License
 You are welcome to use and experiment with this project freely for personal purposes.
