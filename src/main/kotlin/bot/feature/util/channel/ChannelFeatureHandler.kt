@@ -31,7 +31,12 @@ class ChannelFeatureHandler(val feature: ChannelFeature) {
         val preset: MutableMap<String, MutableList<String>> =
             presets[user.id] ?: mutableMapOf("a" to mutableListOf(), "d" to mutableListOf())
 
-        return preset.mapValues { it.value.map { id -> bot.guild.retrieveMemberById(id).complete() }.toMutableList() }.toMutableMap()
+        return preset.mapValues {
+            it.value.mapNotNull { id ->
+                try { bot.guild.retrieveMemberById(id).complete() }
+                catch (_: Exception) { null }
+            }.toMutableList()
+        }.toMutableMap()
     }
 
     /**
