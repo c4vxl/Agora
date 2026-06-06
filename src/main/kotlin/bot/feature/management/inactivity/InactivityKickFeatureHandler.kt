@@ -12,12 +12,13 @@ import net.dv8tion.jda.api.components.buttons.Button
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
+import java.time.Duration
 import java.util.concurrent.ScheduledFuture
 
 class InactivityKickFeatureHandler(val feature: InactivityKickFeature) {
     val bot = feature.bot
 
-    private var incrementTask: ScheduledFuture<*>? = null
+    private var task: ScheduledFuture<*>? = null
 
     /**
      * If true, the feature is enabled
@@ -41,49 +42,50 @@ class InactivityKickFeatureHandler(val feature: InactivityKickFeature) {
         set(value) = bot.dataHandler.set(feature.name, "kick_after", value)
 
     /**
-     * Holds the inactivity times of members
+     * Holds the last active time of each member
      */
-    private var inactivity: MutableMap<String, Int>
-        get() = bot.dataHandler.get<MutableMap<String, Double>>(feature.name, "inactivity")
-
-            // GSON for some reason stores the int values as doubles
-            // so we need to do some extra parsing here
-            ?.mapValues { it.value.toInt() }?.toMutableMap()
+    var lastActivity: MutableMap<String, Long>
+        get() = bot.dataHandler.get<MutableMap<String, Long>>(feature.name, "inactivity")
             ?: mutableMapOf()
 
         set(value) = bot.dataHandler.set(feature.name, "inactivity", value)
 
     /**
-     * Returns the inactivity of a user
-     */
-    fun getInactivity(user: User): Int =
-        inactivity.getOrDefault(user.id, 0)
-
-    /**
-     * Sets the inactivity value of a user
+     * Marks the user as to have done an activity
      * @param user The user
-     * @param value The value to store
      */
-    fun setInactivity(user: User, value: Int? = null) {
-        this.inactivity = inactivity.apply {
-            value
-                ?.let { this[user.id] = it }
-                ?: run { this.remove(user.id) }
-        }
+    fun markActivity(user: User) {
+        if (user.isBot || user.isSystem)
+            return
+
+        lastActivity = lastActivity.apply { set(user.id, System.currentTimeMillis()) }
     }
 
     /**
-     * Increments the inactivity of a user by one
-     * @param user The user
+     * Returns the amount of days since a timestamp
+     * @param timestamp The ms timestamp
      */
-    fun incrementInactivity(user: User) =
-        setInactivity(user, getInactivity(user) + 1)
+    fun daysSince(timestamp: Long): Int =
+        Duration.ofMillis(
+            System.currentTimeMillis() - timestamp
+        ).toDays().toInt()
+
+    /**
+     * Returns the inactivity of a user (in days)
+     * @param userId The user to check
+     */
+    fun getInactivity(userId: String): Int {
+        return daysSince(
+            lastActivity[userId] ?: return 0
+        )
+    }
 
     /**
      * Kicks a member from the guild and sends a message
      * @param member The member to kick
+     * @param days Overwrite the amount of inactivity shown to the member
      */
-    fun kick(member: Member) {
+    fun kick(member: Member, days: Int? = null) {
         val invite = if (rejoinLink) {
             bot.guild.defaultChannel
                 ?.createInvite()
@@ -98,6 +100,7 @@ class InactivityKickFeatureHandler(val feature: InactivityKickFeature) {
                 existingRow.buttons.toMutableList().apply { button?.let { add(it) } }
             )
 
+        val inactivity = days ?: getInactivity(member.id)
         member.user.openPrivateChannel().queue { pc ->
             pc.sendMessage(
                 MessageCreateBuilder()
@@ -106,7 +109,7 @@ class InactivityKickFeatureHandler(val feature: InactivityKickFeature) {
                             .withTimestamp()
                             .color(Color.DANGER)
                             .setTitle(bot.language.translate("feature.inactivity.notification.kick.title"))
-                            .setDescription(bot.language.translate("feature.inactivity.notification.kick.desc", bot.guild.name, getInactivity(member.user).toString()))
+                            .setDescription(bot.language.translate("feature.inactivity.notification.kick.desc", bot.guild.name, inactivity.toString()))
                             .setFooter(bot.language.translate("feature.inactivity.notification.kick.footer"))
                             .build()
                     )
@@ -131,37 +134,23 @@ class InactivityKickFeatureHandler(val feature: InactivityKickFeature) {
     /**
      * Schedules a daily increment of inactivity count
      */
-    fun scheduleIncrements() {
-        fun handleIncrement(increment: Boolean = true) {
-            val inactivityClone = inactivity
-
-            bot.guild.loadMembers().onSuccess { members ->
-                members
-                    .filterNot { it.user.isBot || it.user.isSystem }
-                    .forEach { member ->
-                        // Increment
-                        if (increment)
-                            incrementInactivity(member.user)
-
-                        // Kick members that have been inactive for too long
-                        if (
-                            kickAfter >= 1 && (inactivityClone[member.user.id] ?: 0) > kickAfter &&
-                            !member.hasPermission(Permission.FEATURE_INACTIVITY_NO_KICK, bot)
-                        )
-                            kick(member)
-                    }
-            }
-        }
-
+    fun schedule() {
         // Cancel task
-        feature.tasks.cancel(incrementTask)
+        feature.tasks.cancel(task)
 
         // Exit if feature is not enabled
         if (!isEnabled) return
 
-        // Increment once
-        handleIncrement(false)
-
-        feature.tasks.scheduleDaily(0) { handleIncrement() }
+        task = feature.tasks.scheduleDaily(0) {
+            lastActivity
+                .map { it.key to getInactivity(it.key) }
+                .filter { (_, days) -> days > kickAfter }
+                .forEach { (memberId, days) ->
+                    bot.guild.retrieveMemberById(memberId)
+                        .queue { member ->
+                            kick(member, days)
+                        }
+                }
+        }
     }
 }

@@ -30,7 +30,7 @@ class InactivityKickFeature(bot: Bot) : Feature<InactivityKickFeature>(bot, Inac
     init {
         registerCommands()
 
-        handler.scheduleIncrements()
+        handler.schedule()
 
         bot.jda.addEventListener(object : ListenerAdapter() {
             override fun onMessageReceived(event: MessageReceivedEvent) {
@@ -38,7 +38,7 @@ class InactivityKickFeature(bot: Bot) : Feature<InactivityKickFeature>(bot, Inac
                 if (!event.isFromGuild || event.guild.id != bot.guild.id) return
 
                 // Reset inactivity
-                handler.setInactivity(event.author, null)
+                handler.markActivity(event.author)
             }
 
             override fun onGuildVoiceUpdate(event: GuildVoiceUpdateEvent) {
@@ -46,21 +46,21 @@ class InactivityKickFeature(bot: Bot) : Feature<InactivityKickFeature>(bot, Inac
                 if (event.guild.id != bot.guild.id) return
 
                 // Reset inactivity
-                handler.setInactivity(event.member.user, null)
+                handler.markActivity(event.member.user)
             }
 
             override fun onGenericCommandInteraction(event: GenericCommandInteractionEvent) {
                 if (!event.isFromGuild || event.guild?.id != bot.guild.id) return
 
                 // Reset inactivity
-                handler.setInactivity(event.user, null)
+                handler.markActivity(event.user)
             }
 
             override fun onGuildMemberRemove(event: GuildMemberRemoveEvent) {
                 if (event.guild.id != bot.guild.id) return
 
                 // Clear entry
-                handler.setInactivity(event.user, null)
+                handler.lastActivity = handler.lastActivity.apply { remove(event.user.id) }
             }
         })
     }
@@ -99,7 +99,7 @@ class InactivityKickFeature(bot: Bot) : Feature<InactivityKickFeature>(bot, Inac
                         .build()).setEphemeral(true).queue()
 
                     // Reload schedule
-                    handler.scheduleIncrements()
+                    handler.schedule()
                 }
 
                 "list" -> {
@@ -117,11 +117,8 @@ class InactivityKickFeature(bot: Bot) : Feature<InactivityKickFeature>(bot, Inac
                     val member = event.getOption("member", OptionMapping::getAsMember) ?: return@registerSlashCommand
                     val days = event.getOption("days", OptionMapping::getAsInt)
 
-                    // Set inactivity days
-                    days?.let { handler.setInactivity(member.user, days) }
-
                     // Kick member
-                    handler.kick(member)
+                    handler.kick(member, days)
 
                     // Send success message
                     event.replyEmbeds(Embeds.SUCCESS(bot)
@@ -142,7 +139,7 @@ class InactivityKickFeature(bot: Bot) : Feature<InactivityKickFeature>(bot, Inac
             .color(Color.PRIMARY)
             .withTimestamp()
             .setTitle(bot.language.translate("feature.inactivity.embed.specific.title"))
-            .setDescription(bot.language.translate("feature.inactivity.embed.specific.desc", user.asMention, handler.getInactivity(user).toString()))
+            .setDescription(bot.language.translate("feature.inactivity.embed.specific.desc", user.asMention, handler.getInactivity(user.id).toString()))
             .build()).queue()
     }
 
@@ -151,23 +148,20 @@ class InactivityKickFeature(bot: Bot) : Feature<InactivityKickFeature>(bot, Inac
      * @param event The command event
      */
     private fun sendOverview(event: SlashCommandInteractionEvent) {
-        bot.guild.loadMembers().onSuccess { members ->
-            val table = members
-                .asSequence()
-                .filterNot { it.user.isBot || it.user.isSystem }
-                .map { member -> Pair(member, handler.getInactivity(member.user)) }
-                .sortedByDescending { it.second }
-                .take(100)
-                .joinToString("\n") {
-                    bot.language.translate("feature.inactivity.embed.overview.desc.table", it.first.asMention, it.second.toString())
-                }
+        val table = handler.lastActivity
+            .asSequence()
+            .map { (memberId, lastSeen) -> Pair(memberId, handler.daysSince(lastSeen)) }
+            .sortedByDescending { it.second }
+            .take(100)
+            .joinToString("\n") {
+                bot.language.translate("feature.inactivity.embed.overview.desc.table", "<@${it.first}>", "${it.second}")
+            }
 
-            event.hook.sendMessageEmbeds(EmbedBuilder()
-                .color(Color.PRIMARY)
-                .withTimestamp()
-                .setTitle(bot.language.translate("feature.inactivity.embed.overview.title"))
-                .setDescription(bot.language.translate("feature.inactivity.embed.overview.desc", table))
-                .build()).queue()
-        }
+        event.hook.sendMessageEmbeds(EmbedBuilder()
+            .color(Color.PRIMARY)
+            .withTimestamp()
+            .setTitle(bot.language.translate("feature.inactivity.embed.overview.title"))
+            .setDescription(bot.language.translate("feature.inactivity.embed.overview.desc", table))
+            .build()).queue()
     }
 }
