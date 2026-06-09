@@ -34,13 +34,4 @@ class PictureFeatureHandler(val feature: PictureFeature) {
      * Holds the amount of times users have used the unsplash api
      */
     var unsplashUses: MutableMap<String, Int> = mutableMapOf()
-
-    private var picOfTheDayTask: ScheduledFuture<*>? = null
-
-    /**
-     * Reloads the pic of the day timer
-     */
-    fun reloadPicOfTheDay() {
-
-    }
 }
