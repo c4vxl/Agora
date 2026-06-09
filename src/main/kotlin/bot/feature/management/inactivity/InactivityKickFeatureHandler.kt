@@ -142,6 +142,10 @@ class InactivityKickFeatureHandler(val feature: InactivityKickFeature) {
         if (!isEnabled) return
 
         task = feature.tasks.scheduleDaily(0) {
+            // Exit if invalid inactivity lock
+            if (kickAfter < 1)
+                return@scheduleDaily
+
             lastActivity
                 .map { it.key to getInactivity(it.key) }
                 .filter { (_, days) -> days > kickAfter }
