@@ -18,6 +18,8 @@ class PictureOfTheDayFeature(bot: Bot) : Feature<PictureOfTheDayFeature>(bot, Pi
 
     init {
         registerCommands()
+
+        handler.reloadSchedule()
     }
 
     override fun registerCommands() {
