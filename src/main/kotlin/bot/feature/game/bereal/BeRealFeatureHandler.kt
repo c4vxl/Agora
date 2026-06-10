@@ -452,25 +452,27 @@ class BeRealFeatureHandler(val feature: BeRealFeature) {
         )?.queue()
 
         // Send dms
-        participants.forEach {
-            val user = bot.guild.retrieveMemberById(it).complete()?.user ?: return@forEach
-
-            user.openPrivateChannel().queue { pc ->
-                pc.sendMessage(
-                    MessageCreateBuilder()
-                        .addEmbeds(
-                            EmbedBuilder()
-                                .withTimestamp()
-                                .color(Color.DANGER)
-                                .setTitle(get("title"))
-                                .setDescription(get("desc", user.asMention, bot.guild.name, channel!!.asMention, time.toString()))
-                                .setFooter(get("footer", bot.guild.name))
+        participants.forEach { id ->
+            bot.guild.retrieveMemberById(id).queue(
+                { member ->
+                    member.user.openPrivateChannel().queue { pc ->
+                        pc.sendMessage(
+                            MessageCreateBuilder()
+                                .addEmbeds(
+                                    EmbedBuilder()
+                                        .withTimestamp()
+                                        .color(Color.DANGER)
+                                        .setTitle(get("title"))
+                                        .setDescription(get("desc", member.asMention, bot.guild.name, channel!!.asMention, time.toString()))
+                                        .setFooter(get("footer", bot.guild.name))
+                                        .build()
+                                )
+                                .addComponents(Embeds.DM_ACTION_ROW(this.bot))
                                 .build()
-                        )
-                        .addComponents(Embeds.DM_ACTION_ROW(this.bot))
-                        .build()
-                ).queue()
-            }
+                        ).queue()
+                    }
+                }, { logger.warn("Failed to retrieve member $id") }
+            )
         }
 
         hasActiveBeReal = true
